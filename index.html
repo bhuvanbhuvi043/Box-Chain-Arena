@@ -1,0 +1,2421 @@
+<!--
+  Box Chain Arena V4.5 - Stable Online Duels
+  Copyright (c) 2026 Bhuvaneshwaran R.
+  All rights reserved.
+
+  This is an original game prototype inspired by the classic paper game Dots and Boxes,
+  upgraded with custom duel arenas, player profiles, Firebase multiplayer,
+  virtual Entry Gold, and progression rewards.
+
+  Gold is a virtual game reward only. No real money value.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <title>Box Chain Arena V4.5 - Stable Online Duels</title>
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#67738b;
+      --bg:#edf5ff;
+      --paper:#fffaf0;
+      --panel:#ffffff;
+      --line:#172033;
+      --p1:#ff4f6f;
+      --p2:#3f8cff;
+      --ai:#7c3aed;
+      --gold:#f6b51d;
+      --good:#10b981;
+      --bad:#ef4444;
+      --shadow:0 16px 36px rgba(15,23,42,.14);
+      --radius:8px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+    body{
+      background:
+        linear-gradient(90deg,rgba(63,140,255,.08) 1px,transparent 1px) 0 0/32px 32px,
+        linear-gradient(rgba(63,140,255,.08) 1px,transparent 1px) 0 0/32px 32px,
+        radial-gradient(circle at 12% 8%,rgba(246,181,29,.28),transparent 28%),
+        radial-gradient(circle at 90% 8%,rgba(255,79,111,.16),transparent 30%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    body.playing{overflow:hidden}
+    body[data-board-theme="heart"]{background:linear-gradient(90deg,rgba(255,79,111,.08) 1px,transparent 1px) 0 0/30px 30px,radial-gradient(circle at 20% 12%,rgba(255,79,111,.28),transparent 28%),radial-gradient(circle at 86% 12%,rgba(246,181,29,.18),transparent 26%),#fff4f7}
+    body[data-board-theme="star"]{background:linear-gradient(90deg,rgba(246,181,29,.1) 1px,transparent 1px) 0 0/30px 30px,radial-gradient(circle at 18% 10%,rgba(246,181,29,.32),transparent 28%),radial-gradient(circle at 88% 12%,rgba(63,140,255,.18),transparent 30%),#fff9e6}
+    body[data-board-theme="spiral"]{background:radial-gradient(circle at center,rgba(63,140,255,.14),transparent 18%,rgba(63,140,255,.08) 19%,transparent 31%),linear-gradient(90deg,rgba(63,140,255,.08) 1px,transparent 1px) 0 0/32px 32px,#eef7ff}
+    body[data-board-theme="diamond"]{background:linear-gradient(45deg,rgba(124,58,237,.1) 1px,transparent 1px) 0 0/34px 34px,radial-gradient(circle at 82% 14%,rgba(124,58,237,.22),transparent 27%),#f5f0ff}
+    body[data-board-theme="bench"]{background:linear-gradient(0deg,rgba(16,185,129,.1) 1px,transparent 1px) 0 0/36px 24px,radial-gradient(circle at 18% 12%,rgba(16,185,129,.24),transparent 27%),#f2fff8}
+    body[data-board-theme="festival"]{background:radial-gradient(circle at 20% 10%,rgba(249,115,22,.28),transparent 28%),radial-gradient(circle at 86% 16%,rgba(255,79,111,.18),transparent 24%),linear-gradient(90deg,rgba(246,181,29,.1) 1px,transparent 1px) 0 0/30px 30px,#fff4ea}
+    body[data-board-theme="map"]{background:radial-gradient(circle at 22% 14%,rgba(16,185,129,.26),transparent 26%),radial-gradient(circle at 78% 18%,rgba(63,140,255,.18),transparent 30%),linear-gradient(90deg,rgba(16,185,129,.08) 1px,transparent 1px) 0 0/32px 32px,#effaf4}
+    button,select{
+      border:1px solid rgba(23,32,51,.12);
+      border-radius:var(--radius);
+      background:#fff;
+      color:var(--ink);
+      font-weight:900;
+      padding:11px 13px;
+      min-height:42px;
+      box-shadow:0 8px 18px rgba(15,23,42,.08);
+      cursor:pointer;
+    }
+    button:disabled{opacity:.48;cursor:not-allowed}
+    .primary{background:#101827;color:#fff}.gold{background:#fff4c4;color:#8a5b00}.soft{background:#f4f7ff}.danger{background:#fee2e2;color:#991b1b}
+    .screen{width:min(1180px,calc(100vw - 24px));margin:0 auto;padding:16px 0 28px}
+    .hidden{display:none!important}
+
+    .map-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+    .brand h1{font-size:34px;line-height:1;letter-spacing:0}.brand p{color:var(--muted);line-height:1.45;margin-top:6px;max-width:720px}
+    .wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .pill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:999px;padding:9px 12px;font-weight:1000;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+    .coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff6a8 0 18%,#ffd24d 34%,#f6b51d 74%,#a65d00 100%);border:2px solid #fff2a8;box-shadow:0 5px 12px rgba(166,93,0,.25),inset -3px -4px 0 rgba(120,53,15,.18)}
+    .star-icon{width:24px;height:24px;display:grid;place-items:center;color:#f6b51d;font-size:21px;text-shadow:0 2px 0 #9a5b00,0 6px 12px rgba(154,91,0,.18)}
+    .diamond-icon{width:24px;height:24px;display:grid;place-items:center;color:#38bdf8;font-size:21px;text-shadow:0 2px 0 #0e7490,0 6px 12px rgba(14,116,144,.18)}
+    .map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding-bottom:28px}
+    .stage-card{background:rgba(255,255,255,.92);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:13px;min-height:146px;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden}
+    .stage-card::before{content:"";position:absolute;inset:auto -18px -28px auto;width:96px;height:96px;border-radius:28px;background:linear-gradient(135deg,rgba(63,140,255,.16),rgba(246,181,29,.18));transform:rotate(20deg);pointer-events:none}
+    .stage-card.locked{filter:saturate(.3);opacity:.58}
+    .stage-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.stage-index{font-weight:1000;color:var(--muted);font-size:12px}.stage-name{font-size:17px;font-weight:1000;line-height:1.1}.stage-meta{display:flex;gap:6px;flex-wrap:wrap}
+    .tag{font-size:11px;font-weight:1000;color:var(--muted);background:#f3f6fb;border:1px solid rgba(23,32,51,.08);border-radius:999px;padding:5px 8px;text-transform:uppercase}
+    .level-art{height:46px;border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:linear-gradient(135deg,var(--paper),#f4f7ff);border:1px solid rgba(23,32,51,.08);position:relative;overflow:hidden}
+    .level-art b{font-size:24px;line-height:1}.level-art span{font-size:12px;font-weight:1000;color:var(--muted);text-transform:uppercase}
+    .shape-preview{height:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;overflow:hidden}.preview-dot{width:7px;height:7px;border-radius:50%;background:var(--ink);opacity:.95}
+    .stage-card button{margin-top:auto;width:100%}
+
+    .game-screen{position:fixed;inset:0;z-index:10;width:100%;height:100svh;padding:8px;overflow:hidden}
+    .game-shell{height:100%;display:flex;flex-direction:column;gap:8px;max-width:980px;margin:0 auto}
+    .top-hud,.score-hud,.tool-row{background:rgba(255,255,255,.94);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .top-hud{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;min-height:58px}
+    .stage-title{min-width:0}.stage-title b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stage-title span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .score-hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px;align-items:center;min-height:74px}
+    .score-box{height:56px;background:#fff;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:8px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+    .score-box strong{display:block;font-size:20px}.score-box span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase;white-space:nowrap}
+    .turn-box{height:56px;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:8px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+    .turn-box strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.turn-box span{display:block;color:#ffd36d;font-size:11px;font-weight:1000;text-transform:uppercase;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .board-zone{flex:1;display:flex;align-items:flex-start;justify-content:center;min-height:0}
+    .board-wrap{position:relative;width:min(100%,calc(100svh - 218px),720px);aspect-ratio:1/1;background:rgba(255,250,240,.96);border:2px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;touch-action:none}
+    canvas{width:100%;height:100%;display:block;touch-action:none}
+    .reward-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .reward-pop{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:7px;background:rgba(16,24,39,.92);color:#fff;border-radius:999px;padding:8px 11px;font-size:15px;font-weight:1000;transform:translate(-50%,-50%);animation:rise 1s ease-out forwards;white-space:nowrap}
+    .reward-pop .coin{width:20px;height:20px}.spark{position:absolute;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff6a8 0 18%,#ffd24d 34%,#f6b51d 74%,#a65d00 100%);animation:spark .72s ease-out forwards}.fly-coin{position:absolute;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 32% 28%,#fffbe0 0 16%,#ffd24d 36%,#f6b51d 74%,#a65d00 100%);border:2px solid #fff2a8;box-shadow:0 8px 18px rgba(166,93,0,.28),inset -3px -4px 0 rgba(120,53,15,.2);animation:coinFly .72s cubic-bezier(.2,.78,.2,1) forwards}.fly-coin span{font-size:8px;font-weight:1000;color:#7c2d12}
+    @keyframes rise{0%{opacity:0;transform:translate(-50%,-25%) scale(.72)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-120%) scale(.9)}}
+    @keyframes spark{to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.55) rotate(210deg)}}
+    @keyframes coinFly{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35) rotate(360deg)}}
+    .toast{position:absolute;left:50%;bottom:12px;transform:translate(-50%,20px);opacity:0;background:#101827;color:#fff;border-radius:var(--radius);padding:9px 12px;font-size:12px;font-weight:1000;text-align:center;max-width:270px;white-space:pre-line;transition:.22s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .tool-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px}
+
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:50;display:none;align-items:center;justify-content:center;padding:14px}.modal.show{display:flex}
+    .modal-box{width:min(520px,96vw);background:var(--panel);border-radius:var(--radius);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:20px;text-align:center;position:relative;overflow:hidden}
+    .modal-box h2{font-size:28px;margin-bottom:8px}.modal-box p{color:var(--muted);line-height:1.55;margin-bottom:14px}.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.result-stats div{background:#f5f7fb;border-radius:var(--radius);padding:12px}.result-stats b{font-size:26px;display:block}
+    .modal-box.win{background:linear-gradient(180deg,#fffaf0,#f1fff8)}.modal-box.loss{background:linear-gradient(180deg,#f8fbff,#fff3f4)}
+    .reaction{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px}.reaction-face{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#101827;color:#fff;font-size:28px;font-weight:1000;box-shadow:0 12px 28px rgba(15,23,42,.2)}.reaction-face.win{background:#10b981}.reaction-face.loss{background:#64748b}
+    .celebration-piece,.sad-drop{position:fixed;pointer-events:none;z-index:70}.celebration-piece{width:10px;height:14px;border-radius:3px;animation:fall 1.35s linear forwards}.sad-drop{width:7px;height:14px;border-radius:999px;background:#60a5fa;animation:fall 1.1s linear forwards}@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+    .guide-icon{width:58px;height:58px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;background:#101827;color:#fff;font-size:28px;box-shadow:0 12px 28px rgba(15,23,42,.18)}
+    .guide-count{font-size:12px;font-weight:1000;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+    .guide-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .shop-box{text-align:left}.shop-box h2,.shop-box p{text-align:center}.shop-wallet{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 12px}.shop-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:52vh;overflow:auto;padding:2px}.shop-card{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:7px;min-height:154px}.shop-card b{font-size:15px}.shop-card span{color:var(--muted);font-size:12px;line-height:1.35;font-weight:800}.shop-card button{margin-top:auto;width:100%}.shop-icon{font-size:28px;line-height:1}.shop-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin:8px 0 10px}
+    .teach-banner{position:absolute;left:12px;right:12px;top:12px;background:rgba(16,24,39,.94);color:#fff;border-radius:var(--radius);padding:10px 12px;font-size:13px;font-weight:1000;text-align:center;box-shadow:0 12px 28px rgba(15,23,42,.2);pointer-events:none;z-index:3}.teach-banner b{color:#ffd36d}
+    .room-panel{text-align:left}.room-panel h2,.room-panel p{text-align:center}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.room-code{font-size:30px;font-weight:1000;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:14px;margin:10px 0;letter-spacing:1px}.room-input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:18px;font-weight:1000;text-align:center;text-transform:uppercase}.room-status{text-align:center;color:var(--muted);font-size:12px;font-weight:1000;min-height:20px;margin-top:8px}
+    .entry-grid,.stake-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.entry-grid label,.stake-grid label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.entry-grid input,.entry-grid select,.stake-grid input,.stake-grid select{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:14px;font-weight:900;background:#fff}.stake-summary{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;font-size:12px;font-weight:1000;color:var(--muted);line-height:1.45}.stake-summary b{color:var(--ink)}.lobby-summary{text-align:left;display:grid;gap:9px}.lobby-arena{background:#101827;color:#fff;border-radius:var(--radius);padding:10px;text-align:center}.lobby-arena span{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-arena b{color:#fff;font-size:16px}.lobby-players{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lobby-player{background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);padding:10px}.lobby-player span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-player b{display:block;font-size:15px;margin:3px 0}.ready{color:var(--good)!important}.waiting{color:#b45309!important}.reward-pot{background:#fff7d6;border:1px solid rgba(246,181,29,.35);border-radius:var(--radius);padding:9px;text-align:center;font-size:13px}.entry-note{background:#eef6ff;border:1px solid rgba(63,140,255,.16);border-radius:var(--radius);padding:9px;text-align:center;font-size:11px;font-weight:1000;color:#365074}.invite-entry-label{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase;margin:4px 0 6px}
+    .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
+
+    @media(max-width:760px){
+      body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
+      .game-screen{padding:8px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto}.score-hud{gap:7px}.score-box strong{font-size:18px}.board-wrap{width:min(100%,calc(100svh - 238px));margin-top:2px}.tool-row button{padding:9px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
+      .welcome-actions,.portal-actions{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
+    }
+    @media(max-width:390px){
+      .map-grid{grid-template-columns:1fr}.board-wrap{width:min(100%,calc(100svh - 244px))}
+    }
+  </style>
+</head>
+<body>
+  <section id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-card">
+      <h1>Box Chain Arena</h1>
+      <p>Play as guest, or register a nickname to challenge online players and save match stats.</p>
+      <div class="welcome-actions">
+        <button class="primary" id="guestBtn">Continue as Guest</button>
+        <button id="authOpenBtn">Register / Login</button>
+      </div>
+      <div class="auth-msg" id="welcomeMsg">Firebase connecting...</div>
+    </div>
+  </section>
+
+  <main id="mapScreen" class="screen hidden">
+    <header class="map-head">
+      <div class="brand">
+        <h1>Box Chain Arena V4.5</h1>
+        <p>Guided learning, star progression, and polished online duels with virtual Entry Gold.</p>
+      </div>
+      <div class="wallet">
+        <div class="pill"><span class="coin"></span><span id="walletGold">0</span></div>
+        <div class="pill"><span class="star-icon">★</span><span id="walletStars">0</span></div>
+        <div class="pill"><span class="diamond-icon">◆</span><span id="walletDiamonds">0</span></div>
+        <button class="soft" id="guideBtn">❔ Guide</button>
+        <button class="soft" id="demoBtn">🎓 Demo</button>
+        <button class="soft" id="twoPlayerBtn">👥 2P</button>
+        <button class="soft" id="onlineBtn">🌐 Room</button>
+        <button class="soft" id="portalBtn">👤 Portal</button>
+        <button class="soft" id="shopBtn">🛒 Shop</button>
+        <button class="gold" id="dailyBtn">🎁 Daily</button>
+        <button class="soft" id="musicBtn">♪ Music Off</button>
+        <button class="soft" id="endlessBtn">▶ Next</button>
+      </div>
+    </header>
+    <section class="map-grid" id="levelMap"></section>
+  </main>
+
+  <section id="gameScreen" class="game-screen hidden">
+    <div class="game-shell">
+      <div class="top-hud">
+        <button id="mapBtn">← Map</button>
+        <div class="stage-title"><b id="stageName">Stage</b><span id="stageTarget">Target</span></div>
+        <div class="pill"><span class="coin"></span><span id="runGold">0</span></div>
+      </div>
+      <div class="score-hud">
+        <div class="score-box"><strong id="p1Score">0</strong><span>Your Boxes</span></div>
+        <div class="turn-box"><strong id="turnText">Your turn</strong><span id="balanceText">AI 0%</span></div>
+        <div class="score-box"><strong id="p2Score">0</strong><span id="opponentLabel">AI Boxes</span></div>
+      </div>
+      <div class="board-zone">
+        <div class="board-wrap" id="boardWrap">
+          <canvas id="gameCanvas" width="900" height="900"></canvas>
+          <div class="reward-layer" id="rewardLayer"></div>
+          <div class="teach-banner hidden" id="teachBanner"></div>
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+      <div class="tool-row">
+        <button id="zoomBtn">🔎 1x</button>
+        <button id="hintBtn">✨ Hint</button>
+        <button id="gameMusicBtn">♪ Music</button>
+        <button id="restartBtn">↻ Retry</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal" id="resultModal">
+    <div class="modal-box">
+      <div class="reaction"><div class="reaction-face" id="reactionFace">!</div></div>
+      <h2 id="resultTitle">Stage Clear</h2>
+      <p id="resultText">Reward earned.</p>
+      <div class="result-stats">
+        <div><span>Boxes</span><b id="resultBoxes">0</b></div>
+        <div><span>Gold</span><b id="resultGold">0</b></div>
+        <div><span>Stars</span><b id="resultStars">0/3</b></div>
+        <div><span>Diamond</span><b id="resultDiamond">0</b></div>
+      </div>
+      <button class="primary" id="nextBtn">Continue</button>
+      <button id="resultMapBtn">Level Map</button>
+    </div>
+  </div>
+
+  <div class="modal" id="guideModal">
+    <div class="modal-box">
+      <div class="guide-icon" id="guideIcon">🎯</div>
+      <h2 id="guideTitle">Win by boxes</h2>
+      <p id="guideText">Stars start only when you capture more than 50% of the boxes.</p>
+      <div class="guide-count" id="guideCount">1 / 5</div>
+      <div class="guide-actions">
+        <button id="guidePrev">Back</button>
+        <button class="primary" id="guideNext">Next</button>
+        <button id="guideClose">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="shopModal">
+    <div class="modal-box shop-box">
+      <h2>Marketplace</h2>
+      <p>Use earned diamonds and gold for boosts. No real money needed.</p>
+      <div class="shop-wallet">
+        <div class="pill"><span class="coin"></span><span id="shopGold">0</span></div>
+        <div class="pill"><span class="diamond-icon">◆</span><span id="shopDiamonds">0</span></div>
+      </div>
+      <div class="shop-msg" id="shopMsg"></div>
+      <div class="shop-list" id="shopList"></div>
+      <button id="shopClose">Close</button>
+    </div>
+  </div>
+
+  <div class="modal" id="onlineModal">
+    <div class="modal-box room-panel">
+      <h2>Online Duel Room</h2>
+      <p>Create a private code or join a friend. Entry Gold is optional and uses only earned in-game gold.</p>
+      <div class="room-code" id="roomCode">BOX-0000</div>
+      <div class="entry-grid">
+        <label>Duel Stage<select id="roomStageSelect"></select></label>
+        <label>Your Entry Gold<input id="roomStakeInput" type="number" min="0" step="1" value="0" /></label>
+      </div>
+      <input class="room-input" id="roomInput" maxlength="9" placeholder="ROOM CODE" />
+      <div class="room-actions">
+        <button class="primary" id="createRoomBtn">Create Room</button>
+        <button id="joinRoomBtn">Join Room</button>
+        <button id="copyRoomBtn">Copy Code</button>
+        <button id="shareRoomBtn">Share Code</button>
+        <button class="primary hidden" id="confirmStakeBtn">Confirm Entry Gold</button>
+      </div>
+      <div class="stake-summary" id="stakeSummary">Entry Gold is optional. Winner receives the opponent's Entry Gold. Gold is a virtual game reward only. No real money value.</div>
+      <div class="room-status" id="roomStatus">Waiting for room action.</div>
+      <button id="onlineClose">Close</button>
+    </div>
+  </div>
+
+  <div class="modal" id="authModal">
+    <div class="modal-box room-panel">
+      <h2 id="authTitle">Register Player</h2>
+      <p>Use email, password, and a unique nickname for online challenges.</p>
+      <div class="auth-tabs">
+        <button class="active" id="registerTab">Register</button>
+        <button id="loginTab">Login</button>
+      </div>
+      <div class="auth-grid">
+        <input id="authEmail" type="email" autocomplete="email" placeholder="Email" />
+        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
+        <input id="authNickname" maxlength="15" placeholder="Nickname" />
+      </div>
+      <button class="primary" id="authSubmitBtn">Create Player</button>
+      <button id="authClose">Close</button>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="portalModal">
+    <div class="modal-box room-panel">
+      <h2>Player Portal</h2>
+      <p id="portalIntro">Login to challenge online players and save match stats.</p>
+      <div class="portal-grid">
+        <div><span>Nickname</span><b id="portalNickname">Guest</b></div>
+        <div><span>Email</span><b id="portalEmail">Guest</b></div>
+        <div><span>Wins</span><b id="portalWins">0</b></div>
+        <div><span>Losses</span><b id="portalLosses">0</b></div>
+        <div><span>Matches</span><b id="portalMatches">0</b></div>
+        <div><span>Status</span><b id="portalStatus">Offline</b></div>
+        <div><span>Gold</span><b id="portalGold">0</b></div>
+        <div><span>Diamonds</span><b id="portalDiamonds">0</b></div>
+      </div>
+      <div class="portal-actions">
+        <button class="primary" id="playersOpenBtn">Online Players</button>
+        <button id="invitesOpenBtn">Invites</button>
+        <button id="historyBtn">Match History</button>
+        <button class="danger" id="logoutBtn">Logout</button>
+      </div>
+      <button id="portalClose">Close</button>
+      <div class="portal-msg" id="portalMsg"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="playersModal">
+    <div class="modal-box room-panel">
+      <h2>Online Players</h2>
+      <p>Challenge active players. Green means seen in the last 30 seconds. Gold has no real money value.</p>
+      <div class="entry-grid">
+        <label>Duel Stage<select id="challengeStageSelect"></select></label>
+        <label>Your Entry Gold<input id="challengeStakeInput" type="number" min="0" step="1" value="0" /></label>
+      </div>
+      <div class="player-list" id="playersList"></div>
+      <button id="playersClose">Close</button>
+      <div class="players-msg" id="playersMsg"></div>
+    </div>
+  </div>
+
+  <div class="invite-popup" id="invitePopup">
+    <b id="inviteTitle">Challenge received</b>
+    <span id="inviteText">A player challenged you.</span>
+    <label class="invite-entry-label" for="inviteStakeInput">Your Entry Gold</label>
+    <input id="inviteStakeInput" type="number" min="0" step="1" value="0" style="width:100%;margin:0 0 10px;border:0;border-radius:8px;min-height:42px;padding:9px 11px;font-weight:900" />
+    <div class="invite-actions">
+      <button class="primary" id="inviteAcceptBtn">Accept</button>
+      <button id="inviteRejectBtn">Reject</button>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    push,
+    onValue,
+    onChildAdded,
+    onDisconnect,
+    off,
+    remove,
+    increment,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+  import {
+    getAuth,
+    signInAnonymously,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBZkDSEV3KBS8EthtHtrPUYT0yqm8s5rU0",
+    authDomain: "box-chain-arena.firebaseapp.com",
+    databaseURL: "https://box-chain-arena-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "box-chain-arena",
+    storageBucket: "box-chain-arena.firebasestorage.app",
+    messagingSenderId: "560010402258",
+    appId: "1:560010402258:web:37670e8f7eae79586b900b",
+    measurementId: "G-H0085Z56QB"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  window.BCAFirebase = {
+    db,
+    auth,
+    ref,
+    set,
+    get,
+    update,
+    push,
+    onValue,
+    onChildAdded,
+    onDisconnect,
+    off,
+    remove,
+    increment,
+    serverTimestamp,
+    signInAnonymously,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    user:null,
+    uid: null,
+    ready: false,
+    sdkReady: true
+  };
+  window.dispatchEvent(new Event('BCAFirebaseSdkReady'));
+
+  onAuthStateChanged(auth, (user) => {
+    window.BCAFirebase.user = user || null;
+    window.BCAFirebase.uid = user ? user.uid : null;
+    window.BCAFirebase.ready = !!user;
+    window.dispatchEvent(new Event('BCAFirebaseAuthChanged'));
+    if(user) window.dispatchEvent(new Event('BCAFirebaseReady'));
+    console.log(user ? "Firebase connected:" : "Firebase signed out", user ? user.uid : "");
+  });
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const els = {
+    welcomeScreen:document.getElementById('welcomeScreen'), guestBtn:document.getElementById('guestBtn'),
+    authOpenBtn:document.getElementById('authOpenBtn'), welcomeMsg:document.getElementById('welcomeMsg'),
+    mapScreen:document.getElementById('mapScreen'), gameScreen:document.getElementById('gameScreen'),
+    levelMap:document.getElementById('levelMap'), walletGold:document.getElementById('walletGold'),
+    walletStars:document.getElementById('walletStars'), walletDiamonds:document.getElementById('walletDiamonds'),
+    dailyBtn:document.getElementById('dailyBtn'), endlessBtn:document.getElementById('endlessBtn'), musicBtn:document.getElementById('musicBtn'),
+    demoBtn:document.getElementById('demoBtn'), twoPlayerBtn:document.getElementById('twoPlayerBtn'), onlineBtn:document.getElementById('onlineBtn'), portalBtn:document.getElementById('portalBtn'),
+    shopBtn:document.getElementById('shopBtn'), shopModal:document.getElementById('shopModal'),
+    shopList:document.getElementById('shopList'), shopGold:document.getElementById('shopGold'),
+    shopDiamonds:document.getElementById('shopDiamonds'), shopMsg:document.getElementById('shopMsg'), shopClose:document.getElementById('shopClose'),
+    onlineModal:document.getElementById('onlineModal'), roomCode:document.getElementById('roomCode'),
+    roomInput:document.getElementById('roomInput'), roomStatus:document.getElementById('roomStatus'),
+    roomStageSelect:document.getElementById('roomStageSelect'), roomStakeInput:document.getElementById('roomStakeInput'), stakeSummary:document.getElementById('stakeSummary'),
+    createRoomBtn:document.getElementById('createRoomBtn'), joinRoomBtn:document.getElementById('joinRoomBtn'), copyRoomBtn:document.getElementById('copyRoomBtn'), shareRoomBtn:document.getElementById('shareRoomBtn'), confirmStakeBtn:document.getElementById('confirmStakeBtn'), onlineClose:document.getElementById('onlineClose'),
+    authModal:document.getElementById('authModal'), authTitle:document.getElementById('authTitle'),
+    registerTab:document.getElementById('registerTab'), loginTab:document.getElementById('loginTab'),
+    authEmail:document.getElementById('authEmail'), authPassword:document.getElementById('authPassword'), authNickname:document.getElementById('authNickname'),
+    authSubmitBtn:document.getElementById('authSubmitBtn'), authClose:document.getElementById('authClose'), authMsg:document.getElementById('authMsg'),
+    portalModal:document.getElementById('portalModal'), portalIntro:document.getElementById('portalIntro'),
+    portalNickname:document.getElementById('portalNickname'), portalEmail:document.getElementById('portalEmail'),
+    portalWins:document.getElementById('portalWins'), portalLosses:document.getElementById('portalLosses'), portalMatches:document.getElementById('portalMatches'),
+    portalStatus:document.getElementById('portalStatus'), portalGold:document.getElementById('portalGold'), portalDiamonds:document.getElementById('portalDiamonds'),
+    playersOpenBtn:document.getElementById('playersOpenBtn'), invitesOpenBtn:document.getElementById('invitesOpenBtn'), historyBtn:document.getElementById('historyBtn'),
+    logoutBtn:document.getElementById('logoutBtn'), portalClose:document.getElementById('portalClose'), portalMsg:document.getElementById('portalMsg'),
+    playersModal:document.getElementById('playersModal'), playersList:document.getElementById('playersList'), challengeStageSelect:document.getElementById('challengeStageSelect'), challengeStakeInput:document.getElementById('challengeStakeInput'), playersClose:document.getElementById('playersClose'), playersMsg:document.getElementById('playersMsg'),
+    invitePopup:document.getElementById('invitePopup'), inviteTitle:document.getElementById('inviteTitle'), inviteText:document.getElementById('inviteText'),
+    inviteStakeInput:document.getElementById('inviteStakeInput'), inviteAcceptBtn:document.getElementById('inviteAcceptBtn'), inviteRejectBtn:document.getElementById('inviteRejectBtn'),
+    guideBtn:document.getElementById('guideBtn'), guideModal:document.getElementById('guideModal'),
+    guideIcon:document.getElementById('guideIcon'), guideTitle:document.getElementById('guideTitle'),
+    guideText:document.getElementById('guideText'), guideCount:document.getElementById('guideCount'),
+    guidePrev:document.getElementById('guidePrev'), guideNext:document.getElementById('guideNext'), guideClose:document.getElementById('guideClose'),
+    mapBtn:document.getElementById('mapBtn'), stageName:document.getElementById('stageName'),
+    stageTarget:document.getElementById('stageTarget'), runGold:document.getElementById('runGold'),
+    p1Score:document.getElementById('p1Score'), p2Score:document.getElementById('p2Score'),
+    opponentLabel:document.getElementById('opponentLabel'), turnText:document.getElementById('turnText'),
+    balanceText:document.getElementById('balanceText'), boardWrap:document.getElementById('boardWrap'),
+    rewardLayer:document.getElementById('rewardLayer'), teachBanner:document.getElementById('teachBanner'), toast:document.getElementById('toast'),
+    zoomBtn:document.getElementById('zoomBtn'), hintBtn:document.getElementById('hintBtn'), gameMusicBtn:document.getElementById('gameMusicBtn'), restartBtn:document.getElementById('restartBtn'),
+    resultModal:document.getElementById('resultModal'), resultTitle:document.getElementById('resultTitle'),
+    resultText:document.getElementById('resultText'), resultBoxes:document.getElementById('resultBoxes'),
+    resultGold:document.getElementById('resultGold'), resultStars:document.getElementById('resultStars'),
+    resultDiamond:document.getElementById('resultDiamond'), nextBtn:document.getElementById('nextBtn'),
+    resultMapBtn:document.getElementById('resultMapBtn'), reactionFace:document.getElementById('reactionFace')
+  };
+
+  const SHAPES = ['classic','heart','star','spiral','diamond','bench','festival','map'];
+  const NAMES = {
+    classic:'Classic Grid', heart:'Heart Arena', star:'Star Arena', spiral:'Spiral Path',
+    diamond:'Diamond Duel', bench:'Lane Pattern', festival:'Festival Glow', map:'Island Map'
+  };
+  const SHAPE_LABELS = {classic:'Classic', heart:'Heart', star:'Star', spiral:'Spiral', diamond:'Diamond', bench:'Lanes', festival:'Festival', map:'Map'};
+  const THEMES = {
+    classic:['#fffaf0','#3f8cff'], heart:['#fff0f4','#ff4f6f'], star:['#fff8dc','#f6b51d'],
+    spiral:['#eef7ff','#3f8cff'], diamond:['#f5f0ff','#7c3aed'], bench:['#f2fff8','#10b981'],
+    festival:['#fff4ea','#f97316'], map:['#effaf4','#10b981']
+  };
+  const DUEL_STAGE_COUNT = 20;
+  const ENTRY_GOLD_NOTICE = 'Gold is a virtual game reward only. No real money value.';
+  const ENTRY_LIMITS = [
+    {name:'Starter', max:50, matches:0, stars:0},
+    {name:'Rising', max:150, matches:3, stars:6},
+    {name:'Skilled', max:500, matches:10, stars:20},
+    {name:'Elite', max:1000, matches:25, stars:45}
+  ];
+  const DUEL_STAGES = [
+    {name:'Twin Gates',layout:'twin_gates',shape:'classic',rows:6,cols:6,targetType:'boxes'},
+    {name:'Crown Trap',layout:'crown',shape:'star',rows:7,cols:7,targetType:'chain'},
+    {name:'Mirror Bridges',layout:'bridges',shape:'bench',rows:7,cols:8,targetType:'boxes'},
+    {name:'Hourglass Duel',layout:'hourglass',shape:'diamond',rows:8,cols:8,targetType:'margin'},
+    {name:'Fortress Ring',layout:'fortress',shape:'classic',rows:8,cols:8,targetType:'gold'},
+    {name:'Lightning Lane',layout:'zigzag',shape:'festival',rows:7,cols:9,targetType:'chain'},
+    {name:'Lotus Split',layout:'lotus',shape:'heart',rows:8,cols:8,targetType:'boxes'},
+    {name:'Arrow Ambush',layout:'arrow',shape:'map',rows:8,cols:9,targetType:'margin'},
+    {name:'Shield Wall',layout:'shield',shape:'diamond',rows:9,cols:9,targetType:'gold'},
+    {name:'Comet Path',layout:'comet',shape:'spiral',rows:8,cols:9,targetType:'chain'},
+    {name:'Stair Siege',layout:'stairs',shape:'bench',rows:8,cols:8,targetType:'boxes'},
+    {name:'Butterfly Risk',layout:'butterfly',shape:'heart',rows:9,cols:9,targetType:'margin'},
+    {name:'Arena Cross',layout:'arena_cross',shape:'classic',rows:9,cols:9,targetType:'gold'},
+    {name:'Jagged Island',layout:'jagged',shape:'map',rows:9,cols:9,targetType:'chain'},
+    {name:'Vortex Box',layout:'vortex',shape:'spiral',rows:9,cols:9,targetType:'boxes'},
+    {name:'Final Gate',layout:'final_gate',shape:'festival',rows:9,cols:10,targetType:'margin'},
+    {name:'Double Crown',layout:'double_crown',shape:'star',rows:10,cols:10,targetType:'gold'},
+    {name:'Side Chambers',layout:'side_chambers',shape:'diamond',rows:10,cols:10,targetType:'boxes'},
+    {name:'River Break',layout:'river',shape:'map',rows:10,cols:10,targetType:'chain'},
+    {name:'Grand Labyrinth',layout:'labyrinth',shape:'spiral',rows:10,cols:10,targetType:'margin'}
+  ];
+  const OPPONENTS = [
+    {name:'Friendly Rival', base:.62, style:'playful'},
+    {name:'Sharp Strategist', base:.77, style:'safe'},
+    {name:'Silent Master', base:.87, style:'chain'},
+    {name:'Final Boss', base:.94, style:'boss'}
+  ];
+  const SHAPE_ICONS = {classic:'▦', heart:'❤', star:'★', spiral:'↻', diamond:'◆', bench:'▤', festival:'✦', map:'⌖'};
+  const OPPONENT_ICONS = {'Friendly Rival':'🙂','Sharp Strategist':'♟','Silent Master':'◈','Final Boss':'♛'};
+  const GUIDE = [
+    {icon:'🎯', title:'Win by boxes', text:'Stars start only when you capture more than 50% of the boxes.'},
+    {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
+    {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
+    {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
+    {icon:'🔎', title:'Easy touch', text:'Use Zoom when dots feel tiny. Hints are free early, then cost a little gold.'}
+  ];
+  const TARGETS = ['boxes','gold','chain','margin'];
+  const BASE_GOLD = 10;
+  const HINT_COST = 20;
+  const RETRY_COST = 10;
+  const DAILY_MIN = 25;
+  const DAILY_STEP = 5;
+  const DAILY_MAX = 45;
+  const SAVE_KEY = 'boxChainArenaV4';
+  const SHOP_ITEMS = [
+    {id:'gold_small', icon:'🪙', title:'Small Gold Pack', desc:'Convert 1 diamond into 90 gold.', cost:{diamonds:1}, grant:{gold:90}},
+    {id:'gold_arena', icon:'💰', title:'Arena Gold Pack', desc:'Convert 3 diamonds into 320 gold.', cost:{diamonds:3}, grant:{gold:320}},
+    {id:'hints', icon:'✨', title:'Hint Bundle', desc:'Adds 3 paid hints for later stages.', cost:{gold:50}, grant:{hints:3}},
+    {id:'retries', icon:'↻', title:'Retry Shields', desc:'Adds 2 late-retry shields.', cost:{gold:40}, grant:{retries:2}},
+    {id:'boost', icon:'⚡', title:'Coin Burst', desc:'Next stage coin rewards pay 25% more.', cost:{gold:75}, grant:{boosts:1}}
+  ];
+
+  let save = loadSave();
+  let game = null;
+  let onlineFirebaseUnsubs = [];
+  let onlineLobbyUnsub = null;
+  let onlineStartTimer = null;
+  let stakeLobby = null;
+  let economySyncPausedUntil = 0;
+  let currentUser = null;
+  let playerProfile = null;
+  let authMode = 'register';
+  let presenceTimer = null;
+  let playersUnsub = null;
+  let invitesUnsub = null;
+  let activeInvite = null;
+  let audioCtx = null, musicTimer = null, musicOn = false, musicTouched = false, musicStep = 0;
+  let guideIndex = 0;
+  let drawLoop = false;
+
+  function loadSave(){
+    const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,tutorialDone:false};
+    try{return normalizeSave(Object.assign(base, JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')));}
+    catch(e){return normalizeSave(base);}
+  }
+  function storeSave(){ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }
+  function normalizeSave(data){
+    data.gold=Number(data.gold||0);
+    data.diamonds=Number(data.diamonds||0);
+    data.stars=data.stars || {};
+    data.cleared=Array.isArray(data.cleared) ? data.cleared : [];
+    data.inventory=Object.assign({hints:0,retries:0,boosts:0}, data.inventory || {});
+    data.dailyStreak=Number(data.dailyStreak||0);
+    return data;
+  }
+  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+  function cellKey(r,c){ return r+','+c; }
+  function edgeKey(type,r,c){ return type+':'+r+':'+c; }
+  function seeded(id){ let x=(id*9301+49297)%233280; return () => (x=(x*9301+49297)%233280)/233280; }
+  function stageBestStars(id){ return Number(save.stars?.[id] || 0); }
+  function totalStars(){ return Object.values(save.stars || {}).reduce((n,v)=>n+Number(v||0),0); }
+  function majorityNeeded(stage){ return Math.floor(stage.cellCount/2)+1; }
+  function hasBoxMajority(){ return game.scores[1] >= majorityNeeded(game.stage); }
+  function strongBoxWin(){
+    const lead=game.scores[1]-game.scores[2];
+    return game.scores[1] >= Math.ceil(game.stage.cellCount*.6) || lead >= Math.max(2, Math.ceil(game.stage.cellCount*.12));
+  }
+  function starRequirement(id){
+    if(id<=1) return 0;
+    const early=[0,0,2,4,6,8,10,12,15,18,21,24];
+    if(id<early.length) return early[id];
+    const req = Math.ceil((id-1)*2.15 + Math.floor((id-1)/4));
+    return Math.min(req, (id-1)*3-1);
+  }
+  function canPlayStage(id){ return totalStars() >= starRequirement(id); }
+  function highestUnlockedStage(){
+    let id=1;
+    while(id<240 && canPlayStage(id+1)) id++;
+    return id;
+  }
+  function starText(count){ return '★'.repeat(count) + '☆'.repeat(3-count); }
+  function nextLockedStage(){
+    for(let id=1; id<240; id++) if(!canPlayStage(id)) return id;
+    return null;
+  }
+  function dayKey(date=new Date()){
+    const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
+  function dailyRewardInfo(){
+    const today=dayKey(), yesterday=dayKey(new Date(Date.now()-86400000));
+    const claimed=save.daily===today;
+    const streak=claimed ? save.dailyStreak : (save.daily===yesterday ? save.dailyStreak+1 : 1);
+    return {today,claimed,streak,reward:Math.min(DAILY_MAX, DAILY_MIN + Math.max(0,streak-1)*DAILY_STEP)};
+  }
+
+  function stageDef(id){
+    if(id<=DUEL_STAGE_COUNT){
+      const duel=DUEL_STAGES[id-1];
+      const opponent = id%5===0 ? OPPONENTS[2] : OPPONENTS[Math.min(OPPONENTS.length-1, Math.floor((id-1)/5))];
+      return {id,shape:duel.shape,size:duel.rows,rows:duel.rows,cols:duel.cols,name:duel.name,layout:duel.layout,opponent,targetType:duel.targetType,theme:THEMES[duel.shape],boss:id%5===0};
+    }
+    const shape = SHAPES[(id-1)%SHAPES.length];
+    const opponent = id%8===0 ? OPPONENTS[3] : OPPONENTS[Math.min(OPPONENTS.length-1, Math.floor((id-1)/4)%OPPONENTS.length)];
+    const size = 5 + ((id-1)%5);
+    const targetType = TARGETS[(id-1)%TARGETS.length];
+    const theme = THEMES[shape];
+    return {id,shape,size,rows:size,cols:size,name:NAMES[shape],opponent,targetType,theme,boss:id%8===0};
+  }
+
+  function duelLayoutKeep(stage,r,c,rand){
+    const rows=stage.rows, cols=stage.cols, mr=(rows-1)/2, mc=(cols-1)/2;
+    const dr=Math.abs(r-mr), dc=Math.abs(c-mc);
+    if(stage.layout==='twin_gates') return (c<=1||c>=cols-2||r===0||r===rows-1||Math.abs(c-mc)<=1) && !(r===2&&Math.abs(c-mc)>2);
+    if(stage.layout==='crown') return r>=1 && (r>=rows-2 || Math.abs(c-mc)<=1 || (r<=2&&dc<=3) || (r===3&&dc!==2));
+    if(stage.layout==='bridges') return r%2===0 || c===1 || c===cols-2 || (r===3&&c>1&&c<cols-2);
+    if(stage.layout==='hourglass') return dc<=Math.max(1,Math.floor(dr)+1) || r===0 || r===rows-1;
+    if(stage.layout==='fortress') return r===0||c===0||r===rows-1||c===cols-1||((r>2&&r<rows-3)&&(c>2&&c<cols-3))||r===Math.floor(mr)||c===Math.floor(mc);
+    if(stage.layout==='zigzag') return Math.abs((c-(r%4))-mc)<=2 || r===0 || r===rows-1 || (r%3===0&&c>1&&c<cols-2);
+    if(stage.layout==='lotus') return (dr+dc<rows*.62) && !(dr<1&&dc<1) || (dr<2&&dc<3);
+    if(stage.layout==='arrow') return c<=mc+1 && (Math.abs(r-mr)<=c*.45+1 || c>cols-4) || (c>mc&&dr<=cols-c);
+    if(stage.layout==='shield') return r>0 && r<rows-1 && dc <= Math.max(1, rows-r-1) && (r<rows-2 || dc<2);
+    if(stage.layout==='comet') return Math.hypot((r-mr)*1.05,(c-mc)*.85)<rows*.42 || (r>=Math.floor(mr)&&c<mc&&Math.abs(r-c)<4);
+    if(stage.layout==='stairs') return c<=r+1 && c>=r-3 || r===0 || c===cols-1 || (r>rows-3&&c<cols-2);
+    if(stage.layout==='butterfly') return (c<mc && Math.abs(r-mr)<=Math.max(1,mc-c)) || (c>mc && Math.abs(r-mr)<=Math.max(1,c-mc)) || dc<1;
+    if(stage.layout==='arena_cross') return r===0||c===0||r===rows-1||c===cols-1||Math.abs(r-mr)<=1||Math.abs(c-mc)<=1;
+    if(stage.layout==='jagged') return Math.hypot((r-mr)*.9,(c-mc)*1.05)<rows*.45 && !((r+c+stage.id)%7===0&&dr>1&&dc>1);
+    if(stage.layout==='vortex') return (r<2||c>cols-3||r>rows-3||c<2) || (r>=2&&r<=rows-3&&c>=2&&c<=cols-3&&((r+c)%2===0||dr<1||dc<1));
+    if(stage.layout==='final_gate') return r===0||r===rows-1||c===0||c===cols-1||c===Math.floor(mc)||c===Math.ceil(mc)||((r===2||r===rows-3)&&c>1&&c<cols-2);
+    if(stage.layout==='double_crown') return r>0 && (r>rows-3 || dc<=2 || (r<3&&Math.abs(dc-3)<1.5) || (r===4&&dc<4));
+    if(stage.layout==='side_chambers') return c<2||c>cols-3||r<2||r>rows-3||((r>3&&r<rows-4)&&(c>3&&c<cols-4));
+    if(stage.layout==='river') return Math.hypot(r-mr,c-mc)<rows*.52 && Math.abs(c-mc-Math.sin(r*.9)*1.8)>1;
+    if(stage.layout==='labyrinth') return r===0||c===cols-1||r===rows-1||c===0||((Math.min(r,c,rows-1-r,cols-1-c)%2===0)&&(r<=rows-1&&c>=0))||dr<1||dc<1;
+    return true;
+  }
+
+  function buildCells(stage){
+    const cells = new Set(), rows=stage.rows, cols=stage.cols, rand=seeded(stage.id);
+    const midR=(rows-1)/2, midC=(cols-1)/2;
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const x=(c-midC)/(cols/2), y=(r-midR)/(rows/2);
+      let keep=false;
+      if(stage.layout) keep=duelLayoutKeep(stage,r,c,rand);
+      else if(stage.shape==='classic') keep=true;
+      else if(stage.shape==='diamond') keep=Math.abs(r-midR)+Math.abs(c-midC)<=Math.max(rows,cols)*.48;
+      else if(stage.shape==='heart'){
+        const hx=x*1.25, hy=-y*1.35+.18;
+        keep=Math.pow(hx*hx+hy*hy-1,3)-hx*hx*hy*hy*hy<=.15 && r>0;
+      }
+      else if(stage.shape==='star'){
+        const arm = Math.abs(c-midC)<=1 || Math.abs(r-midR)<=1 || Math.abs(Math.abs(r-midR)-Math.abs(c-midC))<=.6;
+        keep=arm && Math.hypot(r-midR,c-midC)<=Math.max(rows,cols)*.55;
+      }
+      else if(stage.shape==='spiral'){
+        const ring=Math.min(r,c,rows-1-r,cols-1-c);
+        keep=(ring%2===0 && (r<=rows-1-ring && c>=ring)) || (ring%2===1 && (c<=cols-1-ring && r>=ring));
+        keep=keep && !(r>1&&c>1&&r<rows-2&&c<cols-2&&ring===0);
+      }
+      else if(stage.shape==='bench') keep=(r%2===0) || (c===1 || c===cols-2) || (r===rows-1);
+      else if(stage.shape==='festival'){
+        const d=Math.hypot(x,y);
+        keep=d<.9 && (Math.abs(x)<.28 || Math.abs(y)<.28 || Math.abs(Math.abs(x)-Math.abs(y))<.22);
+      }
+      else if(stage.shape==='map'){
+        const noise=Math.sin((r+stage.id)*1.7)+Math.cos((c-stage.id)*1.35)+rand()*.8;
+        keep=Math.hypot(x*.9,y*1.05)<.96 && noise>-1.25;
+      }
+      if(keep) cells.add(cellKey(r,c));
+    }
+    if(cells.size<8) for(let r=1;r<rows-1;r++) for(let c=1;c<cols-1;c++) if(Math.abs(r-midR)+Math.abs(c-midC)<rows*.45) cells.add(cellKey(r,c));
+    return cells;
+  }
+
+  function buildStage(id){
+    const stage = stageDef(id);
+    const cells = buildCells(stage);
+    const edges = new Map(), dots = new Map(), boxes = new Map();
+    for(const key of cells){
+      const [r,c]=key.split(',').map(Number);
+      boxes.set(key,0);
+      addEdge('h',r,c); addEdge('h',r+1,c); addEdge('v',r,c); addEdge('v',r,c+1);
+    }
+    function addDot(r,c){ dots.set(cellKey(r,c), {r,c}); }
+    function addEdge(type,r,c){
+      const k=edgeKey(type,r,c);
+      if(!edges.has(k)){
+        const a={r,c}, b=type==='h'?{r,c:c+1}:{r:r+1,c};
+        edges.set(k,{key:k,type,r,c,a,b,owner:0});
+        addDot(a.r,a.c); addDot(b.r,b.c);
+      }
+    }
+    const cellCount = cells.size, edgeCount = edges.size;
+    const complexity = clamp((edgeCount/(cellCount*4)) + (1 - cellCount/(stage.rows*stage.cols)), .25, 1.35);
+    const shapePressure = stage.shape==='classic' ? .05 : (stage.shape==='spiral' || stage.shape==='map' ? -.035 : 0);
+    const aiSkill = clamp(stage.opponent.base + Math.min(.3,id*.018) + shapePressure + (stage.boss?.08:0) - complexity*.075, .55, .985);
+    const target = makeTarget(stage, cellCount, id);
+    const coinBoxes = buildCoinBoxes(stage, cells);
+    return {...stage,cells,edges,dots,boxes,coinBoxes,cellCount,edgeCount,complexity,aiSkill,target};
+  }
+  function buildTutorialStage(){
+    const stage={id:0,shape:'classic',size:2,rows:2,cols:2,name:'Teaching Demo',opponent:{name:'Guide',base:0,style:'demo'},targetType:'boxes',theme:['#fffaf0','#f6b51d'],boss:false};
+    const cells = new Set([cellKey(0,0),cellKey(0,1),cellKey(1,0),cellKey(1,1)]);
+    const edges = new Map(), dots = new Map(), boxes = new Map(), coinBoxes = new Map();
+    for(const key of cells){
+      const [r,c]=key.split(',').map(Number);
+      boxes.set(key,0);
+      addEdge('h',r,c); addEdge('h',r+1,c); addEdge('v',r,c); addEdge('v',r,c+1);
+    }
+    function addDot(r,c){ dots.set(cellKey(r,c), {r,c}); }
+    function addEdge(type,r,c){
+      const k=edgeKey(type,r,c);
+      if(!edges.has(k)){
+        const a={r,c}, b=type==='h'?{r,c:c+1}:{r:r+1,c};
+        edges.set(k,{key:k,type,r,c,a,b,owner:0});
+        addDot(a.r,a.c); addDot(b.r,b.c);
+      }
+    }
+    coinBoxes.set(cellKey(0,0), {kind:'bonus', value:12, multiplier:2});
+    coinBoxes.set(cellKey(1,1), {kind:'golden', value:18, multiplier:1});
+    return {...stage,cells,edges,dots,boxes,coinBoxes,cellCount:cells.size,edgeCount:edges.size,complexity:.2,aiSkill:0,target:{type:'boxes',value:3,text:'Learn the system'}};
+  }
+
+  function makeTarget(stage, cellCount, id){
+    if(stage.targetType==='boxes') return {type:'boxes', value:Math.max(Math.floor(cellCount/2)+1, Math.ceil(cellCount*.58)), text:'Capture '+Math.max(Math.floor(cellCount/2)+1, Math.ceil(cellCount*.58))+' boxes'};
+    if(stage.targetType==='gold'){ const value=Math.round(28 + id*7 + cellCount*.35); return {type:'gold', value, text:'Collect '+value+' gold'}; }
+    if(stage.targetType==='chain') return {type:'chain', value:Math.min(6, 3+Math.floor(id/4)), text:'Make a '+Math.min(6, 3+Math.floor(id/4))+' box chain'};
+    const margin = Math.min(8, 2+Math.floor(id/5));
+    return {type:'margin', value:margin, text:'Win by '+margin+' boxes'};
+  }
+  function buildCoinBoxes(stage, cells){
+    const rand = seeded(stage.id*37 + 11);
+    const keys = [...cells];
+    for(let i=keys.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [keys[i],keys[j]]=[keys[j],keys[i]]; }
+    const shapeComplexity = 1 - keys.length/(stage.rows*stage.cols);
+    const density = clamp(.52 - Math.min(.14, stage.id*.006) - shapeComplexity*.1 - (stage.boss?.05:0) + rand()*.04, .28, .52);
+    const target = Math.max(1, Math.round(keys.length * density));
+    const map = new Map();
+    const bonusCount = Math.min(stage.boss?1:2, Math.max(1, Math.floor(keys.length/42)+1), target);
+    for(let i=0;i<target && i<keys.length;i++){
+      const multiplier = i<bonusCount ? (i===0 && stage.id%4===0 ? 3 : 2) : 1;
+      const golden = multiplier>1 || rand() > .88;
+      map.set(keys[i], {kind:multiplier>1?'bonus':(golden?'golden':'normal'), value:golden ? 16 + Math.floor(stage.id*1.6) : 5 + Math.floor(stage.id*.75), multiplier});
+    }
+    return map;
+  }
+
+  function renderMap(){
+    els.walletGold.textContent=save.gold;
+    els.walletStars.textContent=totalStars();
+    els.walletDiamonds.textContent=save.diamonds || 0;
+    updateMusicButtons();
+    const daily = dailyRewardInfo();
+    els.dailyBtn.disabled = daily.claimed;
+    els.dailyBtn.textContent = daily.claimed ? '✓ Daily' : '🎁 +'+daily.reward;
+    const openTo = highestUnlockedStage();
+    const maxCards = Math.max(24, openTo+8);
+    els.levelMap.innerHTML='';
+    for(let id=1; id<=maxCards; id++){
+      const st=stageDef(id), req=starRequirement(id), locked=!canPlayStage(id), bestStars=stageBestStars(id);
+      const card=document.createElement('article'); card.className='stage-card'+(locked?' locked':'');
+      const status = locked ? '🔒 '+req+'★' : (bestStars ? starText(bestStars) : '✨ New');
+      card.innerHTML=`<div class="stage-top"><div><div class="stage-index">Stage ${id}</div><div class="stage-name">${st.name}</div></div><span class="tag">${status}</span></div>
+        <div class="level-art"><b>${SHAPE_ICONS[st.shape]||'▦'}</b><span>${OPPONENT_ICONS[st.opponent.name]||'♟'} ${st.opponent.name}</span></div>
+        <div class="stage-meta"><span class="tag">${SHAPE_LABELS[st.shape]||st.shape}</span><span class="tag">${req}★ req</span><span class="tag">AI ${Math.round(st.opponent.base*100)}%</span></div>
+        <div class="shape-preview">${previewDots(st.shape)}</div>
+        <button class="${locked?'soft':'primary'}" ${locked?'disabled':''}>${locked?'🔒 Need '+Math.max(0,req-totalStars())+'★':(bestStars?'↻ Replay':'▶ Play')}</button>`;
+      card.querySelector('button').addEventListener('click',()=>startStage(id));
+      els.levelMap.appendChild(card);
+    }
+  }
+  function previewDots(shape){
+    const counts={classic:18,heart:20,star:17,spiral:22,diamond:16,bench:18,festival:20,map:19};
+    return Array.from({length:counts[shape]||18},(_,i)=>`<span class="preview-dot" style="background:${THEMES[shape][1]};opacity:${.45+(i%5)*.11}"></span>`).join('');
+  }
+
+  function startStage(id){
+    closeOnlineChannel();
+    hideAccountModals();
+    setTeach('');
+    const stage = buildStage(id);
+    const goldBoost = save.inventory.boosts>0 ? 1.25 : 1;
+    if(goldBoost>1){ save.inventory.boosts--; storeSave(); }
+    game = {stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost};
+    document.body.classList.add('playing');
+    document.body.dataset.boardTheme = stage.shape;
+    window.scrollTo(0,0);
+    els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
+    if(!musicTouched && !musicOn){ musicOn=true; initAudio(); startMusic(); }
+    updateMusicTheme();
+    ensureDrawLoop();
+    updateUI(); draw(); showToast(goldBoost>1 ? 'Coin Burst active\n'+stage.target.text : stage.target.text);
+  }
+  function startTeachingDemo(){
+    closeOnlineChannel();
+    hideAccountModals();
+    const stage = buildTutorialStage();
+    game = {mode:'tutorial',stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,tutorial:{step:0,autoDone:false,expected:['v:0:0','h:1:0','v:0:1'],texts:['Touch this dot, then drag down.','Drag across the bottom line.','Close the box and capture gold.']}};
+    document.body.classList.add('playing');
+    document.body.dataset.boardTheme='star';
+    window.scrollTo(0,0);
+    els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
+    updateUI(); ensureDrawLoop(); draw();
+    setTeach('Watch first: draw a line from one glowing dot to the next.');
+    setTimeout(()=>autoTutorialMove('h:0:0'),700);
+  }
+  function startTwoPlayerStage(){
+    closeOnlineChannel();
+    hideAccountModals();
+    setTeach('');
+    const stage=buildStage(1);
+    stage.name='Offline 2 Player';
+    stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
+    game = {mode:'twoPlayer',stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1};
+    document.body.classList.add('playing');
+    document.body.dataset.boardTheme=stage.shape;
+    window.scrollTo(0,0);
+    els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
+    updateUI(); ensureDrawLoop(); draw(); showToast('Offline 2 Players\nPass the phone each turn');
+  }
+  function startOnlineRoom(code, localPlayer, status, stageId=1){
+    hideAccountModals();
+    setTeach('');
+    const stage=buildStage(clamp(Number(stageId||1),1,DUEL_STAGE_COUNT));
+    stage.name='Duel: '+stage.name;
+    stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
+    game = {mode:'online',roomCode:code,roomStatus:status,localPlayer,syncedMoveCount:0,seenFirebaseMoves:new Set(),resetVersion:0,stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,suppressBroadcast:false};
+    document.body.classList.add('playing');
+    document.body.dataset.boardTheme=stage.shape;
+    window.scrollTo(0,0);
+    setupOnlineChannel(code);
+    els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
+    updateUI(); ensureDrawLoop(); draw(); showToast(status+'\nRoom '+code);
+  }
+  function backToMap(){ closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); }
+  function setTeach(text){
+    if(!els.teachBanner) return;
+    els.teachBanner.innerHTML=text;
+    els.teachBanner.classList.toggle('hidden', !text);
+  }
+  function tutorialExpectedEdge(){
+    return game?.mode==='tutorial' ? game.tutorial.expected[game.tutorial.step] : null;
+  }
+  function autoTutorialMove(key){
+    if(!game || game.mode!=='tutorial' || game.over) return;
+    const edge=game.stage.edges.get(key);
+    if(edge && !edge.owner) applyMove(edge,1);
+    game.tutorial.autoDone=true;
+    setTeach('<b>Your turn:</b> '+game.tutorial.texts[game.tutorial.step]);
+    draw();
+  }
+  function handleTutorialMove(edge,gained){
+    if(!game || game.mode!=='tutorial' || !game.tutorial.autoDone) return;
+    if(edge.key===game.tutorial.expected[game.tutorial.step]) game.tutorial.step++;
+    if(gained){
+      setTeach('You captured a gold box. Coins fly to your wallet.');
+      setTimeout(()=>setTeach('Complete more boxes to win stars. Get 3 stars to earn a diamond.'),1200);
+      setTimeout(finishTeachingDemo,2600);
+    } else if(game.tutorial.step<game.tutorial.expected.length){
+      setTeach('<b>Good:</b> '+game.tutorial.texts[game.tutorial.step]);
+    }
+  }
+  function finishTeachingDemo(){
+    if(!game || game.mode!=='tutorial' || game.over) return;
+    game.over=true; game.lastWin=true; setTeach('');
+    let reward=0;
+    if(!save.tutorialDone){ reward=50; save.gold+=reward; save.tutorialDone=true; storeSave(); }
+    els.resultModal.querySelector('.modal-box').className='modal-box win';
+    els.reactionFace.className='reaction-face win';
+    els.reactionFace.textContent='🎓';
+    els.resultTitle.textContent='Demo Complete';
+    els.resultText.textContent='You learned lines, boxes, gold, stars, and diamonds. Stage 1 is ready.';
+    els.resultBoxes.textContent=game.scores[1]+'-'+game.scores[2];
+    els.resultGold.textContent=reward;
+    els.resultStars.textContent='Demo';
+    els.resultDiamond.textContent='0';
+    els.nextBtn.textContent='Start Stage 1';
+    els.resultModal.classList.add('show');
+    endReaction(true); playResultSound(true); updateUI();
+  }
+
+  function openOnline(){
+    closeOnlineChannel();
+    applyEntryGoldLimits();
+    els.roomCode.textContent='BOX-0000';
+    els.roomInput.value='';
+    els.roomStakeInput.value='0';
+    els.stakeSummary.className='stake-summary';
+    els.stakeSummary.textContent="Entry Gold is optional. Winner receives the opponent's Entry Gold. "+entryLimitText();
+    els.confirmStakeBtn.classList.add('hidden');
+    els.roomStatus.textContent=firebaseReady() ? 'Firebase ready. Create a room, then share the code.' : 'Connecting Firebase. Please wait.';
+    els.onlineModal.classList.add('show');
+  }
+  function closeOnline(){
+    els.onlineModal.classList.remove('show');
+    if(!game || game.mode!=='online') closeLobbyListener();
+  }
+  function firebaseApi(){ return window.BCAFirebase || null; }
+  function firebaseReady(){ const fb=firebaseApi(); return !!(fb && fb.ready && fb.uid); }
+  function firebaseSdkReady(){ const fb=firebaseApi(); return !!(fb && fb.sdkReady); }
+  function waitFirebaseSdk(timeout=6500){
+    if(firebaseSdkReady()) return Promise.resolve(firebaseApi());
+    return new Promise(resolve=>{
+      let done=false;
+      const finish=()=>{ if(done) return; done=true; window.removeEventListener('BCAFirebaseSdkReady', finish); resolve(firebaseSdkReady() ? firebaseApi() : null); };
+      window.addEventListener('BCAFirebaseSdkReady', finish);
+      setTimeout(finish, timeout);
+    });
+  }
+  function waitFirebaseReady(timeout=3800){
+    if(firebaseReady()) return Promise.resolve(firebaseApi());
+    return new Promise(resolve=>{
+      let done=false;
+      const finish=()=>{ if(done) return; done=true; window.removeEventListener('BCAFirebaseReady', finish); resolve(firebaseReady() ? firebaseApi() : null); };
+      window.addEventListener('BCAFirebaseReady', finish);
+      setTimeout(finish, timeout);
+    });
+  }
+  function firebaseRoomPath(code){ return 'rooms/'+code; }
+  function nicknameKey(name){ return String(name||'').trim().toLowerCase(); }
+  function validNickname(name){ return /^[A-Za-z0-9_]{3,15}$/.test(String(name||'').trim()); }
+  function validEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||'').trim()); }
+  function showWelcome(){
+    document.body.classList.remove('playing');
+    els.welcomeScreen.classList.remove('hidden');
+    els.mapScreen.classList.add('hidden');
+    els.gameScreen.classList.add('hidden');
+  }
+  function enterMap(){
+    els.welcomeScreen.classList.add('hidden');
+    els.mapScreen.classList.remove('hidden');
+    renderMap();
+    if(!save.tutorialDone) setTimeout(startTeachingDemo, 300);
+    else if(!save.guideSeen) setTimeout(openGuide, 250);
+  }
+  async function continueAsGuest(){
+    els.welcomeMsg.textContent='Connecting guest...';
+    const fb=await waitFirebaseSdk();
+    if(!fb){ els.welcomeMsg.textContent='Firebase SDK not loaded. You can still play offline stages.'; enterMap(); return; }
+    try{
+      if(!firebaseReady()) await fb.signInAnonymously(fb.auth);
+      await waitFirebaseReady(4500);
+      if(playerProfile || (fb.user && !fb.user.isAnonymous)){
+        playerProfile=playerProfile || await loadPlayerProfile(fb.uid);
+        currentUser={uid:fb.uid,email:fb.user?.email,isGuest:false};
+      } else {
+        currentUser={uid:fb.uid,isGuest:true};
+        playerProfile=null;
+      }
+      els.welcomeMsg.textContent=playerProfile ? 'Player ready.' : 'Guest ready.';
+      enterMap();
+    } catch(e){
+      console.warn('Guest auth failed:', e);
+      const code=e?.code || '';
+      els.welcomeMsg.textContent=code.includes('operation-not-allowed') ? 'Enable Anonymous in Firebase Authentication.' : 'Guest auth failed: '+(code || 'Check Firebase Auth setup.');
+    }
+  }
+  function openAuth(mode='register'){
+    setAuthMode(mode);
+    els.authMsg.textContent='';
+    els.authModal.classList.add('show');
+  }
+  function closeAuth(){ els.authModal.classList.remove('show'); }
+  function hideAccountModals(){
+    els.authModal.classList.remove('show');
+    els.portalModal.classList.remove('show');
+    els.playersModal.classList.remove('show');
+    els.invitePopup.classList.remove('show');
+    if(playersUnsub){ try{ playersUnsub(); } catch(e){} playersUnsub=null; }
+  }
+  function setAuthMode(mode){
+    authMode=mode;
+    els.registerTab.classList.toggle('active', mode==='register');
+    els.loginTab.classList.toggle('active', mode==='login');
+    els.authTitle.textContent=mode==='register'?'Register Player':'Login Player';
+    els.authSubmitBtn.textContent=mode==='register'?'Create Player':'Login';
+    els.authNickname.style.display=mode==='register'?'block':'none';
+    els.authPassword.autocomplete=mode==='register'?'new-password':'current-password';
+  }
+  async function submitAuth(){
+    const email=els.authEmail.value.trim();
+    const password=els.authPassword.value;
+    const nickname=els.authNickname.value.trim();
+    if(!validEmail(email)){ els.authMsg.textContent='Enter a valid email.'; return; }
+    if(password.length<6){ els.authMsg.textContent='Password needs at least 6 characters.'; return; }
+    if(authMode==='register') await registerPlayer(email,password,nickname);
+    else await loginPlayer(email,password);
+  }
+  async function registerPlayer(email,password,nickname){
+    if(!validNickname(nickname)){ els.authMsg.textContent='Nickname: 3-15 letters, numbers, underscore.'; return; }
+    const fb=await waitFirebaseSdk();
+    if(!fb){ els.authMsg.textContent='Firebase SDK not loaded.'; return; }
+    const lower=nicknameKey(nickname);
+    els.authMsg.textContent='Checking nickname...';
+    try{
+      const nickRef=fb.ref(fb.db,'nicknames/'+lower);
+      const nickSnap=await fb.get(nickRef);
+      if(nickSnap.exists()){ els.authMsg.textContent='Nickname already taken.'; return; }
+      els.authMsg.textContent='Creating player...';
+      const result=await fb.createUserWithEmailAndPassword(fb.auth,email,password);
+      const uid=result.user.uid, now=Date.now();
+      const profile={uid,email,nickname,nicknameLower:lower,status:'online',lastSeen:now,currentRoom:'',wins:0,losses:0,totalMatches:0,gold:save.gold||0,stars:totalStars(),diamonds:save.diamonds||0,createdAt:now};
+      await fb.update(fb.ref(fb.db), {
+        ['players/'+uid]:profile,
+        ['nicknames/'+lower]:uid,
+        ['online/'+uid]:{nickname,status:'online',lastSeen:now}
+      });
+      currentUser={uid,email,isGuest:false};
+      playerProfile=profile;
+      startPresence();
+      listenInvites();
+      closeAuth();
+      enterMap();
+      openPortal();
+    } catch(e){
+      console.warn('Register failed:', e);
+      els.authMsg.textContent=authErrorText(e);
+    }
+  }
+  async function loginPlayer(email,password){
+    const fb=await waitFirebaseSdk();
+    if(!fb){ els.authMsg.textContent='Firebase SDK not loaded.'; return; }
+    els.authMsg.textContent='Logging in...';
+    try{
+      const result=await fb.signInWithEmailAndPassword(fb.auth,email,password);
+      currentUser={uid:result.user.uid,email,isGuest:false};
+      playerProfile=await loadPlayerProfile(result.user.uid);
+      if(!playerProfile){ els.authMsg.textContent='Player profile missing. Register a nickname first.'; return; }
+      await setPlayerOnline();
+      startPresence();
+      listenInvites();
+      closeAuth();
+      enterMap();
+      openPortal();
+    } catch(e){
+      console.warn('Login failed:', e);
+      els.authMsg.textContent=authErrorText(e);
+    }
+  }
+  function authErrorText(e){
+    const code=e?.code || '';
+    const message=e?.message || '';
+    if(code.includes('operation-not-allowed')) return 'Enable Email/Password in Firebase Authentication.';
+    if(code.includes('admin-restricted-operation')) return 'Enable this sign-in provider in Firebase Authentication.';
+    if(code.includes('unauthorized-domain')) return 'Add this site domain in Firebase Auth > Settings > Authorized domains.';
+    if(code.includes('network-request-failed')) return 'Network blocked Firebase Auth. Check internet or browser restrictions.';
+    if(code.includes('too-many-requests')) return 'Too many attempts. Wait a little and try again.';
+    if(code.includes('email-already-in-use')) return 'Email already registered. Login instead.';
+    if(code.includes('user-not-found')) return 'No account found. Register first.';
+    if(code.includes('invalid-credential') || code.includes('wrong-password')) return 'Email or password is wrong.';
+    if(code.includes('weak-password')) return 'Password is too weak.';
+    if(code.includes('permission-denied')) return 'Database rules blocked this action.';
+    return 'Firebase auth failed: '+(code || message || 'Check setup and try again.');
+  }
+  async function loadPlayerProfile(uid){
+    const fb=firebaseApi();
+    if(!fb || !uid) return null;
+    const snap=await fb.get(fb.ref(fb.db,'players/'+uid));
+    return snap.exists() ? snap.val() : null;
+  }
+  async function setPlayerOnline(){
+    const fb=firebaseApi();
+    if(!firebaseReady() || !playerProfile) return;
+    const uid=fb.uid, nickname=playerProfile.nickname, now=Date.now();
+    await fb.update(fb.ref(fb.db), {
+      ['players/'+uid+'/status']:'online',
+      ['players/'+uid+'/lastSeen']:now,
+      ['online/'+uid]:{nickname,status:'online',lastSeen:now}
+    });
+    try{
+      fb.onDisconnect(fb.ref(fb.db,'online/'+uid)).remove();
+      fb.onDisconnect(fb.ref(fb.db,'players/'+uid)).update({status:'offline',lastSeen:fb.serverTimestamp()});
+    } catch(e){}
+  }
+  function startPresence(){
+    stopPresence();
+    setPlayerOnline();
+    presenceTimer=setInterval(()=>setPlayerOnline(),20000);
+  }
+  function stopPresence(){
+    if(presenceTimer){ clearInterval(presenceTimer); presenceTimer=null; }
+  }
+  async function logoutPlayer(){
+    const fb=firebaseApi();
+    stopPresence();
+    closeInvites();
+    if(firebaseReady() && playerProfile){
+      try{
+        await fb.update(fb.ref(fb.db), {
+          ['players/'+fb.uid+'/status']:'offline',
+          ['players/'+fb.uid+'/lastSeen']:fb.serverTimestamp(),
+          ['online/'+fb.uid]:null
+        });
+      } catch(e){}
+    }
+    try{ if(fb) await fb.signOut(fb.auth); } catch(e){}
+    currentUser=null; playerProfile=null;
+    closePortal(); closePlayers(); showWelcome();
+    els.welcomeMsg.textContent='Signed out.';
+  }
+  async function handleFirebaseAuthChanged(){
+    const fb=firebaseApi();
+    if(!fb || !fb.user) {
+      els.welcomeMsg.textContent=firebaseSdkReady()?'Choose how to play.':'Firebase connecting...';
+      return;
+    }
+    if(currentUser && currentUser.uid===fb.user.uid) return;
+    const profile=await loadPlayerProfile(fb.user.uid);
+    if(profile){
+      currentUser={uid:fb.user.uid,email:fb.user.email,isGuest:false};
+      playerProfile=profile;
+      await setPlayerOnline();
+      startPresence();
+      listenInvites();
+      els.welcomeMsg.textContent='Welcome back, '+profile.nickname+'.';
+    } else if(fb.user.isAnonymous){
+      currentUser={uid:fb.user.uid,isGuest:true};
+      playerProfile=null;
+      els.welcomeMsg.textContent='Guest ready.';
+    }
+  }
+  function syncProfileEconomy(){
+    if(!playerProfile) return;
+    const pauseGoldSync=Date.now()<economySyncPausedUntil;
+    if(!pauseGoldSync) playerProfile.gold=save.gold||0;
+    playerProfile.stars=totalStars();
+    playerProfile.diamonds=save.diamonds||0;
+    const fb=firebaseApi();
+    if(firebaseReady()){
+      const payload={stars:playerProfile.stars,diamonds:playerProfile.diamonds,lastSeen:Date.now()};
+      if(!pauseGoldSync) payload.gold=playerProfile.gold;
+      fb.update(fb.ref(fb.db,'players/'+fb.uid), payload).catch(()=>{});
+    }
+  }
+  function openPortal(){
+    syncProfileEconomy();
+    renderPortal();
+    els.portalModal.classList.add('show');
+  }
+  function closePortal(){ els.portalModal.classList.remove('show'); }
+  function renderPortal(){
+    const p=playerProfile;
+    els.portalIntro.textContent=p?'Online account ready for challenges.':'Guest mode can play stages and room-code games.';
+    els.portalNickname.textContent=p?.nickname || 'Guest';
+    els.portalEmail.textContent=p?.email || 'Guest';
+    els.portalWins.textContent=p?.wins || 0;
+    els.portalLosses.textContent=p?.losses || 0;
+    els.portalMatches.textContent=p?.totalMatches || 0;
+    els.portalStatus.textContent=p?'Online':'Guest';
+    els.portalGold.textContent=p?.gold ?? save.gold ?? 0;
+    els.portalDiamonds.textContent=p?.diamonds ?? save.diamonds ?? 0;
+    els.playersOpenBtn.disabled=!p;
+    els.invitesOpenBtn.disabled=!p;
+    els.historyBtn.disabled=!p;
+    els.logoutBtn.textContent=p?'Logout':'Back to Welcome';
+    els.portalMsg.textContent=p?entryLimitText():'Register/Login to use player challenges.';
+  }
+  function openPlayers(){
+    if(!playerProfile){ els.portalMsg.textContent='Login first to challenge players.'; return; }
+    applyEntryGoldLimits();
+    els.playersMsg.textContent=entryLimitText();
+    els.playersModal.classList.add('show');
+    listenPlayers();
+  }
+  function closePlayers(){
+    els.playersModal.classList.remove('show');
+    if(playersUnsub){ try{ playersUnsub(); } catch(e){} playersUnsub=null; }
+  }
+  function listenPlayers(){
+    const fb=firebaseApi();
+    if(!firebaseReady()) return;
+    if(playersUnsub) playersUnsub();
+    els.playersMsg.textContent='Loading players...';
+    playersUnsub=fb.onValue(fb.ref(fb.db,'players'), snap=>{
+      const now=Date.now(), rows=[];
+      snap.forEach(child=>{
+        const uid=child.key, p=child.val()||{};
+        if(uid===fb.uid) return;
+        const online=p.status==='online' && now-Number(p.lastSeen||0)<30000;
+        rows.push({...p,uid,online});
+      });
+      rows.sort((a,b)=>Number(b.online)-Number(a.online) || String(a.nickname||'').localeCompare(String(b.nickname||'')));
+      renderPlayers(rows);
+    });
+  }
+  function renderPlayers(rows){
+    els.playersList.innerHTML='';
+    if(!rows.length){ els.playersList.innerHTML='<div class="player-row"><div><div class="player-name">No players yet</div><div class="player-meta">Register on another device to test challenges.</div></div></div>'; els.playersMsg.textContent=''; return; }
+    for(const p of rows){
+      const row=document.createElement('div');
+      row.className='player-row';
+      row.innerHTML=`<div><div class="player-name"><span class="dot ${p.online?'online':''}"></span>${p.nickname||'Player'}</div><div class="player-meta">${p.online?'Online':'Offline'} · ${p.wins||0}W ${p.losses||0}L</div></div><button ${p.online?'':'disabled'}>Challenge</button>`;
+      row.querySelector('button').addEventListener('click',()=>sendChallenge(p.uid,p.nickname||'Player'));
+      els.playersList.appendChild(row);
+    }
+    els.playersMsg.textContent='Online players appear first. '+entryLimitText();
+  }
+  async function sendChallenge(receiverUid, receiverNickname){
+    if(!playerProfile){ els.playersMsg.textContent='Login first.'; return; }
+    const stake=challengeStakeAmount(), stageId=selectedChallengeStageId();
+    if(!validateStake(stake, els.playersMsg)) return;
+    const fb=firebaseApi();
+    if(!firebaseReady()){ els.playersMsg.textContent='Firebase not connected.'; return; }
+    try{
+      const inviteRef=fb.push(fb.ref(fb.db,'invites/'+receiverUid));
+      await fb.set(inviteRef,{fromUid:fb.uid,fromNickname:playerProfile.nickname,fromStake:stake,stageId,status:'pending',roomCode:'',createdAt:fb.serverTimestamp()});
+      els.playersMsg.textContent='Challenge sent to '+receiverNickname+' with '+stake+' Entry Gold.';
+      listenInviteResponse(receiverUid, inviteRef.key);
+    } catch(e){
+      console.warn('Challenge failed:', e);
+      els.playersMsg.textContent='Challenge failed. Check database rules.';
+    }
+  }
+  function listenInviteResponse(receiverUid, inviteId){
+    const fb=firebaseApi();
+    const inviteRef=fb.ref(fb.db,'invites/'+receiverUid+'/'+inviteId);
+    const unsub=fb.onValue(inviteRef, snap=>{
+      const invite=snap.val();
+      if(!invite) return;
+      if(invite.status==='accepted' && invite.roomCode){
+        unsub();
+        closePlayers();
+        closePortal();
+        els.roomCode.textContent=invite.roomCode;
+        els.roomStatus.textContent='Opponent accepted. Confirm Entry Gold to start.';
+        els.onlineModal.classList.add('show');
+        listenFirebaseLobby(invite.roomCode,1);
+      }
+      if(invite.status==='rejected'){
+        unsub();
+        els.playersMsg.textContent='Challenge rejected.';
+      }
+    });
+  }
+  function listenInvites(){
+    closeInvites();
+    const fb=firebaseApi();
+    if(!firebaseReady() || !playerProfile) return;
+    invitesUnsub=fb.onValue(fb.ref(fb.db,'invites/'+fb.uid), snap=>{
+      let pending=null;
+      snap.forEach(child=>{
+        const v=child.val()||{};
+        if(!pending && v.status==='pending') pending={...v,id:child.key};
+      });
+      if(pending) showInvite(pending);
+    });
+  }
+  function closeInvites(){
+    if(invitesUnsub){ try{ invitesUnsub(); } catch(e){} invitesUnsub=null; }
+    hideInvite();
+  }
+  function showInvite(invite){
+    activeInvite=invite;
+    applyEntryGoldLimits();
+    els.inviteTitle.textContent='Challenge received';
+    els.inviteText.textContent=(invite.fromNickname||'A player')+' challenged you on '+stageNameById(invite.stageId||1)+' with '+Number(invite.fromStake||0)+' Entry Gold. '+ENTRY_GOLD_NOTICE;
+    els.inviteStakeInput.value='0';
+    els.invitePopup.classList.add('show');
+  }
+  function hideInvite(){
+    activeInvite=null;
+    els.invitePopup.classList.remove('show');
+  }
+  async function acceptInvite(){
+    if(!activeInvite || !playerProfile) return;
+    const fb=firebaseApi(), invite=activeInvite, code=makeRoomCode();
+    const stake=inviteStakeAmount();
+    if(!validateStake(stake, {set textContent(v){ els.inviteText.textContent=v; }})) return;
+    try{
+      await fb.set(fb.ref(fb.db, firebaseRoomPath(code)), {
+        code,status:'stakeReview',stageId:Number(invite.stageId||1),boardSeed:Number(invite.stageId||1),current:1,hostUid:invite.fromUid,guestUid:fb.uid,
+        scores:{p1:0,p2:0},players:{p1:invite.fromUid,p2:fb.uid},playerNames:{p1:invite.fromNickname||'Player 1',p2:localDuelName('Player 2')},stakes:{p1:Number(invite.fromStake||0),p2:stake},entryGold:{p1:Number(invite.fromStake||0),p2:stake},stakeConfirmed:{p1:false,p2:true},moveCount:0,resetVersion:0,createdAt:fb.serverTimestamp()
+      });
+      await fb.update(fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id),{status:'accepted',roomCode:code,acceptedAt:fb.serverTimestamp()});
+      hideInvite();
+      els.roomCode.textContent=code;
+      els.roomStatus.textContent='Waiting for challenger to confirm Entry Gold.';
+      els.onlineModal.classList.add('show');
+      listenFirebaseLobby(code,2);
+    } catch(e){
+      console.warn('Accept invite failed:', e);
+      els.inviteText.textContent='Could not accept. Check Firebase rules.';
+    }
+  }
+  async function rejectInvite(){
+    if(!activeInvite) return;
+    const fb=firebaseApi(), invite=activeInvite;
+    try{ await fb.update(fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id),{status:'rejected',rejectedAt:fb.serverTimestamp()}); } catch(e){}
+    hideInvite();
+  }
+  function makeRoomCode(){
+    const names=['BOX','STAR','DOT','GOLD','CHAIN'];
+    return names[Math.floor(Math.random()*names.length)]+'-'+Math.floor(1000+Math.random()*9000);
+  }
+  function populateDuelStageSelects(){
+    const options=DUEL_STAGES.map((s,i)=>`<option value="${i+1}">${i+1}. ${s.name}</option>`).join('');
+    els.roomStageSelect.innerHTML=options;
+    els.challengeStageSelect.innerHTML=options;
+  }
+  function parseStake(input){
+    return Math.max(0, Math.floor(Number(input?.value || 0) || 0));
+  }
+  function setText(targetEl, text){
+    if(targetEl) targetEl.textContent=text;
+  }
+  function safeHtml(value){
+    return String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function availableStakeGold(){
+    return Math.max(0, Number(playerProfile?.gold ?? save.gold ?? 0));
+  }
+  function entryGoldTier(){
+    if(!playerProfile) return {name:'Guest', max:0, matches:0, stars:0};
+    const matches=Number(playerProfile.totalMatches || 0);
+    const stars=Math.max(Number(playerProfile.stars || 0), totalStars());
+    let tier=ENTRY_LIMITS[0];
+    ENTRY_LIMITS.forEach(rule=>{
+      if(matches>=rule.matches || stars>=rule.stars) tier=rule;
+    });
+    return tier;
+  }
+  function entryGoldLimit(){
+    return entryGoldTier().max;
+  }
+  function entryLimitText(){
+    const tier=entryGoldTier();
+    if(!playerProfile) return 'Guest duels use 0 Entry Gold. Register to unlock Entry Gold duels.';
+    return tier.name+' limit: '+tier.max+' gold. Available: '+availableStakeGold()+'. '+ENTRY_GOLD_NOTICE;
+  }
+  function applyEntryGoldLimits(){
+    const max=Math.min(availableStakeGold(), entryGoldLimit());
+    [els.roomStakeInput, els.challengeStakeInput, els.inviteStakeInput].forEach(input=>{
+      if(!input) return;
+      input.max=String(max);
+      if(parseStake(input)>max) input.value=String(max);
+    });
+  }
+  function validateStake(amount, targetEl){
+    if(amount>0 && !playerProfile){
+      setText(targetEl,'Guests can play 0 Entry Gold duels. Register to unlock Entry Gold.');
+      return false;
+    }
+    if(amount>availableStakeGold()){
+      setText(targetEl,'Not enough gold. Available: '+availableStakeGold());
+      return false;
+    }
+    if(amount>entryGoldLimit()){
+      setText(targetEl,'Entry Gold limit for '+entryGoldTier().name+' players is '+entryGoldLimit()+'. Play more matches or earn stars to unlock bigger duels.');
+      return false;
+    }
+    return true;
+  }
+  function roomStakeAmount(){ return parseStake(els.roomStakeInput); }
+  function challengeStakeAmount(){ return parseStake(els.challengeStakeInput); }
+  function inviteStakeAmount(){ return parseStake(els.inviteStakeInput); }
+  function selectedRoomStageId(){ return clamp(Number(els.roomStageSelect.value||1),1,DUEL_STAGE_COUNT); }
+  function selectedChallengeStageId(){ return clamp(Number(els.challengeStageSelect.value||1),1,DUEL_STAGE_COUNT); }
+  function stageNameById(id){ return DUEL_STAGES[(Number(id)||1)-1]?.name || ('Stage '+id); }
+  function localDuelName(fallback){
+    return playerProfile?.nickname || fallback;
+  }
+  function roomPlayerName(room, role){
+    return room.playerNames?.[role] || (role==='p1' ? 'Player 1' : 'Player 2');
+  }
+  function renderStakeLobby(room={}, localPlayer=1){
+    const p1=Number(room.stakes?.p1 || 0), p2=Number(room.stakes?.p2 || 0);
+    const c1=!!room.stakeConfirmed?.p1, c2=!!room.stakeConfirmed?.p2;
+    const stageId=Number(room.stageId || 1);
+    const total=p1+p2;
+    els.stakeSummary.textContent='Preparing duel lobby...';
+    els.stakeSummary.className='stake-summary lobby-summary';
+    els.stakeSummary.innerHTML=
+      '<div class="lobby-arena"><span>Selected Arena</span><b>'+safeHtml(stageNameById(stageId))+'</b></div>'+
+      '<div class="lobby-players">'+
+        '<div class="lobby-player"><span>Player 1</span><b>'+safeHtml(roomPlayerName(room,'p1'))+'</b><span>Entry Gold</span><b>'+p1+'</b><span class="'+(c1?'ready':'waiting')+'">'+(c1?'Ready':'Waiting')+'</span></div>'+
+        '<div class="lobby-player"><span>Player 2</span><b>'+safeHtml(roomPlayerName(room,'p2'))+'</b><span>Entry Gold</span><b>'+p2+'</b><span class="'+(c2?'ready':'waiting')+'">'+(c2?'Ready':'Waiting')+'</span></div>'+
+      '</div>'+
+      '<div class="reward-pot"><b>Reward Pot: '+total+' gold</b><br>Winner receives the opponent&#39;s Entry Gold.</div>'+
+      '<div class="entry-note">'+ENTRY_GOLD_NOTICE+'</div>';
+    const bothPlayers=!!(room.players?.p1 && room.players?.p2);
+    const role=localPlayer===1?'p1':'p2';
+    const confirmed=!!room.stakeConfirmed?.[role];
+    els.confirmStakeBtn.classList.toggle('hidden', !bothPlayers || confirmed || room.status==='joined');
+    els.confirmStakeBtn.textContent=confirmed?'Entry Gold Confirmed':'Confirm Entry Gold';
+  }
+  async function confirmStake(){
+    if(!stakeLobby) return;
+    const fb=firebaseApi();
+    if(!firebaseReady()) return;
+    const {code,localPlayer}=stakeLobby;
+    const roomSnap=await fb.get(fb.ref(fb.db, firebaseRoomPath(code)));
+    const room=roomSnap.val() || {};
+    const role=localPlayer===1?'p1':'p2';
+    const amount=Number(room.stakes?.[role] || 0);
+    if(!validateStake(amount, els.roomStatus)) return;
+    await fb.update(fb.ref(fb.db, firebaseRoomPath(code)), {
+      ['stakeConfirmed/'+role]:true,
+      updatedAt:fb.serverTimestamp()
+    });
+    els.roomStatus.textContent='Entry Gold confirmed. Waiting for opponent...';
+  }
+  async function createRoom(){
+    closeOnlineChannel();
+    const code=makeRoomCode();
+    const stake=roomStakeAmount(), stageId=selectedRoomStageId();
+    if(!validateStake(stake, els.roomStatus)) return;
+    els.roomCode.textContent=code;
+    els.roomStatus.textContent='Creating room...';
+    const fb=await waitFirebaseReady();
+    if(!fb){ els.roomStatus.textContent='Firebase not connected. Enable Anonymous Auth and database rules.'; return; }
+    try{
+        await fb.set(fb.ref(fb.db, firebaseRoomPath(code)), {
+          code,
+          status:'waiting',
+          stageId,
+          boardSeed:stageId,
+          hostUid:fb.uid,
+          guestUid:'',
+          current:1,
+        scores:{p1:0,p2:0},
+        players:{p1:fb.uid},
+        playerNames:{p1:localDuelName('Player 1')},
+        stakes:{p1:stake,p2:0},
+        entryGold:{p1:stake,p2:0},
+        stakeConfirmed:{p1:false,p2:false},
+        moveCount:0,
+        resetVersion:0,
+        createdAt:fb.serverTimestamp()
+      });
+      els.roomStatus.textContent='Waiting for friend... Share this code.';
+      listenFirebaseLobby(code,1);
+    } catch(e){
+      console.warn('Firebase room create failed:', e);
+      els.roomStatus.textContent='Firebase room failed. Check Anonymous Auth and Realtime Database rules.';
+    }
+  }
+  async function copyRoomCode(){
+    const code=els.roomCode.textContent.trim();
+    if(!code || code==='BOX-0000'){ els.roomStatus.textContent='Create a room first.'; return; }
+    try{
+      await navigator.clipboard.writeText(code);
+      els.roomStatus.textContent='Room code copied. Waiting for friend...';
+    } catch(e){
+      els.roomStatus.textContent='Room code: '+code;
+    }
+  }
+  async function shareRoomCode(){
+    const code=els.roomCode.textContent.trim();
+    if(!code || code==='BOX-0000'){ els.roomStatus.textContent='Create a room first.'; return; }
+    const text='Join my Box Chain Arena room: '+code;
+    try{
+      if(navigator.share) await navigator.share({title:'Box Chain Arena',text});
+      else if(navigator.clipboard) await navigator.clipboard.writeText(text);
+      els.roomStatus.textContent='Room code ready to share.';
+    } catch(e){
+      els.roomStatus.textContent='Room code: '+code;
+    }
+  }
+  async function joinRoom(){
+    closeOnlineChannel();
+    const code=els.roomInput.value.trim().toUpperCase();
+    const stake=roomStakeAmount();
+    if(!code){ els.roomStatus.textContent='Enter a room code.'; return; }
+    if(!validateStake(stake, els.roomStatus)) return;
+    els.roomStatus.textContent='Joining room...';
+    const fb=await waitFirebaseReady();
+    if(!fb){ els.roomStatus.textContent='Firebase not connected. Please wait and try again.'; return; }
+    try{
+      const roomRef=fb.ref(fb.db, firebaseRoomPath(code));
+      const snap=await fb.get(roomRef);
+      if(!snap.exists()){ els.roomStatus.textContent='Room not found in Firebase.'; return; }
+      const room=snap.val() || {};
+      if(room.players?.p2 && room.players.p2!==fb.uid){ els.roomStatus.textContent='Room already has two players.'; return; }
+      await fb.update(roomRef, {
+        status:'stakeReview',
+        guestUid:fb.uid,
+        'players/p2':fb.uid,
+        'playerNames/p2':localDuelName('Player 2'),
+        'stakes/p2':stake,
+        'entryGold/p2':stake,
+        'stakeConfirmed/p2':false,
+        joinedAt:fb.serverTimestamp()
+      });
+      els.roomCode.textContent=code;
+      els.roomStatus.textContent='Duel lobby ready. Confirm Entry Gold to start.';
+      listenFirebaseLobby(code,2);
+    } catch(e){
+      console.warn('Firebase room join failed:', e);
+      els.roomStatus.textContent='Firebase join failed. Check the room code and database rules.';
+    }
+  }
+  function listenFirebaseLobby(code, localPlayer){
+    closeLobbyListener();
+    const fb=firebaseApi();
+    if(!firebaseReady()) return;
+    stakeLobby={code,localPlayer};
+    const roomRef=fb.ref(fb.db, firebaseRoomPath(code));
+    onlineLobbyUnsub=fb.onValue(roomRef, async snap=>{
+      const room=snap.val();
+      if(!room) {
+        els.roomStatus.textContent='Room closed or unavailable.';
+        return;
+      }
+      renderStakeLobby(room,localPlayer);
+      const bothPlayers=!!(room.players?.p1 && room.players?.p2);
+      const bothConfirmed=!!(room.stakeConfirmed?.p1 && room.stakeConfirmed?.p2);
+      if(bothPlayers && bothConfirmed && room.status!=='joined'){
+        await fb.update(roomRef,{status:'joined',updatedAt:fb.serverTimestamp()});
+        return;
+      }
+      const connected=room.status==='joined' && room.players?.p1 && room.players?.p2;
+      if(connected){
+        els.roomStatus.textContent='Connected. Starting game...';
+        if(!onlineStartTimer){
+          onlineStartTimer=setTimeout(()=>startOnlineRoom(code,localPlayer,'Connected',Number(room.stageId||1)),650);
+        }
+      } else if(bothPlayers){
+        els.roomStatus.textContent='Duel lobby ready. Confirm Entry Gold to start.';
+      } else if(localPlayer===1){
+        els.roomStatus.textContent='Waiting for friend... Share this code.';
+      } else {
+        els.roomStatus.textContent='Joining room...';
+      }
+    });
+  }
+  function closeLobbyListener(){
+    if(onlineLobbyUnsub){ try{ onlineLobbyUnsub(); } catch(e){} onlineLobbyUnsub=null; }
+    if(onlineStartTimer){ clearTimeout(onlineStartTimer); onlineStartTimer=null; }
+    stakeLobby=null;
+    els.confirmStakeBtn.classList.add('hidden');
+  }
+  function setupOnlineChannel(code){
+    closeLobbyListener();
+    closeGameFirebaseListeners();
+    setupFirebaseRoom(code);
+  }
+  function setupFirebaseRoom(code){
+    const fb=firebaseApi();
+    if(!firebaseReady()) return;
+    const roomRef=fb.ref(fb.db, firebaseRoomPath(code));
+    const movesRef=fb.ref(fb.db, firebaseRoomPath(code)+'/moves');
+    const roomUnsub=fb.onValue(roomRef, snap=>{
+      if(!game || game.mode!=='online' || game.roomCode!==code) return;
+      const room=snap.val();
+      if(!room) return;
+      game.onlineRoom=room;
+      if(room.status==='joined' && game.roomStatus!=='Connected'){
+        game.roomStatus='Connected';
+        updateUI();
+        showToast('Connected');
+      }
+      if(room.status==='waiting' && game.localPlayer===1 && game.roomStatus!=='Waiting for opponent'){
+        game.roomStatus='Waiting for opponent';
+        updateUI();
+      }
+      if(typeof room.resetVersion==='number' && room.resetVersion>game.resetVersion && room.resetBy!==fb.uid){
+        const localPlayer=game.localPlayer;
+        startOnlineRoom(code,localPlayer,'Opponent reset room',Number(room.stageId||1));
+      }
+      if(typeof room.resetVersion==='number') game.resetVersion=room.resetVersion;
+    });
+    const moveUnsub=fb.onChildAdded(movesRef, snap=>{
+      if(!game || game.mode!=='online' || game.roomCode!==code) return;
+      if(game.seenFirebaseMoves.has(snap.key)) return;
+      game.seenFirebaseMoves.add(snap.key);
+      const move=snap.val() || {};
+      if(move.uid && move.uid===fb.uid) return;
+      applyRemoteMove(move.edgeKey, Number(move.player));
+    });
+    onlineFirebaseUnsubs=[roomUnsub, moveUnsub];
+  }
+  function closeGameFirebaseListeners(){
+    onlineFirebaseUnsubs.forEach(unsub=>{ try{ if(typeof unsub==='function') unsub(); } catch(e){} });
+    onlineFirebaseUnsubs=[];
+  }
+  function closeOnlineChannel(){
+    closeLobbyListener();
+    closeGameFirebaseListeners();
+  }
+  async function saveRoomMove(edgeKey, player){
+    if(!game || game.mode!=='online') return;
+    const fb=firebaseApi();
+    if(!firebaseReady()){ showToast('Firebase offline'); return; }
+    try{
+      const moveRef=fb.push(fb.ref(fb.db, firebaseRoomPath(game.roomCode)+'/moves'));
+      await fb.set(moveRef, {
+        edgeKey,
+        player,
+        uid:fb.uid,
+        moveNumber:game.moves,
+        createdAt:fb.serverTimestamp()
+      });
+      await fb.update(fb.ref(fb.db, firebaseRoomPath(game.roomCode)), {
+        current:game.current,
+        moveCount:game.moves,
+        status:'joined',
+        'scores/p1':game.scores[1],
+        'scores/p2':game.scores[2],
+        updatedAt:fb.serverTimestamp()
+      });
+    } catch(e){
+      console.warn('Firebase move save failed:', e);
+      showToast('Online sync delayed');
+    }
+  }
+  function applyRemoteMove(edgeKey, player){
+    if(!game || game.mode!=='online' || game.over || game.current!==player) return;
+    const edge=game.stage.edges.get(edgeKey);
+    if(!edge || edge.owner) return;
+    game.suppressBroadcast=true;
+    applyMove(edge,player);
+    game.suppressBroadcast=false;
+    game.roomStatus='Live room';
+    updateUI();
+  }
+  async function resetOnlineRoom(){
+    if(!game || game.mode!=='online') return;
+    const code=game.roomCode, localPlayer=game.localPlayer;
+    const fb=firebaseApi();
+    if(!firebaseReady()){ showToast('Firebase offline'); return; }
+    try{
+      const nextReset=(game.resetVersion || 0)+1;
+      await fb.update(fb.ref(fb.db, firebaseRoomPath(code)), {
+        moves:null,
+        current:1,
+        moveCount:0,
+        resetVersion:nextReset,
+        resetBy:fb.uid,
+        status:'joined',
+        'scores/p1':0,
+        'scores/p2':0,
+        updatedAt:fb.serverTimestamp()
+      });
+    } catch(e){
+      console.warn('Firebase reset failed:', e);
+      showToast('Firebase reset failed');
+      return;
+    }
+    startOnlineRoom(code,localPlayer,'Room reset',Number(game.onlineRoom?.stageId || game.stage?.id || 1));
+  }
+
+  function boardMetrics(){
+    const dots=[...game.stage.dots.values()];
+    const minR=Math.min(...dots.map(d=>d.r)), maxR=Math.max(...dots.map(d=>d.r));
+    const minC=Math.min(...dots.map(d=>d.c)), maxC=Math.max(...dots.map(d=>d.c));
+    const zoom=game.zoom || 1;
+    const pad=zoom>1 ? 54 : 72;
+    const rows=maxR-minR || 1, cols=maxC-minC || 1;
+    const scale=Math.min((canvas.width-pad*2)/cols,(canvas.height-pad*2)/rows);
+    return {minR,maxR,minC,maxC,pad,scale,dotR:Math.max(8,scale*.055)*Math.min(1.5,zoom),hitR:Math.max(58,scale*.46)*zoom,lineW:Math.max(10,scale*.085)*Math.min(1.35,zoom)};
+  }
+  function ensureDrawLoop(){
+    if(drawLoop) return;
+    drawLoop = true;
+    requestAnimationFrame(drawFrame);
+  }
+  function drawFrame(){
+    if(game && !game.over){
+      draw();
+      requestAnimationFrame(drawFrame);
+    } else {
+      drawLoop = false;
+    }
+  }
+  function dotPos(dot){
+    const m=boardMetrics();
+    const usedW=(m.maxC-m.minC)*m.scale, usedH=(m.maxR-m.minR)*m.scale;
+    const ox=(canvas.width-usedW)/2, oy=(canvas.height-usedH)/2;
+    return {x:ox+(dot.c-m.minC)*m.scale, y:oy+(dot.r-m.minR)*m.scale};
+  }
+  function pointFromEvent(e){
+    const rect=canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left)*canvas.width/rect.width, y:(e.clientY-rect.top)*canvas.height/rect.height};
+  }
+  function nearestDot(p){
+    let best=null,bestD=Infinity; const m=boardMetrics();
+    for(const dot of game.stage.dots.values()){
+      const pos=dotPos(dot), d=Math.hypot(p.x-pos.x,p.y-pos.y);
+      if(d<bestD){bestD=d;best={...dot,...pos};}
+    }
+    return bestD<=m.hitR ? best : null;
+  }
+  function moveFromDots(a,b){
+    if(!a||!b) return null;
+    const dr=b.r-a.r, dc=b.c-a.c;
+    if(Math.abs(dr)+Math.abs(dc)!==1) return null;
+    const type=dr===0?'h':'v', r=dr===0?a.r:Math.min(a.r,b.r), c=dr===0?Math.min(a.c,b.c):a.c;
+    const key=edgeKey(type,r,c);
+    return game.stage.edges.get(key) || null;
+  }
+  function adjacentCells(edge){
+    const arr=[];
+    if(edge.type==='h'){ arr.push(cellKey(edge.r-1,edge.c), cellKey(edge.r,edge.c)); }
+    else { arr.push(cellKey(edge.r,edge.c-1), cellKey(edge.r,edge.c)); }
+    return arr.filter(k=>game.stage.cells.has(k));
+  }
+  function cellEdges(key){
+    const [r,c]=key.split(',').map(Number);
+    return [edgeKey('h',r,c),edgeKey('h',r+1,c),edgeKey('v',r,c),edgeKey('v',r,c+1)].map(k=>game.stage.edges.get(k));
+  }
+  function sideCount(key, pretend=null){
+    return cellEdges(key).reduce((n,e)=>n+(e.owner || (pretend && e.key===pretend.key) ? 1 : 0),0);
+  }
+
+  function applyMove(edge, player){
+    if(!edge || edge.owner || game.over) return;
+    edge.owner=player;
+    game.moves++;
+    let gained=0, captured=[];
+    for(const key of adjacentCells(edge)){
+      if(!game.stage.boxes.get(key) && sideCount(key)===4){
+        game.stage.boxes.set(key,player); game.scores[player]++; game.completed++; gained++; captured.push(key);
+      }
+    }
+    if(gained){
+      game.chains[player]+=gained; game.chains[player===1?2:1]=0; game.maxChain[player]=Math.max(game.maxChain[player],game.chains[player]);
+      const coinCaptured = captured.map(key=>({key,coin:game.stage.coinBoxes.get(key)})).filter(x=>x.coin);
+      const reward=awardGold(player,coinCaptured);
+      showReward(edge,reward,gained,coinCaptured,player);
+      showToast((gained>1?'Chain x'+game.chains[player]:'+1 box')+(reward?'\n+'+reward+' gold':''));
+      playSfx('capture');
+    } else {
+      game.chains[1]=0; game.chains[2]=0; game.current=game.mode==='tutorial' ? 1 : (player===1?2:1);
+      playSfx('move');
+    }
+    if(game.mode==='online' && !game.suppressBroadcast){
+      saveRoomMove(edge.key, player);
+    }
+    game.hint=null; updateUI(); draw();
+    if(game.mode==='tutorial'){ handleTutorialMove(edge,gained); return; }
+    checkEnd();
+    if(game.mode!=='twoPlayer' && game.mode!=='online' && game.current===2 && !game.over) runAI();
+  }
+  function awardGold(player,coinCaptured){
+    const start=game.chains[player]-coinCaptured.length;
+    let gold=0;
+    coinCaptured.forEach(({key,coin},i)=>{
+      const multiplier = Math.pow(2, Math.min(5,start+i));
+      gold += Math.round(coin.value * multiplier * (coin.multiplier || 1) * (player===1 ? game.goldBoost : 1));
+      game.stage.coinBoxes.delete(key);
+    });
+    game.coins[player]+=gold; return gold;
+  }
+  function checkEnd(){
+    game.objectiveDone = objectiveComplete();
+    if(game.completed>=game.stage.cellCount){
+      return finishStage(hasBoxMajority());
+    }
+  }
+  function objectiveComplete(){
+    const target=game.stage.target;
+    if(target.type==='boxes') return game.scores[1]>=target.value;
+    if(target.type==='gold') return game.coins[1]>=target.value;
+    if(target.type==='chain') return game.maxChain[1]>=target.value;
+    return game.scores[1]-game.scores[2] >= target.value;
+  }
+  function earnedStarCount(majorityWin){
+    if(!majorityWin) return 0;
+    return 1 + (strongBoxWin() ? 1 : 0) + (objectiveComplete() ? 1 : 0);
+  }
+  function finishStage(win){
+    if(game.over) return;
+    game.over=true; game.lastWin=win;
+    game.objectiveDone = objectiveComplete();
+    if(game.mode==='twoPlayer' || game.mode==='online'){
+      const p1Win=hasBoxMajority(), winner=p1Win?'Player 1':'Player 2';
+      const localWon=game.mode==='online' ? ((game.localPlayer===1 && p1Win) || (game.localPlayer===2 && !p1Win)) : p1Win;
+      const localDelta=game.mode==='online' ? stakeDeltaForLocal(p1Win) : 0;
+      if(game.mode==='online'){ applyLocalStakeResult(p1Win); saveOnlineMatchResult(p1Win); refreshProfileAfterOnlineResult(); }
+      els.resultModal.querySelector('.modal-box').className='modal-box '+(localWon?'win':'loss');
+      els.reactionFace.className='reaction-face '+(localWon?'win':'loss');
+      els.reactionFace.textContent=p1Win?'🏆':'🏁';
+      if(game.mode==='online') els.reactionFace.textContent=localWon ? String.fromCodePoint(0x1F3C6) : String.fromCodePoint(0x1F3C1);
+      els.resultTitle.textContent=game.mode==='online' ? (localWon?'You Won':'You Lost') : winner+' Wins';
+      els.resultText.textContent=game.mode==='online' ? stakeResultText(p1Win) : 'Box majority decides multiplayer. Gold and diamonds stay for stage mode.';
+      els.resultBoxes.textContent=game.scores[1]+'-'+game.scores[2];
+      els.resultGold.textContent=game.mode==='online' ? (localDelta>0?'+'+localDelta:String(localDelta)) : '0';
+      els.resultStars.textContent='Duel';
+      els.resultDiamond.textContent='0';
+      els.nextBtn.textContent='Level Map';
+      els.resultModal.classList.add('show');
+      endReaction(localWon); playResultSound(localWon); updateUI();
+      return;
+    }
+    const earnedStars = earnedStarCount(win);
+    const prevStars = stageBestStars(game.stage.id);
+    const diamondEarned = earnedStars===3 && prevStars<3 ? 1 : 0;
+    const objectiveBonus = win && game.objectiveDone ? 20 + game.stage.id*3 : 0;
+    const winBonus = win ? 25 + game.stage.id*5 : 0;
+    const bonus = winBonus + objectiveBonus;
+    game.earnedStars = earnedStars;
+    game.earnedDiamond = diamondEarned;
+    game.finalGold = game.coins[1] + bonus;
+    save.gold += game.finalGold;
+    save.diamonds = (save.diamonds || 0) + diamondEarned;
+    if(earnedStars>prevStars) save.stars[game.stage.id]=earnedStars;
+    if(win && !save.cleared.includes(game.stage.id)) save.cleared.push(game.stage.id);
+    storeSave();
+    syncProfileEconomy();
+    const locked = nextLockedStage();
+    const starNeed = locked ? Math.max(0, starRequirement(locked)-totalStars()) : 0;
+    const needBoxes = majorityNeeded(game.stage);
+    const progressText = win ? (locked ? 'Need '+starNeed+' more '+(starNeed===1?'star':'stars')+' to unlock Stage '+locked+'.' : 'All visible stages unlocked.') : 'Capture '+needBoxes+' boxes to earn stars and unlock stages.';
+    els.resultModal.querySelector('.modal-box').className='modal-box '+(win?'win':'loss');
+    els.reactionFace.className='reaction-face '+(win?'win':'loss');
+    els.reactionFace.textContent=win?'🏆':'😢';
+    els.resultTitle.textContent=earnedStars===3?'Perfect Majority!':(win?'Majority Win!':'Majority Needed');
+    els.resultText.textContent=win ? ('You earned '+earnedStars+'/3 stars. '+(diamondEarned?'Diamond +1. ':'')+progressText) : ('You kept '+game.coins[1]+' gold, but stars need box majority. '+progressText);
+    els.resultBoxes.textContent=game.scores[1]+'-'+game.scores[2];
+    els.resultGold.textContent=game.finalGold;
+    els.resultStars.textContent=starText(earnedStars);
+    els.resultDiamond.textContent=diamondEarned?'+1':'0';
+    els.nextBtn.textContent=win && canPlayStage(game.stage.id+1)?'Next Stage':'Replay Stage';
+    els.resultModal.classList.add('show');
+    endReaction(win);
+    playResultSound(win);
+      updateUI();
+  }
+
+  function onlineStakes(){
+    const s=game?.onlineRoom?.stakes || {};
+    return {p1:Number(s.p1||0),p2:Number(s.p2||0)};
+  }
+  function stakeDeltaForLocal(p1Win){
+    if(!game || game.mode!=='online') return 0;
+    const s=onlineStakes();
+    const localWon=(game.localPlayer===1 && p1Win) || (game.localPlayer===2 && !p1Win);
+    if(localWon) return game.localPlayer===1 ? s.p2 : s.p1;
+    return -(game.localPlayer===1 ? s.p1 : s.p2);
+  }
+  function applyLocalStakeResult(p1Win){
+    if(game.stakeApplied) return;
+    game.stakeApplied=true;
+    const delta=stakeDeltaForLocal(p1Win);
+    if(!delta) return;
+    economySyncPausedUntil=Date.now()+8000;
+    save.gold=Math.max(0, Number(save.gold||0)+delta);
+    if(playerProfile) playerProfile.gold=Math.max(0, Number(playerProfile.gold||0)+delta);
+    storeSave();
+  }
+  function stakeResultText(p1Win){
+    const delta=stakeDeltaForLocal(p1Win);
+    const s=onlineStakes();
+    const winner=p1Win?'Player 1':'Player 2';
+    const line=' Entry Gold: P1 '+s.p1+' gold, P2 '+s.p2+' gold. Reward Pot: '+(s.p1+s.p2)+' gold. '+ENTRY_GOLD_NOTICE;
+    if(delta>0) return winner+' wins by box majority. Reward +'+delta+' gold. '+line;
+    if(delta<0) return winner+' wins by box majority. Entry Gold used '+Math.abs(delta)+' gold. '+line;
+    return winner+' wins by box majority. No Entry Gold changed. '+line;
+  }
+
+  function refreshProfileAfterOnlineResult(){
+    if(!playerProfile || !firebaseReady()) return;
+    const beforeMatches=Number(playerProfile.totalMatches || 0);
+    [1800, 4500].forEach(delay=>{
+      setTimeout(async ()=>{
+        if(!playerProfile || !firebaseReady()) return;
+        try{
+          const fresh=await loadPlayerProfile(firebaseApi().uid);
+          if(!fresh || Number(fresh.totalMatches || 0)<=beforeMatches) return;
+          playerProfile=fresh;
+          save.gold=Number(fresh.gold ?? save.gold ?? 0);
+          storeSave();
+          updateUI();
+          if(els.portalModal.classList.contains('show')) renderPortal();
+        } catch(e){}
+      }, delay);
+    });
+  }
+
+  async function saveOnlineMatchResult(p1Win){
+    const fb=firebaseApi();
+    if(!firebaseReady() || !game || game.mode!=='online') return;
+    const room=game.onlineRoom || {};
+    const p1Uid=room.players?.p1 || room.hostUid;
+    const p2Uid=room.players?.p2 || room.guestUid;
+    if(!p1Uid || !p2Uid || fb.uid!==p1Uid) return;
+    const winnerUid=p1Win?p1Uid:p2Uid, loserUid=p1Win?p2Uid:p1Uid;
+    const stakes=onlineStakes();
+    const winnerGain=p1Win?stakes.p2:stakes.p1;
+    const loserLoss=p1Win?stakes.p2:stakes.p1;
+    try{
+      await fb.update(fb.ref(fb.db), {
+        ['matches/'+game.roomCode]:{
+          roomCode:game.roomCode,
+          p1Uid,
+          p2Uid,
+          p1Score:game.scores[1],
+          p2Score:game.scores[2],
+          winnerUid,
+          stakes,
+          entryGold:stakes,
+          rewardPot:stakes.p1+stakes.p2,
+          createdAt:room.createdAt || Date.now(),
+          finishedAt:fb.serverTimestamp()
+        },
+        ['rooms/'+game.roomCode+'/status']:'finished',
+        ['rooms/'+game.roomCode+'/finishedAt']:fb.serverTimestamp(),
+        ['players/'+winnerUid+'/wins']:fb.increment(1),
+        ['players/'+winnerUid+'/totalMatches']:fb.increment(1),
+        ['players/'+winnerUid+'/gold']:fb.increment(winnerGain),
+        ['players/'+loserUid+'/losses']:fb.increment(1),
+        ['players/'+loserUid+'/totalMatches']:fb.increment(1),
+        ['players/'+loserUid+'/gold']:fb.increment(-loserLoss)
+      });
+    } catch(e){
+      console.warn('Match result save failed:', e);
+    }
+  }
+
+  function runAI(){
+    if(!game || game.over || game.current!==2 || game.aiBusy) return;
+    const activeGame = game;
+    activeGame.aiBusy=true; updateUI();
+    setTimeout(()=>{
+      if(game!==activeGame || activeGame.over || activeGame.current!==2){
+        if(game===activeGame){ activeGame.aiBusy=false; activeGame.aiAnim=null; updateUI(); draw(); }
+        return;
+      }
+      const edge=chooseAIMove();
+      if(edge) animateAIMove(edge, activeGame);
+      else { activeGame.aiBusy=false; updateUI(); }
+    }, 360 + Math.random()*240);
+  }
+  function animateAIMove(edge, activeGame){
+    const start=performance.now(), duration=360;
+    activeGame.aiAnim={edge,progress:0};
+    function frame(now){
+      if(game!==activeGame || activeGame.over) return;
+      activeGame.aiAnim.progress=clamp((now-start)/duration,0,1);
+      draw();
+      if(activeGame.aiAnim.progress<1) requestAnimationFrame(frame);
+      else {
+        activeGame.aiAnim=null;
+        activeGame.aiBusy=false;
+        applyMove(edge,2);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  function availableMoves(){ return [...game.stage.edges.values()].filter(e=>!e.owner); }
+  function moveScore(edge){
+    let capture=0,danger=0,future=0,coin=0;
+    for(const key of adjacentCells(edge)){
+      const before=sideCount(key), after=sideCount(key,edge);
+      if(after===4) capture++;
+      if(after===4 && game.stage.coinBoxes.has(key)){ const c=game.stage.coinBoxes.get(key); coin += c.value*(c.multiplier||1); }
+      if(after===3 && before<3) danger++;
+      if(after===2) future++;
+    }
+    return {capture,danger,future,coin};
+  }
+  function chooseAIMove(){
+    const moves=availableMoves(); if(!moves.length) return null;
+    const skill=game.stage.aiSkill, scored=moves.map(e=>({e,s:moveScore(e)}));
+    const captures=scored.filter(x=>x.s.capture>0);
+    const safe=scored.filter(x=>x.s.danger===0);
+    const nearWin = game.completed > game.stage.cellCount*.65;
+    if(captures.length && Math.random()<clamp(skill+.18,0,1)) return best(captures,x=>x.s.capture*170 + x.s.coin*.4 + x.s.future*9 - edgeCentrality(x.e)*.01 + Math.random()*5).e;
+    if(safe.length && Math.random()<clamp(skill+.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*90 - chainGiftRisk(x.e)*1.2 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*5).e;
+    if(Math.random()>skill) return best(scored,x=>x.s.capture*75 + x.s.coin*.2 - x.s.danger*18 + Math.random()*24).e;
+    return best(scored,x=>x.s.capture*120 + x.s.coin*.25 - x.s.danger*90 + x.s.future*8 - futureDamage(x.e)*12 - chainGiftRisk(x.e)*1.2 + Math.random()*4).e;
+  }
+  function best(arr,fn){ return arr.map(x=>({x,v:fn(x)})).sort((a,b)=>b.v-a.v)[0].x; }
+  function edgeCentrality(e){ const a=dotPos(e.a), b=dotPos(e.b); return Math.hypot((a.x+b.x)/2-450,(a.y+b.y)/2-450); }
+  function futureDamage(edge){ let damage=0; for(const key of adjacentCells(edge)) if(sideCount(key,edge)===3) damage++; return damage; }
+  function endgamePressure(edge){ return adjacentCells(edge).reduce((v,key)=>v+(sideCount(key)>=2?10:0),0); }
+  function chainGiftRisk(edge){
+    let risk=0;
+    for(const key of adjacentCells(edge)){
+      if(sideCount(key,edge)===3){
+        const coin=game.stage.coinBoxes.get(key);
+        risk += 76 + (coin ? coin.value*(coin.multiplier||1)*.7 : 0);
+      }
+    }
+    return risk;
+  }
+
+  function draw(){
+    if(!game) return;
+    ctx.clearRect(0,0,900,900);
+    ctx.fillStyle=game.stage.theme[0]; ctx.fillRect(0,0,900,900);
+    drawCells(); drawEdges(); drawAiAnim(); drawHint(); drawDrag(); drawDots(); drawTutorialGuide();
+  }
+  function drawCells(){
+    const m=boardMetrics();
+    for(const key of game.stage.cells){
+      const [r,c]=key.split(',').map(Number), owner=game.stage.boxes.get(key);
+      const p=dotPos({r,c});
+      ctx.save();
+      ctx.globalAlpha=owner ? .2 : .07;
+      ctx.fillStyle=owner ? (owner===1?'#ff4f6f':'#7c3aed') : game.stage.theme[1];
+      roundRect(p.x+6,p.y+6,m.scale-12,m.scale-12,8); ctx.fill();
+      ctx.globalAlpha=.18; ctx.strokeStyle=game.stage.theme[1]; ctx.lineWidth=2; roundRect(p.x+6,p.y+6,m.scale-12,m.scale-12,8); ctx.stroke();
+      if(!owner && game.stage.coinBoxes.has(key)){
+        const coin=game.stage.coinBoxes.get(key), bob=Math.sin(performance.now()/420 + r*1.7 + c*.9)*m.scale*.025;
+        ctx.globalAlpha=1;
+        drawBoardCoin(p.x+m.scale/2,p.y+m.scale/2+bob,Math.max(14,m.scale*.18),coin);
+      }
+      if(owner){ ctx.globalAlpha=1; ctx.fillStyle=owner===1?'#d7254a':'#5b21b6'; ctx.font=`900 ${Math.max(14,m.scale*.18)}px Arial`; ctx.textAlign='center'; ctx.textBaseline='middle'; const label=(owner===1?'P1':((game.mode==='twoPlayer'||game.mode==='online')?'P2':'AI')); ctx.fillText(label,p.x+m.scale/2,p.y+m.scale/2); }
+      ctx.restore();
+    }
+  }
+  function drawBoardCoin(x,y,r,coin){
+    const bonus=(coin.multiplier || 1)>1, golden=coin.kind==='golden' || bonus;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(1,.82);
+    ctx.shadowColor=bonus?'rgba(245,158,11,.55)':'rgba(166,93,0,.36)';
+    ctx.shadowBlur=bonus?18:12;
+    ctx.shadowOffsetY=5;
+    const g=ctx.createRadialGradient(-r*.35,-r*.35,r*.1,0,0,r);
+    g.addColorStop(0,'#ffffff');
+    g.addColorStop(.28,golden?'#fff176':'#ffd24d');
+    g.addColorStop(.72,golden?'#f59e0b':'#f6b51d');
+    g.addColorStop(1,'#9a5b00');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#fff2a8'; ctx.lineWidth=Math.max(2,r*.16); ctx.stroke();
+    ctx.strokeStyle='rgba(154,91,0,.32)'; ctx.lineWidth=Math.max(1,r*.07);
+    for(let i=-1;i<=1;i++){ ctx.beginPath(); ctx.arc(0,i*r*.05,r*(.55+i*.04),0,Math.PI*2); ctx.stroke(); }
+    ctx.fillStyle='rgba(255,255,255,.72)';
+    ctx.beginPath(); ctx.arc(-r*.28,-r*.34,r*.22,0,Math.PI*2); ctx.fill();
+    if(bonus || golden){
+      ctx.fillStyle='#7c2d12';
+      ctx.font=`900 ${Math.max(9, bonus?r*.62:r*.75)}px Arial`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(bonus ? coin.multiplier+'x' : 'G',0,r*.05);
+    }
+    ctx.restore();
+  }
+  function drawEdges(){
+    const m=boardMetrics();
+    for(const e of game.stage.edges.values()) if(e.owner) line(dotPos(e.a),dotPos(e.b),e.owner===1?'#ff4f6f':'#7c3aed',m.lineW,1);
+  }
+  function drawAiAnim(){
+    if(!game.aiAnim) return;
+    const m=boardMetrics(), e=game.aiAnim.edge, a=dotPos(e.a), b=dotPos(e.b), p=game.aiAnim.progress;
+    line(a,{x:a.x+(b.x-a.x)*p,y:a.y+(b.y-a.y)*p},'#7c3aed',m.lineW*1.18,.9);
+  }
+  function drawHint(){ if(game.hint){ const m=boardMetrics(); line(dotPos(game.hint.a),dotPos(game.hint.b),'#f6b51d',m.lineW*1.4,.65); } }
+  function drawDrag(){
+    if(!game.drag) return;
+    const m=boardMetrics(), a=dotPos(game.drag.start), nd=nearestDot(game.drag.current), move=moveFromDots(game.drag.start,nd);
+    if(move && !move.owner) line(dotPos(move.a),dotPos(move.b),'#101827',m.lineW*1.15,.7);
+    else line(a,game.drag.current,'#ef4444',m.lineW,.42);
+  }
+  function drawDots(){
+    const m=boardMetrics();
+    for(const d of game.stage.dots.values()){
+      const p=dotPos(d); ctx.save(); ctx.shadowColor='rgba(15,23,42,.24)'; ctx.shadowBlur=7; ctx.fillStyle='#111827'; ctx.beginPath(); ctx.arc(p.x,p.y,m.dotR,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(p.x-m.dotR*.25,p.y-m.dotR*.25,Math.max(3,m.dotR*.28),0,Math.PI*2); ctx.fill(); ctx.restore();
+    }
+  }
+  function drawTutorialGuide(){
+    if(!game || game.mode!=='tutorial' || game.over) return;
+    const key=tutorialExpectedEdge();
+    const edge=key && game.stage.edges.get(key);
+    if(!edge) return;
+    const m=boardMetrics(), a=dotPos(edge.a), b=dotPos(edge.b), pulse=.5+Math.sin(performance.now()/180)*.18;
+    line(a,b,'#f6b51d',m.lineW*1.55,pulse);
+    ctx.save();
+    [a,b].forEach((p,i)=>{
+      ctx.shadowColor=i?'#10b981':'#f6b51d'; ctx.shadowBlur=24; ctx.fillStyle=i?'#10b981':'#f6b51d';
+      ctx.beginPath(); ctx.arc(p.x,p.y,m.dotR*2.4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(p.x,p.y,m.dotR*1.1,0,Math.PI*2); ctx.fill();
+    });
+    const t=(Math.sin(performance.now()/520)+1)/2, hx=a.x+(b.x-a.x)*t, hy=a.y+(b.y-a.y)*t;
+    ctx.font='900 42px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.shadowColor='rgba(15,23,42,.35)'; ctx.shadowBlur=12; ctx.fillText('☝',hx,hy-34);
+    ctx.restore();
+  }
+  function line(a,b,color,w,alpha){ ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=w; ctx.lineCap='round'; ctx.shadowColor=color; ctx.shadowBlur=9; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.restore(); }
+  function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  function pointerDown(e){
+    if(!game || game.over || game.aiBusy || !isHumanTurn()) return;
+    const p=pointFromEvent(e), d=nearestDot(p);
+    if(!d){ playSfx('bad'); showToast('Start closer to a dot'); return; }
+    game.drag={start:d,current:p}; canvas.setPointerCapture?.(e.pointerId); e.preventDefault(); draw();
+  }
+  function pointerMove(e){ if(!game || !game.drag) return; game.drag.current=pointFromEvent(e); e.preventDefault(); draw(); }
+  function pointerUp(e){
+    if(!game || !game.drag) return;
+    const p=pointFromEvent(e), end=nearestDot(p), edge=moveFromDots(game.drag.start,end);
+    game.drag=null; e.preventDefault();
+    if(!edge){ playSfx('bad'); showToast('Draw to a nearby dot'); draw(); return; }
+    if(edge.owner){ playSfx('bad'); showToast('Line already used'); draw(); return; }
+    if(game.mode==='tutorial' && edge.key!==tutorialExpectedEdge()){ playSfx('bad'); showToast('Follow the glowing guide'); draw(); return; }
+    applyMove(edge,game.current || 1);
+  }
+  function isHumanTurn(){
+    if(game.mode==='twoPlayer') return true;
+    if(game.mode==='online') return !onlineWaiting() && game.current===game.localPlayer;
+    return game.current===1;
+  }
+  function onlineWaiting(){
+    return game?.mode==='online' && game.localPlayer===1 && /waiting/i.test(game.roomStatus || '');
+  }
+  function cellCenter(key){
+    const [r,c]=key.split(',').map(Number), m=boardMetrics(), p=dotPos({r,c});
+    return {x:p.x+m.scale/2,y:p.y+m.scale/2};
+  }
+  function showReward(edge,gold,gained,captured=[],player=1){
+    const centers = captured.map(x=>cellCenter(x.key));
+    const mid = centers[0] || edgeMid(edge), x=mid.x/900*100, y=mid.y/900*100;
+    if(gold){
+      const label = player===1 ? '+' : ((game.mode==='twoPlayer'||game.mode==='online') ? 'P2 +' : 'AI +');
+      const pop=document.createElement('div'); pop.className='reward-pop'; pop.style.left=x+'%'; pop.style.top=y+'%'; pop.innerHTML=`<span class="coin"></span><b>${label}${gold}</b>`;
+      els.rewardLayer.appendChild(pop); setTimeout(()=>pop.remove(),1050);
+    }
+    centers.forEach((pt,idx)=>flyCoin(pt, player, idx, captured[idx]?.coin));
+    for(let i=0;i<Math.min(18,6+gained*5);i++){ const s=document.createElement('div'); s.className='spark'; s.style.left=x+'%'; s.style.top=y+'%'; s.style.setProperty('--tx',((Math.random()-.5)*140)+'px'); s.style.setProperty('--ty',(-30-Math.random()*110)+'px'); els.rewardLayer.appendChild(s); setTimeout(()=>s.remove(),800); }
+  }
+  function edgeMid(edge){
+    const a=dotPos(edge.a), b=dotPos(edge.b);
+    return {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  }
+  function flyCoin(pt, player, idx, coinData=null){
+    const coin=document.createElement('div');
+    coin.className='fly-coin';
+    if(coinData && (coinData.multiplier || 1)>1) coin.innerHTML='<span>'+coinData.multiplier+'x</span>';
+    coin.style.left=(pt.x/900*100)+'%';
+    coin.style.top=(pt.y/900*100)+'%';
+    const boardRect=els.boardWrap.getBoundingClientRect();
+    const targetEl = player===1 ? els.runGold.closest('.pill') : els.p2Score.closest('.score-box');
+    const target=targetEl.getBoundingClientRect();
+    const startX=pt.x/900*boardRect.width, startY=pt.y/900*boardRect.height;
+    const tx=(target.left+target.width/2-boardRect.left-startX) + (idx%3-1)*8;
+    const ty=(target.top+target.height/2-boardRect.top-startY) - idx*4;
+    coin.style.setProperty('--tx',tx+'px');
+    coin.style.setProperty('--ty',ty+'px');
+    els.rewardLayer.appendChild(coin);
+    setTimeout(()=>coin.remove(),780);
+  }
+  function showToast(text){ els.toast.textContent=text; els.toast.classList.add('show'); setTimeout(()=>els.toast.classList.remove('show'),1200); }
+
+  function initAudio(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+  }
+  function tone(freq,dur=.12,type='sine',gain=.035,delay=0){
+    if(!musicOn) return;
+    try{
+      initAudio();
+      const now=audioCtx.currentTime+delay, o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type=type; o.frequency.setValueAtTime(freq,now);
+      g.gain.setValueAtTime(.0001,now);
+      g.gain.exponentialRampToValueAtTime(gain,now+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+      o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+dur+.03);
+    }catch(e){}
+  }
+  function playSfx(kind){
+    if(kind==='move') return tone(340,.06,'triangle',.02);
+    if(kind==='capture') return [520,660,820].forEach((f,i)=>tone(f,.08,'triangle',.028,i*.055));
+    if(kind==='bad') return tone(130,.12,'sawtooth',.025);
+  }
+  function playResultSound(win){
+    if(win) [520,660,820,1040].forEach((f,i)=>tone(f,.12,'triangle',.04,i*.08));
+    else [280,220,175].forEach((f,i)=>tone(f,.16,'sine',.035,i*.1));
+  }
+  function toggleMusic(){
+    musicTouched=true;
+    musicOn=!musicOn;
+    if(musicOn){ initAudio(); startMusic(); }
+    else stopMusic();
+    updateMusicButtons();
+  }
+  function startMusic(){
+    stopMusic();
+    musicStep=0;
+    musicTimer=setInterval(musicTick,420);
+    musicTick();
+  }
+  function stopMusic(){ if(musicTimer){ clearInterval(musicTimer); musicTimer=null; } }
+  function updateMusicTheme(){ if(musicOn) startMusic(); updateMusicButtons(); }
+  function updateMusicButtons(){
+    const text=musicOn?'♪ Music On':'♪ Music Off';
+    els.musicBtn.textContent=text;
+    els.gameMusicBtn.textContent=musicOn?'♪ On':'♪ Music';
+  }
+  function musicTick(){
+    if(!musicOn) return;
+    const shape=game?.stage?.shape || 'classic';
+    const scales={
+      classic:[262,330,392,494], heart:[294,349,440,523], star:[330,392,494,659],
+      spiral:[247,330,415,554], diamond:[262,311,392,523], bench:[220,294,370,440],
+      festival:[294,370,440,587], map:[247,330,392,494]
+    };
+    const notes=scales[shape]||scales.classic;
+    const n=notes[musicStep%notes.length], bass=notes[(musicStep+1)%notes.length]/2;
+    tone(n,.18,'triangle',.018,0);
+    if(musicStep%2===0) tone(bass,.24,'sine',.012,0);
+    musicStep++;
+  }
+
+  function endReaction(win){
+    const colors=win?['#ff4f6f','#3f8cff','#f6b51d','#10b981','#7c3aed']:['#60a5fa','#93c5fd','#cbd5e1'];
+    const count=win?90:48;
+    for(let i=0;i<count;i++){
+      const d=document.createElement('div');
+      d.className=win?'celebration-piece':'sad-drop';
+      d.style.left=(Math.random()*100)+'vw';
+      d.style.top='-24px';
+      d.style.background=colors[Math.floor(Math.random()*colors.length)];
+      d.style.animationDelay=(Math.random()*.42)+'s';
+      d.style.animationDuration=(win ? .9+Math.random()*.8 : .75+Math.random()*.55)+'s';
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(),1800);
+    }
+  }
+
+  function updateUI(){
+    els.walletGold.textContent=save.gold;
+    els.walletStars.textContent=totalStars();
+    els.walletDiamonds.textContent=save.diamonds || 0;
+    if(!game) return;
+    const st=game.stage;
+    const mode=game.mode || 'ai';
+    if(mode==='tutorial') els.stageName.textContent='Stage 0: Teaching Demo';
+    else if(mode==='twoPlayer') els.stageName.textContent='Offline 2 Players';
+    else if(mode==='online') els.stageName.textContent='Room '+game.roomCode;
+    else els.stageName.textContent='Stage '+st.id+': '+st.name;
+    if(mode==='tutorial') els.stageTarget.textContent='Learn lines, gold, stars, diamonds';
+    else if(mode==='twoPlayer' || mode==='online') els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes, no AI';
+    else els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes · 3★: '+st.target.text+(game.objectiveDone?' ✓':'');
+    els.runGold.textContent=game.coins[1];
+    els.p1Score.textContent=game.scores[1]; els.p2Score.textContent=game.scores[2];
+    els.opponentLabel.textContent=(mode==='twoPlayer'||mode==='online')?'P2 Boxes':(mode==='tutorial'?'Guide Boxes':'AI Boxes');
+    if(game.over) els.turnText.textContent='Done';
+    else if(mode==='tutorial') els.turnText.textContent='Your turn';
+    else if(mode==='twoPlayer') els.turnText.textContent=game.current===1?'P1 turn':'P2 turn';
+    else if(mode==='online') els.turnText.textContent=onlineWaiting()?'Waiting':(game.current===game.localPlayer?'Your turn':'Opponent turn');
+    else els.turnText.textContent=game.aiBusy?'AI move':(game.current===1?'Your turn':'AI turn');
+    if(mode==='tutorial') els.balanceText.textContent='Stage 0';
+    else if(mode==='twoPlayer') els.balanceText.textContent='Local duel';
+    else if(mode==='online') els.balanceText.textContent=game.roomStatus || 'Private room';
+    else els.balanceText.textContent='AI '+Math.round(st.aiSkill*100)+'%';
+    els.zoomBtn.textContent='🔎 '+game.zoom+'x';
+    if(mode==='tutorial') els.hintBtn.textContent='✨ Guide';
+    else if(mode==='twoPlayer' || mode==='online') els.hintBtn.textContent='✨ Off';
+    else {
+      els.hintBtn.textContent=hintCost() ? '✨ Hint '+hintCost() : '✨ Hint';
+      if(save.inventory.hints>0 && game.stage.id>3) els.hintBtn.textContent='✨ Hint '+save.inventory.hints;
+    }
+    els.restartBtn.textContent=game.moves>3 && mode==='ai' ? '↻ Retry '+RETRY_COST : '↻ Reset';
+    if(mode==='ai' && save.inventory.retries>0 && game.moves>3) els.restartBtn.textContent='↻ Shield '+save.inventory.retries;
+    updateMusicButtons();
+  }
+  function cycleZoom(){ const levels=[1,1.3,1.6]; game.zoomMode=(game.zoomMode+1)%levels.length; game.zoom=levels[game.zoomMode]; updateUI(); draw(); showToast(game.zoom===1?'Normal touch':'Easy touch '+game.zoom+'x'); }
+  function hintCost(){ return game && game.stage.id>3 ? HINT_COST : 0; }
+  function hint(){
+    if(game?.mode==='tutorial'){
+      setTeach(game.tutorial.autoDone ? '<b>Your turn:</b> '+game.tutorial.texts[game.tutorial.step] : 'Watch the glowing line first.');
+      draw();
+      return;
+    }
+    if(game?.mode==='twoPlayer' || game?.mode==='online'){ showToast('Hints are for stage mode'); return; }
+    const moves=availableMoves(); if(!moves.length||game.over||game.aiBusy) return;
+    const cost=hintCost();
+    let label='Free hint';
+    if(cost && save.inventory.hints>0){ save.inventory.hints--; label='Hint token used'; storeSave(); }
+    else if(cost && save.gold<cost){ showToast('Need '+cost+' gold for hint'); return; }
+    else if(cost){ save.gold-=cost; label='Hint used -'+cost+' gold'; storeSave(); }
+    const scored=moves.map(e=>({e,s:moveScore(e)})); game.hint=best(scored,x=>x.s.capture*100 + x.s.coin*.55 - x.s.danger*30 + x.s.future*8).e; updateUI(); draw(); showToast(label); setTimeout(()=>{ if(game){game.hint=null; draw();} },1800);
+  }
+  function restartStage(){
+    if(!game) return;
+    if(game.mode==='tutorial'){ startTeachingDemo(); setTimeout(()=>showToast('Demo reset'),80); return; }
+    if(game.mode==='twoPlayer'){ startTwoPlayerStage(); setTimeout(()=>showToast('Duel reset'),80); return; }
+    if(game.mode==='online'){
+      resetOnlineRoom();
+      return;
+    }
+    const id=game.stage.id;
+    let msg = game.moves>3 ? 'Run gold reset' : 'Fresh start';
+    if(game.moves>3 && save.inventory.retries>0){ save.inventory.retries--; storeSave(); msg='Retry shield used'; }
+    else if(game.moves>3 && save.gold>=RETRY_COST){ save.gold-=RETRY_COST; storeSave(); msg='Retry -'+RETRY_COST+' gold'; }
+    startStage(id);
+    setTimeout(()=>showToast(msg),80);
+  }
+  function dailyChest(){
+    const info=dailyRewardInfo();
+    if(info.claimed) return;
+    save.daily=info.today;
+    save.dailyStreak=info.streak;
+    save.gold+=info.reward;
+    storeSave(); syncProfileEconomy(); renderMap();
+  }
+  function openShop(){
+    renderShop();
+    els.shopModal.classList.add('show');
+  }
+  function closeShop(){ els.shopModal.classList.remove('show'); }
+  function renderShop(message=''){
+    els.shopGold.textContent=save.gold;
+    els.shopDiamonds.textContent=save.diamonds || 0;
+    els.shopMsg.textContent=message;
+    els.shopList.innerHTML='';
+    for(const item of SHOP_ITEMS){
+      const card=document.createElement('article');
+      card.className='shop-card';
+      const price = item.cost.gold ? item.cost.gold+' gold' : item.cost.diamonds+' diamond'+(item.cost.diamonds>1?'s':'');
+      card.innerHTML=`<div class="shop-icon">${item.icon}</div><b>${item.title}</b><span>${item.desc}</span><button class="primary">${price}</button>`;
+      card.querySelector('button').addEventListener('click',()=>buyShopItem(item.id));
+      els.shopList.appendChild(card);
+    }
+  }
+  function buyShopItem(id){
+    const item=SHOP_ITEMS.find(x=>x.id===id);
+    if(!item) return;
+    if(item.cost.gold && save.gold<item.cost.gold){ renderShop('Need more gold.'); return; }
+    if(item.cost.diamonds && (save.diamonds||0)<item.cost.diamonds){ renderShop('Need more diamonds.'); return; }
+    if(item.cost.gold) save.gold-=item.cost.gold;
+    if(item.cost.diamonds) save.diamonds-=item.cost.diamonds;
+    if(item.grant.gold) save.gold+=item.grant.gold;
+    if(item.grant.hints) save.inventory.hints+=item.grant.hints;
+    if(item.grant.retries) save.inventory.retries+=item.grant.retries;
+    if(item.grant.boosts) save.inventory.boosts+=item.grant.boosts;
+    storeSave();
+    syncProfileEconomy();
+    updateUI();
+    renderShop(item.title+' added.');
+    renderMap();
+  }
+  function openGuide(){ guideIndex=0; renderGuide(); els.guideModal.classList.add('show'); }
+  function closeGuide(){
+    els.guideModal.classList.remove('show');
+    if(!save.guideSeen){ save.guideSeen=true; storeSave(); }
+  }
+  function renderGuide(){
+    const slide=GUIDE[guideIndex];
+    els.guideIcon.textContent=slide.icon;
+    els.guideTitle.textContent=slide.title;
+    els.guideText.textContent=slide.text;
+    els.guideCount.textContent=(guideIndex+1)+' / '+GUIDE.length;
+    els.guidePrev.disabled=guideIndex===0;
+    els.guideNext.textContent=guideIndex===GUIDE.length-1?'Play':'Next';
+  }
+  function nextGuide(){
+    if(guideIndex<GUIDE.length-1){ guideIndex++; renderGuide(); }
+    else closeGuide();
+  }
+  function prevGuide(){ if(guideIndex>0){ guideIndex--; renderGuide(); } }
+  function nextResultAction(){
+    if(game?.mode==='tutorial'){ startStage(1); return; }
+    if(game?.mode==='twoPlayer' || game?.mode==='online'){ backToMap(); return; }
+    startStage(game.lastWin && canPlayStage(game.stage.id+1) ? game.stage.id+1 : game.stage.id);
+  }
+
+  els.guestBtn.addEventListener('click',continueAsGuest);
+  els.authOpenBtn.addEventListener('click',()=>openAuth('register'));
+  els.registerTab.addEventListener('click',()=>setAuthMode('register'));
+  els.loginTab.addEventListener('click',()=>setAuthMode('login'));
+  els.authSubmitBtn.addEventListener('click',submitAuth);
+  els.authClose.addEventListener('click',closeAuth);
+  els.portalBtn.addEventListener('click',openPortal);
+  els.portalClose.addEventListener('click',closePortal);
+  els.playersOpenBtn.addEventListener('click',openPlayers);
+  els.playersClose.addEventListener('click',closePlayers);
+  els.invitesOpenBtn.addEventListener('click',()=>{ els.portalMsg.textContent=playerProfile?'Incoming challenges pop up automatically.':'Login first.'; });
+  els.historyBtn.addEventListener('click',()=>{ els.portalMsg.textContent='Match history is saved after online matches. Leaderboard comes next.'; });
+  els.logoutBtn.addEventListener('click',()=>playerProfile ? logoutPlayer() : (closePortal(), showWelcome()));
+  els.inviteAcceptBtn.addEventListener('click',acceptInvite);
+  els.inviteRejectBtn.addEventListener('click',rejectInvite);
+  els.dailyBtn.addEventListener('click',dailyChest);
+  els.demoBtn.addEventListener('click',startTeachingDemo);
+  els.twoPlayerBtn.addEventListener('click',startTwoPlayerStage);
+  els.onlineBtn.addEventListener('click',openOnline);
+  els.createRoomBtn.addEventListener('click',createRoom);
+  els.joinRoomBtn.addEventListener('click',joinRoom);
+  els.copyRoomBtn.addEventListener('click',copyRoomCode);
+  els.shareRoomBtn.addEventListener('click',shareRoomCode);
+  els.confirmStakeBtn.addEventListener('click',confirmStake);
+  els.onlineClose.addEventListener('click',closeOnline);
+  els.shopBtn.addEventListener('click',openShop);
+  els.shopClose.addEventListener('click',closeShop);
+  els.guideBtn.addEventListener('click',openGuide);
+  els.guideClose.addEventListener('click',closeGuide);
+  els.guideNext.addEventListener('click',nextGuide);
+  els.guidePrev.addEventListener('click',prevGuide);
+  els.endlessBtn.addEventListener('click',()=>startStage(highestUnlockedStage()));
+  els.musicBtn.addEventListener('click',toggleMusic);
+  els.mapBtn.addEventListener('click',backToMap);
+  els.restartBtn.addEventListener('click',restartStage);
+  els.zoomBtn.addEventListener('click',cycleZoom);
+  els.gameMusicBtn.addEventListener('click',toggleMusic);
+  els.hintBtn.addEventListener('click',hint);
+  els.nextBtn.addEventListener('click',nextResultAction);
+  els.resultMapBtn.addEventListener('click',backToMap);
+  canvas.addEventListener('pointerdown',pointerDown);
+  canvas.addEventListener('pointermove',pointerMove);
+  canvas.addEventListener('pointerup',pointerUp);
+  canvas.addEventListener('pointercancel',pointerUp);
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+  window.addEventListener('resize',draw);
+  window.addEventListener('BCAFirebaseAuthChanged',handleFirebaseAuthChanged);
+  showWelcome();
+  populateDuelStageSelects();
+  renderMap();
+  waitFirebaseSdk().then(()=>handleFirebaseAuthChanged());
+})();
+</script>
+</body>
+</html>
