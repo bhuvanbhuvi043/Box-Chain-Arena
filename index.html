@@ -70,7 +70,8 @@
 
     .map-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
     .brand h1{font-size:34px;line-height:1;letter-spacing:0}.brand p{color:var(--muted);line-height:1.45;margin-top:6px;max-width:720px}
-    .wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;position:relative}
+    .map-menu{position:relative}.map-menu-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(260px,calc(100vw - 24px));background:#fff;border:1px solid rgba(23,32,51,.12);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.map-menu-panel.hidden{display:none!important}.map-menu-panel button{width:100%;box-shadow:none}
     .pill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:999px;padding:9px 12px;font-weight:1000;box-shadow:0 8px 20px rgba(15,23,42,.08)}
     .coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff6a8 0 18%,#ffd24d 34%,#f6b51d 74%,#a65d00 100%);border:2px solid #fff2a8;box-shadow:0 5px 12px rgba(166,93,0,.25),inset -3px -4px 0 rgba(120,53,15,.18)}
     .star-icon{width:24px;height:24px;display:grid;place-items:center;color:#f6b51d;font-size:21px;text-shadow:0 2px 0 #9a5b00,0 6px 12px rgba(154,91,0,.18)}
@@ -125,7 +126,7 @@
     .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
 
     @media(max-width:760px){
-      body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
+      body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.map-menu-panel{left:0;right:auto}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
       .game-screen{padding:8px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto}.score-hud{gap:7px}.score-box strong{font-size:18px}.board-wrap{width:min(100%,calc(100svh - 238px));margin-top:2px}.tool-row button{padding:9px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
       .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
@@ -138,8 +139,8 @@
   <section id="welcomeScreen" class="welcome-screen">
     <div class="welcome-card">
       <h1>Box Chain Arena</h1>
-      <p>Play as guest, or register a nickname to challenge online players and save match stats.</p>
-      <div class="welcome-actions">
+      <p>Loading your arena. Register/login appears only when you choose online player challenges.</p>
+      <div class="welcome-actions hidden">
         <button class="primary" id="guestBtn">Continue as Guest</button>
         <button id="authOpenBtn">Register / Login</button>
       </div>
@@ -157,15 +158,20 @@
         <div class="pill"><span class="coin"></span><span id="walletGold">0</span></div>
         <div class="pill"><span class="star-icon">★</span><span id="walletStars">0</span></div>
         <div class="pill"><span class="diamond-icon">◆</span><span id="walletDiamonds">0</span></div>
-        <button class="soft" id="guideBtn">❔ Guide</button>
-        <button class="soft" id="demoBtn">🎓 Demo</button>
-        <button class="soft" id="twoPlayerBtn">👥 2P</button>
-        <button class="soft" id="onlineBtn">Online</button>
-        <button class="soft" id="portalBtn">👤 Portal</button>
-        <button class="soft" id="shopBtn">🛒 Shop</button>
-        <button class="gold" id="dailyBtn">🎁 Daily</button>
-        <button class="soft" id="musicBtn">♪ Music Off</button>
-        <button class="soft" id="endlessBtn">▶ Next</button>
+        <div class="map-menu">
+          <button class="soft" id="mapMenuBtn">☰ Menu</button>
+          <div class="map-menu-panel hidden" id="mapMenuPanel">
+            <button class="soft" id="onlineBtn">Online</button>
+            <button class="gold" id="dailyBtn">🎁 Daily</button>
+            <button class="soft" id="endlessBtn">▶ Next</button>
+            <button class="soft" id="shopBtn">🛒 Shop</button>
+            <button class="soft" id="portalBtn">👤 Portal</button>
+            <button class="soft" id="guideBtn">❔ Guide</button>
+            <button class="soft" id="demoBtn">🎓 Demo</button>
+            <button class="soft" id="twoPlayerBtn">👥 2P</button>
+            <button class="soft" id="musicBtn">♪ Music Off</button>
+          </div>
+        </div>
       </div>
     </header>
     <section class="map-grid" id="levelMap"></section>
@@ -476,6 +482,7 @@
     mapScreen:document.getElementById('mapScreen'), gameScreen:document.getElementById('gameScreen'),
     levelMap:document.getElementById('levelMap'), walletGold:document.getElementById('walletGold'),
     walletStars:document.getElementById('walletStars'), walletDiamonds:document.getElementById('walletDiamonds'),
+    mapMenuBtn:document.getElementById('mapMenuBtn'), mapMenuPanel:document.getElementById('mapMenuPanel'),
     dailyBtn:document.getElementById('dailyBtn'), endlessBtn:document.getElementById('endlessBtn'), musicBtn:document.getElementById('musicBtn'),
     demoBtn:document.getElementById('demoBtn'), twoPlayerBtn:document.getElementById('twoPlayerBtn'), onlineBtn:document.getElementById('onlineBtn'), portalBtn:document.getElementById('portalBtn'),
     shopBtn:document.getElementById('shopBtn'), shopModal:document.getElementById('shopModal'),
@@ -591,6 +598,20 @@
     {icon:'OK', title:'Ready Lobby', text:'Both players confirm. Then the match starts automatically.'},
     {icon:'@', title:'Online Players', text:'Registered players can challenge each other directly.'}
   ];
+  const MASTER_AI_PLAYER = {uid:'master-ai',nickname:'Master AI',online:true,isMasterAI:true,wins:999,losses:12,meta:'Always online - very tough'};
+  const DUMMY_ONLINE_PLAYERS = [
+    {uid:'demo-ravi',nickname:'Ravi Demo',online:true,isDummy:true,wins:8,losses:5},
+    {uid:'demo-meena',nickname:'Meena Demo',online:true,isDummy:true,wins:5,losses:3},
+    {uid:'demo-arun',nickname:'Arun Demo',online:false,isDummy:true,wins:3,losses:4}
+  ];
+  const MASTER_AI_STAKE = 100;
+  const STARTER_PLAYER_STAKE = 50;
+  const MUSIC_TRACKS = {
+    map:{src:'https://opengameart.org/sites/default/files/flowerbed_fields.ogg',name:'Flowerbed Fields',source:'OpenGameArt CC0'},
+    stage:{src:'https://opengameart.org/sites/default/files/8BitBattleLoop_0.ogg',name:'8-Bit Battle Loop',source:'OpenGameArt CC0'},
+    online:{src:'https://opengameart.org/sites/default/files/battle_music_01-loop.ogg',name:'Chiptune Battle Music',source:'OpenGameArt CC0'},
+    master:{src:'https://opengameart.org/sites/default/files/boss_battle_loop_0.mp3',name:'Boss Battle Loop',source:'OpenGameArt CC0'}
+  };
   const TARGETS = ['boxes','gold','chain','margin'];
   const BASE_GOLD = 10;
   const HINT_COST = 20;
@@ -622,7 +643,11 @@
   let invitesUnsub = null;
   let activeInvite = null;
   let selectedChallengeTarget = null;
-  let audioCtx = null, musicTimer = null, musicOn = false, musicTouched = false, musicStep = 0;
+  let mapEntered = false;
+  let challengePracticeMode = false;
+  let onlineTrainingPending = false;
+  let introTimer = null;
+  let audioCtx = null, musicTimer = null, musicAudio = null, activeMusicKey = '', musicOn = false, musicTouched = false, musicStep = 0;
   let guideIndex = 0;
   let onlineGuideIndex = 0;
   let drawLoop = false;
@@ -632,7 +657,45 @@
     try{return normalizeSave(Object.assign(base, JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')));}
     catch(e){return normalizeSave(base);}
   }
-  function storeSave(){ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }
+  function storeSave(){
+    localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+    syncCloudSave();
+  }
+  function saveSnapshot(){
+    return {
+      gold:Number(save.gold||0),
+      diamonds:Number(save.diamonds||0),
+      stars:save.stars || {},
+      cleared:save.cleared || [],
+      daily:save.daily || '',
+      dailyStreak:Number(save.dailyStreak||0),
+      inventory:save.inventory || {},
+      guideSeen:!!save.guideSeen,
+      onlineGuideSeen:!!save.onlineGuideSeen,
+      tutorialDone:!!save.tutorialDone
+    };
+  }
+  function hydrateSaveFromProfile(profile){
+    if(!profile) return;
+    const cloudSave=profile.save || profile.saveSnapshot;
+    if(cloudSave && typeof cloudSave==='object') save=normalizeSave(Object.assign(save, cloudSave));
+    if(Number.isFinite(Number(profile.gold))) save.gold=Number(profile.gold);
+    if(Number.isFinite(Number(profile.diamonds))) save.diamonds=Number(profile.diamonds);
+    if(introTimer && save.tutorialDone){ clearTimeout(introTimer); introTimer=null; }
+    storeSave();
+    updateUI();
+    renderMap();
+  }
+  function syncCloudSave(){
+    const fb=firebaseApi();
+    if(!fb || !fb.uid || !firebaseReady()) return;
+    const payload=Object.assign(saveSnapshot(), {lastSeen:Date.now()});
+    if(playerProfile){
+      fb.update(fb.ref(fb.db,'players/'+fb.uid), {gold:payload.gold,diamonds:payload.diamonds,stars:totalStars(),save:payload,lastSeen:payload.lastSeen}).catch(()=>{});
+    } else {
+      fb.update(fb.ref(fb.db,'guestPlayers/'+fb.uid), payload).catch(()=>{});
+    }
+  }
   function normalizeSave(data){
     data.gold=Number(data.gold||0);
     data.diamonds=Number(data.diamonds||0);
@@ -878,7 +941,7 @@
     if(!musicTouched && !musicOn){ musicOn=true; initAudio(); startMusic(); }
     updateMusicTheme();
     ensureDrawLoop();
-    updateUI(); draw(); showToast(goldBoost>1 ? 'Coin Burst active\n'+stage.target.text : stage.target.text);
+    updateUI(); draw(); playSfx('start'); showToast(goldBoost>1 ? 'Coin Burst active\n'+stage.target.text : stage.target.text);
   }
   function startTeachingDemo(){
     closeOnlineChannel();
@@ -889,7 +952,7 @@
     document.body.dataset.boardTheme='star';
     window.scrollTo(0,0);
     els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
-    updateUI(); ensureDrawLoop(); draw();
+    updateUI(); ensureDrawLoop(); draw(); playSfx('start');
     setTeach('Watch first: draw a line from one glowing dot to the next.');
     setTimeout(()=>autoTutorialMove('h:0:0'),700);
   }
@@ -905,7 +968,7 @@
     document.body.dataset.boardTheme=stage.shape;
     window.scrollTo(0,0);
     els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
-    updateUI(); ensureDrawLoop(); draw(); showToast('Offline 2 Players\nPass the phone each turn');
+    updateUI(); ensureDrawLoop(); draw(); playSfx('start'); showToast('Offline 2 Players\nPass the phone each turn');
   }
   function startOnlineRoom(code, localPlayer, status, stageId=1){
     hideAccountModals();
@@ -919,9 +982,38 @@
     window.scrollTo(0,0);
     setupOnlineChannel(code);
     els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
-    updateUI(); ensureDrawLoop(); draw(); showToast(status+'\nRoom '+code);
+    updateUI(); ensureDrawLoop(); draw(); playSfx('start'); showToast(status+'\nRoom '+code);
   }
-  function backToMap(){ closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); }
+  function validateMasterStake(amount){
+    const max=Math.min(STARTER_PLAYER_STAKE, Number(save.gold||0));
+    if(amount>max){
+      els.playersMsg.textContent='Master AI practice stake limit is '+max+' gold.';
+      return false;
+    }
+    return true;
+  }
+  function startMasterAiDuel(){
+    const stake=challengeStakeAmount();
+    if(!validateMasterStake(stake)) return;
+    const stageId=1+Math.floor(Math.random()*DUEL_STAGE_COUNT);
+    const stage=buildStage(stageId);
+    stage.name='Master AI: '+stage.name;
+    stage.opponent={name:'Master AI',base:.99,style:'master'};
+    stage.aiSkill=.992;
+    stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
+    closePlayers();
+    hideAccountModals();
+    setTeach('');
+    game={mode:'masterAI',stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,masterStake:{player:stake,ai:MASTER_AI_STAKE}};
+    document.body.classList.add('playing');
+    document.body.dataset.boardTheme=stage.shape;
+    window.scrollTo(0,0);
+    els.mapScreen.classList.add('hidden'); els.gameScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show');
+    updateMusicTheme();
+    ensureDrawLoop();
+    updateUI(); draw(); playSfx('challenge'); showToast('Master AI chose '+stage.name+'\nYour stake '+stake+' vs '+MASTER_AI_STAKE);
+  }
+  function backToMap(){ closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); updateMusicTheme(); }
   function setTeach(text){
     if(!els.teachBanner) return;
     els.teachBanner.innerHTML=text;
@@ -963,7 +1055,7 @@
     els.resultGold.textContent=reward;
     els.resultStars.textContent='Demo';
     els.resultDiamond.textContent='0';
-    els.nextBtn.textContent='Start Stage 1';
+    els.nextBtn.textContent='Online Guide';
     els.resultModal.classList.add('show');
     endReaction(true); playResultSound(true); updateUI();
   }
@@ -1020,6 +1112,7 @@
     els.confirmStakeBtn.classList.add('hidden');
     setOnlineFlowState('choice');
     els.onlineModal.classList.add('show');
+    playSfx('room');
     maybeOpenOnlineGuide();
   }
   function closeOnline(){
@@ -1051,8 +1144,7 @@
       openPlayers();
       return;
     }
-    openPortal();
-    els.portalMsg.textContent='Register/Login to challenge online players. Room-code play works in guest mode.';
+    openPracticePlayers();
   }
   function firebaseApi(){ return window.BCAFirebase || null; }
   function firebaseReady(){ const fb=firebaseApi(); return !!(fb && fb.ready && fb.uid); }
@@ -1086,11 +1178,28 @@
     els.gameScreen.classList.add('hidden');
   }
   function enterMap(){
+    const firstEntry=!mapEntered;
+    mapEntered=true;
     els.welcomeScreen.classList.add('hidden');
     els.mapScreen.classList.remove('hidden');
     renderMap();
-    if(!save.tutorialDone) setTimeout(startTeachingDemo, 300);
-    else if(!save.guideSeen) setTimeout(openGuide, 250);
+    updateMusicTheme();
+    if(firstEntry && !save.tutorialDone) introTimer=setTimeout(()=>{ introTimer=null; if(!save.tutorialDone) startTeachingDemo(); }, 900);
+    else if(firstEntry && !save.guideSeen) setTimeout(openGuide, 250);
+  }
+  async function bootGame(){
+    els.welcomeMsg.textContent='Loading arena...';
+    enterMap();
+    const fb=await waitFirebaseSdk();
+    if(!fb) return;
+    try{
+      if(!firebaseReady() && !fb.user) await fb.signInAnonymously(fb.auth);
+      await waitFirebaseReady(4500);
+      await handleFirebaseAuthChanged();
+      syncCloudSave();
+    } catch(e){
+      console.warn('Background Firebase sign-in failed:', e);
+    }
   }
   async function continueAsGuest(){
     els.welcomeMsg.textContent='Connecting guest...';
@@ -1125,6 +1234,7 @@
     els.portalModal.classList.remove('show');
     els.playersModal.classList.remove('show');
     els.invitePopup.classList.remove('show');
+    closeMapMenu();
     if(playersUnsub){ try{ playersUnsub(); } catch(e){} playersUnsub=null; }
   }
   function setAuthMode(mode){
@@ -1158,7 +1268,7 @@
       els.authMsg.textContent='Creating player...';
       const result=await fb.createUserWithEmailAndPassword(fb.auth,email,password);
       const uid=result.user.uid, now=Date.now();
-      const profile={uid,email,nickname,nicknameLower:lower,status:'online',lastSeen:now,currentRoom:'',wins:0,losses:0,totalMatches:0,gold:save.gold||0,stars:totalStars(),diamonds:save.diamonds||0,createdAt:now};
+      const profile={uid,email,nickname,nicknameLower:lower,status:'online',lastSeen:now,currentRoom:'',wins:0,losses:0,totalMatches:0,gold:save.gold||0,stars:totalStars(),diamonds:save.diamonds||0,save:saveSnapshot(),createdAt:now};
       await fb.update(fb.ref(fb.db), {
         ['players/'+uid]:profile,
         ['nicknames/'+lower]:uid,
@@ -1254,8 +1364,8 @@
     }
     try{ if(fb) await fb.signOut(fb.auth); } catch(e){}
     currentUser=null; playerProfile=null;
-    closePortal(); closePlayers(); showWelcome();
-    els.welcomeMsg.textContent='Signed out.';
+    closePortal(); closePlayers(); enterMap();
+    showToast('Signed out');
   }
   async function handleFirebaseAuthChanged(){
     const fb=firebaseApi();
@@ -1268,6 +1378,7 @@
     if(profile){
       currentUser={uid:fb.user.uid,email:fb.user.email,isGuest:false};
       playerProfile=profile;
+      hydrateSaveFromProfile(profile);
       await setPlayerOnline();
       startPresence();
       listenInvites();
@@ -1275,8 +1386,23 @@
     } else if(fb.user.isAnonymous){
       currentUser={uid:fb.user.uid,isGuest:true};
       playerProfile=null;
+      await hydrateGuestSave(fb.user.uid);
       els.welcomeMsg.textContent='Guest ready.';
     }
+  }
+  async function hydrateGuestSave(uid){
+    const fb=firebaseApi();
+    if(!fb || !uid) return;
+    try{
+      const snap=await fb.get(fb.ref(fb.db,'guestPlayers/'+uid));
+      if(snap.exists()){
+        save=normalizeSave(Object.assign(save, snap.val() || {}));
+        if(introTimer && save.tutorialDone){ clearTimeout(introTimer); introTimer=null; }
+        storeSave();
+        updateUI();
+        renderMap();
+      }
+    } catch(e){}
   }
   function syncProfileEconomy(){
     if(!playerProfile) return;
@@ -1286,7 +1412,7 @@
     playerProfile.diamonds=save.diamonds||0;
     const fb=firebaseApi();
     if(firebaseReady()){
-      const payload={stars:playerProfile.stars,diamonds:playerProfile.diamonds,lastSeen:Date.now()};
+      const payload={stars:playerProfile.stars,diamonds:playerProfile.diamonds,save:saveSnapshot(),lastSeen:Date.now()};
       if(!pauseGoldSync) payload.gold=playerProfile.gold;
       fb.update(fb.ref(fb.db,'players/'+fb.uid), payload).catch(()=>{});
     }
@@ -1308,14 +1434,16 @@
     els.portalStatus.textContent=p?'Online':'Guest';
     els.portalGold.textContent=p?.gold ?? save.gold ?? 0;
     els.portalDiamonds.textContent=p?.diamonds ?? save.diamonds ?? 0;
-    els.playersOpenBtn.disabled=!p;
+    els.playersOpenBtn.disabled=false;
+    els.playersOpenBtn.textContent=p?'Online Players':'Register / Login';
     els.invitesOpenBtn.disabled=!p;
     els.historyBtn.disabled=!p;
-    els.logoutBtn.textContent=p?'Logout':'Back to Welcome';
+    els.logoutBtn.textContent=p?'Logout':'Close';
     els.portalMsg.textContent=p?entryLimitText():'Register/Login to use player challenges.';
   }
   function openPlayers(){
     if(!playerProfile){ els.portalMsg.textContent='Login first to challenge players.'; return; }
+    challengePracticeMode=false;
     applyEntryGoldLimits();
     clearChallengeTarget();
     els.playersIntro.textContent='Select an online player, then choose arena and optional Entry Gold.';
@@ -1323,9 +1451,19 @@
     els.playersModal.classList.add('show');
     listenPlayers();
   }
+  function openPracticePlayers(showDummies=false){
+    challengePracticeMode=true;
+    applyEntryGoldLimits();
+    clearChallengeTarget();
+    els.playersIntro.textContent=showDummies ? 'Practice the online flow. Dummy players show how challenges look; Master AI is always playable.' : 'No real players online? Challenge Master AI anytime.';
+    els.playersModal.classList.add('show');
+    renderPlayers([MASTER_AI_PLAYER, ...(showDummies ? DUMMY_ONLINE_PLAYERS : [])]);
+    els.playersMsg.textContent='No one is online right now. Please play with Master AI. It stakes '+MASTER_AI_STAKE+' virtual gold.';
+  }
   function closePlayers(){
     els.playersModal.classList.remove('show');
     clearChallengeTarget();
+    challengePracticeMode=false;
     if(playersUnsub){ try{ playersUnsub(); } catch(e){} playersUnsub=null; }
   }
   function listenPlayers(){
@@ -1342,7 +1480,7 @@
         rows.push({...p,uid,online});
       });
       rows.sort((a,b)=>Number(b.online)-Number(a.online) || String(a.nickname||'').localeCompare(String(b.nickname||'')));
-      renderPlayers(rows);
+      renderPlayers([MASTER_AI_PLAYER, ...rows]);
     });
   }
   function renderPlayers(rows){
@@ -1362,6 +1500,7 @@
     els.challengeSetup.classList.add('hidden');
     els.playersList.classList.remove('hidden');
     els.challengeStakeInput.value='0';
+    applyEntryGoldLimits();
     setStakePresetActive(els.challengeStakePresets, 0);
   }
   function selectChallengeTarget(player){
@@ -1376,6 +1515,58 @@
     if(!selectedChallengeTarget){ els.playersMsg.textContent='Choose a player first.'; return; }
     sendChallenge(selectedChallengeTarget.uid, selectedChallengeTarget.nickname);
   }
+  function renderPlayers(rows){
+    els.playersList.innerHTML='';
+    if(!rows.length){
+      els.playersList.innerHTML='<div class="player-row"><div><div class="player-name">No players yet</div><div class="player-meta">Master AI practice is available while you wait for real players.</div></div></div>';
+      els.playersMsg.textContent=challengePracticeMode?'Choose Master AI to practice now.':'No real players online yet.';
+      return;
+    }
+    for(const p of rows){
+      const row=document.createElement('div');
+      row.className='player-row';
+      const label=p.isMasterAI?'Challenge':(p.isDummy?'Demo':'Challenge');
+      const meta=p.meta || (p.isDummy?'Demo player - not a real account':((p.online?'Online':'Offline')+' · '+(p.wins||0)+'W '+(p.losses||0)+'L'));
+      row.innerHTML=`<div><div class="player-name"><span class="dot ${p.online?'online':''}"></span>${safeHtml(p.nickname||'Player')}</div><div class="player-meta">${safeHtml(meta)}</div></div><button ${p.online||p.isDummy||p.isMasterAI?'':'disabled'}>${label}</button>`;
+      row.querySelector('button').addEventListener('click',()=>selectChallengeTarget(p));
+      els.playersList.appendChild(row);
+    }
+    if(!challengePracticeMode){
+      const realCount=rows.filter(p=>!p.isMasterAI && !p.isDummy).length;
+      els.playersMsg.textContent=realCount ? 'Online players appear first. '+entryLimitText() : 'No one is online right now. Please play with Master AI.';
+    }
+  }
+  function selectChallengeTarget(player){
+    selectedChallengeTarget={uid:player.uid,nickname:player.nickname||'Player',isMasterAI:!!player.isMasterAI,isDummy:!!player.isDummy};
+    applyEntryGoldLimits();
+    if(selectedChallengeTarget.isMasterAI){
+      els.challengeStakeInput.max=String(Math.min(STARTER_PLAYER_STAKE, Number(save.gold||0)));
+      if(parseStake(els.challengeStakeInput)>Number(els.challengeStakeInput.max)) els.challengeStakeInput.value=els.challengeStakeInput.max;
+    }
+    els.playersList.classList.add('hidden');
+    els.challengeSetup.classList.remove('hidden');
+    playSfx(selectedChallengeTarget.isMasterAI?'challenge':'ready');
+    updateChallengeStakeWindow();
+  }
+  function updateChallengeStakeWindow(){
+    if(!selectedChallengeTarget) return;
+    const stake=challengeStakeAmount();
+    if(selectedChallengeTarget.isMasterAI){
+      els.challengeTargetSummary.textContent='Master AI stakes '+MASTER_AI_STAKE+' gold. You stake '+stake+' gold. Reward pot: '+(MASTER_AI_STAKE+stake)+' gold.';
+      els.playersMsg.textContent='Master AI chooses a random arena. Your limit here is 0-'+els.challengeStakeInput.max+' gold. No real money value.';
+      return;
+    }
+    els.challengeTargetSummary.textContent=selectedChallengeTarget.isDummy
+      ? 'Demo player preview. Choose Master AI to play now, or register/login for real players.'
+      : 'Challenge '+selectedChallengeTarget.nickname+'. Your Entry Gold: '+stake+' gold.';
+    els.playersMsg.textContent=selectedChallengeTarget.isDummy ? 'Dummy players are shown only during newcomer guidance.' : 'Opponent confirms their Entry Gold after accepting. '+ENTRY_GOLD_NOTICE;
+  }
+  function sendSelectedChallenge(){
+    if(!selectedChallengeTarget){ els.playersMsg.textContent='Choose a player first.'; return; }
+    if(selectedChallengeTarget.isMasterAI){ startMasterAiDuel(); return; }
+    if(selectedChallengeTarget.isDummy){ els.playersMsg.textContent='Dummy players are only for the online guide. Master AI is playable now; real players need register/login.'; return; }
+    sendChallenge(selectedChallengeTarget.uid, selectedChallengeTarget.nickname);
+  }
   async function sendChallenge(receiverUid, receiverNickname){
     if(!playerProfile){ els.playersMsg.textContent='Login first.'; return; }
     const stake=challengeStakeAmount(), stageId=selectedChallengeStageId();
@@ -1386,6 +1577,7 @@
       const inviteRef=fb.push(fb.ref(fb.db,'invites/'+receiverUid));
       await fb.set(inviteRef,{fromUid:fb.uid,fromNickname:playerProfile.nickname,fromStake:stake,stageId,status:'pending',roomCode:'',createdAt:fb.serverTimestamp()});
       els.playersMsg.textContent='Challenge sent to '+receiverNickname+' with '+stake+' Entry Gold.';
+      playSfx('challenge');
       listenInviteResponse(receiverUid, inviteRef.key);
     } catch(e){
       console.warn('Challenge failed:', e);
@@ -1438,6 +1630,7 @@
     els.inviteText.textContent=(invite.fromNickname||'A player')+' challenged you on '+stageNameById(invite.stageId||1)+' with '+Number(invite.fromStake||0)+' Entry Gold. '+ENTRY_GOLD_NOTICE;
     els.inviteStakeInput.value='0';
     els.invitePopup.classList.add('show');
+    playSfx('challenge');
   }
   function hideInvite(){
     activeInvite=null;
@@ -1455,6 +1648,7 @@
       });
       await fb.update(fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id),{status:'accepted',roomCode:code,acceptedAt:fb.serverTimestamp()});
       hideInvite();
+      playSfx('ready');
       els.roomCode.textContent=code;
       els.roomStatus.textContent='Waiting for challenger to confirm Entry Gold.';
       setOnlineFlowState('stake');
@@ -1618,7 +1812,8 @@
       payload.boardSeed=stageId;
     }
     await fb.update(fb.ref(fb.db, firebaseRoomPath(code)), payload);
-    els.roomStatus.textContent='Entry Gold confirmed. Waiting for opponent...';
+      els.roomStatus.textContent='Entry Gold confirmed. Waiting for opponent...';
+    playSfx('ready');
   }
   async function createRoom(){
     closeOnlineChannel();
@@ -1649,6 +1844,7 @@
         createdAt:fb.serverTimestamp()
       });
       els.roomStatus.textContent='Waiting for friend... Share this code.';
+      playSfx('room');
       listenFirebaseLobby(code,1);
     } catch(e){
       console.warn('Firebase room create failed:', e);
@@ -1661,6 +1857,7 @@
     try{
       await navigator.clipboard.writeText(code);
       els.roomStatus.textContent='Room code copied. Waiting for friend...';
+      playSfx('copy');
     } catch(e){
       els.roomStatus.textContent='Room code: '+code;
     }
@@ -1673,6 +1870,7 @@
       if(navigator.share) await navigator.share({title:'Box Chain Arena',text});
       else if(navigator.clipboard) await navigator.clipboard.writeText(text);
       els.roomStatus.textContent='Room code ready to share.';
+      playSfx('copy');
     } catch(e){
       els.roomStatus.textContent='Room code: '+code;
     }
@@ -1703,6 +1901,7 @@
       els.roomCode.textContent=code;
       setOnlineFlowState('stake');
       els.roomStatus.textContent='Duel lobby ready. Confirm Entry Gold to start.';
+      playSfx('ready');
       listenFirebaseLobby(code,2);
     } catch(e){
       console.warn('Firebase room join failed:', e);
@@ -1938,7 +2137,7 @@
       const reward=awardGold(player,coinCaptured);
       showReward(edge,reward,gained,coinCaptured,player);
       showToast((gained>1?'Chain x'+game.chains[player]:'+1 box')+(reward?'\n+'+reward+' gold':''));
-      playSfx('capture');
+      playSfx(gained>1?'chain':'capture');
     } else {
       game.chains[1]=0; game.chains[2]=0; game.current=game.mode==='tutorial' ? 1 : (player===1?2:1);
       playSfx('move');
@@ -1982,22 +2181,24 @@
     if(game.over) return;
     game.over=true; game.lastWin=win;
     game.objectiveDone = objectiveComplete();
-    if(game.mode==='twoPlayer' || game.mode==='online'){
+    if(game.mode==='twoPlayer' || game.mode==='online' || game.mode==='masterAI'){
       const p1Win=hasBoxMajority(), winner=p1Win?'Player 1':'Player 2';
       const localWon=game.mode==='online' ? ((game.localPlayer===1 && p1Win) || (game.localPlayer===2 && !p1Win)) : p1Win;
-      const localDelta=game.mode==='online' ? stakeDeltaForLocal(p1Win) : 0;
+      const localDelta=game.mode==='online' ? stakeDeltaForLocal(p1Win) : (game.mode==='masterAI' ? masterAiStakeDelta(p1Win) : 0);
       if(game.mode==='online'){ applyLocalStakeResult(p1Win); saveOnlineMatchResult(p1Win); refreshProfileAfterOnlineResult(); }
+      if(game.mode==='masterAI'){ applyMasterAiStakeResult(p1Win); }
       els.resultModal.querySelector('.modal-box').className='modal-box '+(localWon?'win':'loss');
       els.reactionFace.className='reaction-face '+(localWon?'win':'loss');
       els.reactionFace.textContent=p1Win?'🏆':'🏁';
-      if(game.mode==='online') els.reactionFace.textContent=localWon ? String.fromCodePoint(0x1F3C6) : String.fromCodePoint(0x1F3C1);
-      els.resultTitle.textContent=game.mode==='online' ? (localWon?'You Won':'You Lost') : winner+' Wins';
-      els.resultText.textContent=game.mode==='online' ? stakeResultText(p1Win) : 'Box majority decides multiplayer. Gold and diamonds stay for stage mode.';
+      if(game.mode==='online' || game.mode==='masterAI') els.reactionFace.textContent=localWon ? String.fromCodePoint(0x1F3C6) : String.fromCodePoint(0x1F3C1);
+      els.resultTitle.textContent=game.mode==='online' ? (localWon?'You Won':'You Lost') : (game.mode==='masterAI' ? (localWon?'You Beat Master AI':'Master AI Wins') : winner+' Wins');
+      els.resultText.textContent=game.mode==='online' ? stakeResultText(p1Win) : (game.mode==='masterAI' ? masterAiResultText(p1Win) : 'Box majority decides multiplayer. Gold and diamonds stay for stage mode.');
       els.resultBoxes.textContent=game.scores[1]+'-'+game.scores[2];
-      els.resultGold.textContent=game.mode==='online' ? (localDelta>0?'+'+localDelta:String(localDelta)) : '0';
+      els.resultGold.textContent=(game.mode==='online' || game.mode==='masterAI') ? (localDelta>0?'+'+localDelta:String(localDelta)) : '0';
       els.resultStars.textContent='Duel';
       els.resultDiamond.textContent='0';
-      els.nextBtn.textContent='Level Map';
+      els.nextBtn.textContent=game.mode==='online' ? 'Rematch Room' : (game.mode==='masterAI' ? 'Next Challenge' : 'Level Map');
+      els.resultMapBtn.textContent='Level Map';
       els.resultModal.classList.add('show');
       endReaction(localWon); playResultSound(localWon); updateUI();
       return;
@@ -2041,6 +2242,26 @@
     const s=game?.onlineRoom?.stakes || {};
     return {p1:Number(s.p1||0),p2:Number(s.p2||0)};
   }
+  function masterAiStakeDelta(p1Win){
+    const s=game?.masterStake || {};
+    return p1Win ? Number(s.ai || MASTER_AI_STAKE) : -Number(s.player || 0);
+  }
+  function applyMasterAiStakeResult(p1Win){
+    if(game.stakeApplied) return;
+    game.stakeApplied=true;
+    const delta=masterAiStakeDelta(p1Win);
+    if(delta) save.gold=Math.max(0, Number(save.gold||0)+delta);
+    storeSave();
+    syncProfileEconomy();
+  }
+  function masterAiResultText(p1Win){
+    const s=game?.masterStake || {};
+    const playerStake=Number(s.player || 0), aiStake=Number(s.ai || MASTER_AI_STAKE);
+    const delta=masterAiStakeDelta(p1Win);
+    if(delta>0) return 'Master AI staked '+aiStake+' gold. You won +'+delta+' virtual gold. Next Challenge gives a new random arena. '+ENTRY_GOLD_NOTICE;
+    if(delta<0) return 'Master AI wins by box majority. Your Entry Gold used '+Math.abs(delta)+' gold. Try Next Challenge or return to the map. '+ENTRY_GOLD_NOTICE;
+    return 'Practice duel finished with no player Entry Gold. Master AI stake: '+aiStake+' gold. Next Challenge gives a new random arena. '+ENTRY_GOLD_NOTICE;
+  }
   function stakeDeltaForLocal(p1Win){
     if(!game || game.mode!=='online') return 0;
     const s=onlineStakes();
@@ -2062,7 +2283,7 @@
     const delta=stakeDeltaForLocal(p1Win);
     const s=onlineStakes();
     const winner=p1Win?'Player 1':'Player 2';
-    const line=' Entry Gold: P1 '+s.p1+' gold, P2 '+s.p2+' gold. Reward Pot: '+(s.p1+s.p2)+' gold. '+ENTRY_GOLD_NOTICE;
+    const line=' Entry Gold: P1 '+s.p1+' gold, P2 '+s.p2+' gold. Reward Pot: '+(s.p1+s.p2)+' gold. Use Rematch Room to continue or Level Map to wind up. '+ENTRY_GOLD_NOTICE;
     if(delta>0) return winner+' wins by box majority. Reward +'+delta+' gold. '+line;
     if(delta<0) return winner+' wins by box majority. Entry Gold used '+Math.abs(delta)+' gold. '+line;
     return winner+' wins by box majority. No Entry Gold changed. '+line;
@@ -2326,6 +2547,7 @@
       const label = player===1 ? '+' : ((game.mode==='twoPlayer'||game.mode==='online') ? 'P2 +' : 'AI +');
       const pop=document.createElement('div'); pop.className='reward-pop'; pop.style.left=x+'%'; pop.style.top=y+'%'; pop.innerHTML=`<span class="coin"></span><b>${label}${gold}</b>`;
       els.rewardLayer.appendChild(pop); setTimeout(()=>pop.remove(),1050);
+      playSfx('coin');
     }
     centers.forEach((pt,idx)=>flyCoin(pt, player, idx, captured[idx]?.coin));
     for(let i=0;i<Math.min(18,6+gained*5);i++){ const s=document.createElement('div'); s.className='spark'; s.style.left=x+'%'; s.style.top=y+'%'; s.style.setProperty('--tx',((Math.random()-.5)*140)+'px'); s.style.setProperty('--ty',(-30-Math.random()*110)+'px'); els.rewardLayer.appendChild(s); setTimeout(()=>s.remove(),800); }
@@ -2357,42 +2579,103 @@
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if(audioCtx.state==='suspended') audioCtx.resume();
   }
-  function tone(freq,dur=.12,type='sine',gain=.035,delay=0){
+  function tone(freq,dur=.12,type='sine',gain=.035,delay=0,endFreq=null){
     if(!musicOn) return;
     try{
       initAudio();
       const now=audioCtx.currentTime+delay, o=audioCtx.createOscillator(), g=audioCtx.createGain();
       o.type=type; o.frequency.setValueAtTime(freq,now);
+      if(endFreq) o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),now+dur);
       g.gain.setValueAtTime(.0001,now);
       g.gain.exponentialRampToValueAtTime(gain,now+.02);
       g.gain.exponentialRampToValueAtTime(.0001,now+dur);
       o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+dur+.03);
     }catch(e){}
   }
+  function noiseBurst(dur=.09,gain=.025,delay=0,filter=900){
+    if(!musicOn) return;
+    try{
+      initAudio();
+      const now=audioCtx.currentTime+delay, len=Math.max(1,Math.floor(audioCtx.sampleRate*dur));
+      const buffer=audioCtx.createBuffer(1,len,audioCtx.sampleRate), data=buffer.getChannelData(0);
+      for(let i=0;i<len;i++) data[i]=(Math.random()*2-1)*(1-i/len);
+      const src=audioCtx.createBufferSource(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
+      src.buffer=buffer; bp.type='bandpass'; bp.frequency.value=filter; bp.Q.value=1.8;
+      g.gain.setValueAtTime(gain,now); g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+      src.connect(bp); bp.connect(g); g.connect(audioCtx.destination); src.start(now); src.stop(now+dur+.02);
+    }catch(e){}
+  }
+  function arpeggio(notes,dur=.08,type='triangle',gain=.026,step=.055){
+    notes.forEach((f,i)=>tone(f,dur,type,gain,i*step));
+  }
   function playSfx(kind){
-    if(kind==='move') return tone(340,.06,'triangle',.02);
-    if(kind==='capture') return [520,660,820].forEach((f,i)=>tone(f,.08,'triangle',.028,i*.055));
-    if(kind==='bad') return tone(130,.12,'sawtooth',.025);
+    if(kind==='ui') return arpeggio([740,980],.035,'triangle',.012,.028);
+    if(kind==='menu') return arpeggio([392,523,659],.055,'triangle',.018,.045);
+    if(kind==='move') return tone(340,.055,'square',.018,0,470);
+    if(kind==='coin') return arpeggio([1047,1319,1760],.06,'sine',.02,.045);
+    if(kind==='capture'){ noiseBurst(.08,.018,0,1600); return arpeggio([523,659,784,1047],.07,'triangle',.03,.05); }
+    if(kind==='chain'){ noiseBurst(.12,.024,0,2200); return arpeggio([659,784,988,1319,1760],.065,'square',.025,.045); }
+    if(kind==='bad'){ noiseBurst(.11,.018,0,240); return tone(170,.16,'sawtooth',.026,0,95); }
+    if(kind==='room') return arpeggio([440,554,659],.075,'triangle',.026,.06);
+    if(kind==='challenge') return arpeggio([392,587,784,1175],.075,'square',.025,.06);
+    if(kind==='ready') return arpeggio([660,880,1320],.065,'triangle',.028,.05);
+    if(kind==='copy') return arpeggio([880,1175],.05,'sine',.018,.04);
+    if(kind==='reward') return arpeggio([659,784,988,1319],.08,'triangle',.032,.065);
+    if(kind==='buy') return arpeggio([784,988,1175],.055,'triangle',.022,.045);
+    if(kind==='start') return arpeggio([392,523,784,1047],.08,'triangle',.03,.07);
+    if(kind==='win'){ noiseBurst(.18,.03,0,2600); return arpeggio([523,659,784,1047,1319],.09,'triangle',.04,.075); }
+    if(kind==='lose'){ noiseBurst(.18,.018,0,320); return arpeggio([330,277,220,165],.11,'sine',.032,.095); }
   }
   function playResultSound(win){
-    if(win) [520,660,820,1040].forEach((f,i)=>tone(f,.12,'triangle',.04,i*.08));
-    else [280,220,175].forEach((f,i)=>tone(f,.16,'sine',.035,i*.1));
+    playSfx(win?'win':'lose');
   }
   function toggleMusic(){
     musicTouched=true;
     musicOn=!musicOn;
-    if(musicOn){ initAudio(); startMusic(); }
+    if(musicOn){ initAudio(); startMusic(); playSfx('ready'); }
     else stopMusic();
     updateMusicButtons();
   }
+  function musicKeyForMode(){
+    const mode=game?.mode || 'map';
+    if(mode==='online') return 'online';
+    if(mode==='masterAI') return 'master';
+    if(mode==='ai' || mode==='twoPlayer') return 'stage';
+    if(mode==='tutorial') return 'map';
+    return game ? 'stage' : 'map';
+  }
   function startMusic(){
     stopMusic();
+    if(!musicOn) return;
+    const key=musicKeyForMode(), track=MUSIC_TRACKS[key] || MUSIC_TRACKS.map;
+    activeMusicKey=key;
+    try{
+      musicAudio=new Audio(track.src);
+      musicAudio.loop=true;
+      musicAudio.volume=key==='master' ? .34 : .26;
+      musicAudio.crossOrigin='anonymous';
+      musicAudio.addEventListener('error',()=>startProceduralMusic(),{once:true});
+      const playPromise=musicAudio.play();
+      if(playPromise?.catch) playPromise.catch(()=>startProceduralMusic());
+    }catch(e){
+      startProceduralMusic();
+    }
+  }
+  function startProceduralMusic(){
+    if(musicTimer) clearInterval(musicTimer);
     musicStep=0;
     musicTimer=setInterval(musicTick,420);
     musicTick();
   }
-  function stopMusic(){ if(musicTimer){ clearInterval(musicTimer); musicTimer=null; } }
-  function updateMusicTheme(){ if(musicOn) startMusic(); updateMusicButtons(); }
+  function stopMusic(){
+    if(musicTimer){ clearInterval(musicTimer); musicTimer=null; }
+    if(musicAudio){ try{ musicAudio.pause(); musicAudio.src=''; } catch(e){} musicAudio=null; }
+    activeMusicKey='';
+  }
+  function updateMusicTheme(){
+    if(musicOn && musicKeyForMode()!==activeMusicKey) startMusic();
+    updateMusicButtons();
+  }
   function updateMusicButtons(){
     const text=musicOn?'♪ Music On':'♪ Music Off';
     els.musicBtn.textContent=text;
@@ -2439,25 +2722,29 @@
     if(mode==='tutorial') els.stageName.textContent='Stage 0: Teaching Demo';
     else if(mode==='twoPlayer') els.stageName.textContent='Offline 2 Players';
     else if(mode==='online') els.stageName.textContent='Room '+game.roomCode;
+    else if(mode==='masterAI') els.stageName.textContent='Master AI Duel';
     else els.stageName.textContent='Stage '+st.id+': '+st.name;
     if(mode==='tutorial') els.stageTarget.textContent='Learn lines, gold, stars, diamonds';
     else if(mode==='twoPlayer' || mode==='online') els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes, no AI';
+    else if(mode==='masterAI') els.stageTarget.textContent='Master stakes '+MASTER_AI_STAKE+' gold. Win '+majorityNeeded(st)+' boxes';
     else els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes · 3★: '+st.target.text+(game.objectiveDone?' ✓':'');
     els.runGold.textContent=game.coins[1];
     els.p1Score.textContent=game.scores[1]; els.p2Score.textContent=game.scores[2];
-    els.opponentLabel.textContent=(mode==='twoPlayer'||mode==='online')?'P2 Boxes':(mode==='tutorial'?'Guide Boxes':'AI Boxes');
+    els.opponentLabel.textContent=(mode==='twoPlayer'||mode==='online')?'P2 Boxes':(mode==='tutorial'?'Guide Boxes':(mode==='masterAI'?'Master Boxes':'AI Boxes'));
     if(game.over) els.turnText.textContent='Done';
     else if(mode==='tutorial') els.turnText.textContent='Your turn';
     else if(mode==='twoPlayer') els.turnText.textContent=game.current===1?'P1 turn':'P2 turn';
     else if(mode==='online') els.turnText.textContent=onlineWaiting()?'Waiting':(game.current===game.localPlayer?'Your turn':'Opponent turn');
+    else if(mode==='masterAI') els.turnText.textContent=game.aiBusy?'Master move':(game.current===1?'Your turn':'Master turn');
     else els.turnText.textContent=game.aiBusy?'AI move':(game.current===1?'Your turn':'AI turn');
     if(mode==='tutorial') els.balanceText.textContent='Stage 0';
     else if(mode==='twoPlayer') els.balanceText.textContent='Local duel';
     else if(mode==='online') els.balanceText.textContent=game.roomStatus || 'Private room';
+    else if(mode==='masterAI') els.balanceText.textContent='You '+Number(game.masterStake?.player||0)+' / Master '+MASTER_AI_STAKE;
     else els.balanceText.textContent='AI '+Math.round(st.aiSkill*100)+'%';
     els.zoomBtn.textContent='🔎 '+game.zoom+'x';
     if(mode==='tutorial') els.hintBtn.textContent='✨ Guide';
-    else if(mode==='twoPlayer' || mode==='online') els.hintBtn.textContent='✨ Off';
+    else if(mode==='twoPlayer' || mode==='online' || mode==='masterAI') els.hintBtn.textContent='✨ Off';
     else {
       els.hintBtn.textContent=hintCost() ? '✨ Hint '+hintCost() : '✨ Hint';
       if(save.inventory.hints>0 && game.stage.id>3) els.hintBtn.textContent='✨ Hint '+save.inventory.hints;
@@ -2474,14 +2761,14 @@
       draw();
       return;
     }
-    if(game?.mode==='twoPlayer' || game?.mode==='online'){ showToast('Hints are for stage mode'); return; }
+    if(game?.mode==='twoPlayer' || game?.mode==='online' || game?.mode==='masterAI'){ showToast('Hints are for stage mode'); return; }
     const moves=availableMoves(); if(!moves.length||game.over||game.aiBusy) return;
     const cost=hintCost();
     let label='Free hint';
     if(cost && save.inventory.hints>0){ save.inventory.hints--; label='Hint token used'; storeSave(); }
     else if(cost && save.gold<cost){ showToast('Need '+cost+' gold for hint'); return; }
     else if(cost){ save.gold-=cost; label='Hint used -'+cost+' gold'; storeSave(); }
-    const scored=moves.map(e=>({e,s:moveScore(e)})); game.hint=best(scored,x=>x.s.capture*100 + x.s.coin*.55 - x.s.danger*30 + x.s.future*8).e; updateUI(); draw(); showToast(label); setTimeout(()=>{ if(game){game.hint=null; draw();} },1800);
+    const scored=moves.map(e=>({e,s:moveScore(e)})); game.hint=best(scored,x=>x.s.capture*100 + x.s.coin*.55 - x.s.danger*30 + x.s.future*8).e; updateUI(); draw(); playSfx('ready'); showToast(label); setTimeout(()=>{ if(game){game.hint=null; draw();} },1800);
   }
   function restartStage(){
     if(!game) return;
@@ -2489,6 +2776,12 @@
     if(game.mode==='twoPlayer'){ startTwoPlayerStage(); setTimeout(()=>showToast('Duel reset'),80); return; }
     if(game.mode==='online'){
       resetOnlineRoom();
+      return;
+    }
+    if(game.mode==='masterAI'){
+      const stake=Number(game.masterStake?.player||0);
+      backToMap();
+      setTimeout(()=>{ els.challengeStakeInput.value=String(stake); startMasterAiDuel(); },80);
       return;
     }
     const id=game.stage.id;
@@ -2505,11 +2798,14 @@
     save.dailyStreak=info.streak;
     save.gold+=info.reward;
     storeSave(); syncProfileEconomy(); renderMap();
+    playSfx('reward');
   }
   function openShop(){
     renderShop();
     els.shopModal.classList.add('show');
   }
+  function toggleMapMenu(){ els.mapMenuPanel.classList.toggle('hidden'); playSfx('menu'); }
+  function closeMapMenu(){ els.mapMenuPanel.classList.add('hidden'); }
   function closeShop(){ els.shopModal.classList.remove('show'); }
   function renderShop(message=''){
     els.shopGold.textContent=save.gold;
@@ -2541,6 +2837,7 @@
     updateUI();
     renderShop(item.title+' added.');
     renderMap();
+    playSfx('buy');
   }
   function openGuide(){ guideIndex=0; renderGuide(); els.guideModal.classList.add('show'); }
   function closeGuide(){
@@ -2576,6 +2873,10 @@
       save.onlineGuideSeen=true;
       storeSave();
     }
+    if(onlineTrainingPending){
+      onlineTrainingPending=false;
+      setTimeout(()=>openPracticePlayers(true), 120);
+    }
   }
   function renderOnlineGuide(){
     const slide=ONLINE_GUIDE[onlineGuideIndex];
@@ -2591,13 +2892,33 @@
     else closeOnlineGuide(true);
   }
   function prevOnlineGuide(){ if(onlineGuideIndex>0){ onlineGuideIndex--; renderOnlineGuide(); } }
+  function startOnlineTrainingDemo(){
+    onlineTrainingPending=true;
+    els.resultModal.classList.remove('show');
+    backToMap();
+    setTimeout(openOnlineGuide, 180);
+  }
+  function nextChallengeAction(){
+    if(game?.mode==='online'){ els.resultModal.classList.remove('show'); resetOnlineRoom(); return; }
+    if(game?.mode==='masterAI'){
+      const stake=Number(game.masterStake?.player||0);
+      els.resultModal.classList.remove('show');
+      backToMap();
+      setTimeout(()=>{ els.challengeStakeInput.value=String(stake); startMasterAiDuel(); },80);
+    }
+  }
   function nextResultAction(){
-    if(game?.mode==='tutorial'){ startStage(1); return; }
-    if(game?.mode==='twoPlayer' || game?.mode==='online'){ backToMap(); return; }
+    if(game?.mode==='tutorial'){ startOnlineTrainingDemo(); return; }
+    if(game?.mode==='online' || game?.mode==='masterAI'){ nextChallengeAction(); return; }
+    if(game?.mode==='twoPlayer'){ backToMap(); return; }
     startStage(game.lastWin && canPlayStage(game.stage.id+1) ? game.stage.id+1 : game.stage.id);
   }
 
   els.guestBtn.addEventListener('click',continueAsGuest);
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest?.('button');
+    if(btn && !btn.disabled) playSfx('ui');
+  });
   els.authOpenBtn.addEventListener('click',()=>openAuth('register'));
   els.registerTab.addEventListener('click',()=>setAuthMode('register'));
   els.loginTab.addEventListener('click',()=>setAuthMode('login'));
@@ -2605,13 +2926,15 @@
   els.authClose.addEventListener('click',closeAuth);
   els.portalBtn.addEventListener('click',openPortal);
   els.portalClose.addEventListener('click',closePortal);
-  els.playersOpenBtn.addEventListener('click',openPlayers);
+  els.playersOpenBtn.addEventListener('click',()=>playerProfile ? openPlayers() : openAuth('register'));
   els.playersClose.addEventListener('click',closePlayers);
   els.invitesOpenBtn.addEventListener('click',()=>{ els.portalMsg.textContent=playerProfile?'Incoming challenges pop up automatically.':'Login first.'; });
   els.historyBtn.addEventListener('click',()=>{ els.portalMsg.textContent='Match history is saved after online matches. Leaderboard comes next.'; });
-  els.logoutBtn.addEventListener('click',()=>playerProfile ? logoutPlayer() : (closePortal(), showWelcome()));
+  els.logoutBtn.addEventListener('click',()=>playerProfile ? logoutPlayer() : closePortal());
   els.inviteAcceptBtn.addEventListener('click',acceptInvite);
   els.inviteRejectBtn.addEventListener('click',rejectInvite);
+  els.mapMenuBtn.addEventListener('click',toggleMapMenu);
+  els.mapMenuPanel.addEventListener('click',e=>{ if(e.target.closest('button')) closeMapMenu(); });
   els.dailyBtn.addEventListener('click',dailyChest);
   els.demoBtn.addEventListener('click',startTeachingDemo);
   els.twoPlayerBtn.addEventListener('click',startTwoPlayerStage);
@@ -2629,9 +2952,9 @@
   els.sendChallengeBtn.addEventListener('click',sendSelectedChallenge);
   els.challengeBackBtn.addEventListener('click',clearChallengeTarget);
   els.roomStakePresets.addEventListener('click',e=>{ const btn=e.target.closest('button[data-stake]'); if(btn) applyStakePreset(els.roomStakeInput, els.roomStakePresets, btn.dataset.stake); });
-  els.challengeStakePresets.addEventListener('click',e=>{ const btn=e.target.closest('button[data-stake]'); if(btn) applyStakePreset(els.challengeStakeInput, els.challengeStakePresets, btn.dataset.stake); });
+  els.challengeStakePresets.addEventListener('click',e=>{ const btn=e.target.closest('button[data-stake]'); if(btn){ applyStakePreset(els.challengeStakeInput, els.challengeStakePresets, btn.dataset.stake); updateChallengeStakeWindow(); } });
   els.roomStakeInput.addEventListener('input',()=>syncStakePreset(els.roomStakeInput, els.roomStakePresets));
-  els.challengeStakeInput.addEventListener('input',()=>syncStakePreset(els.challengeStakeInput, els.challengeStakePresets));
+  els.challengeStakeInput.addEventListener('input',()=>{ syncStakePreset(els.challengeStakeInput, els.challengeStakePresets); updateChallengeStakeWindow(); });
   els.shopBtn.addEventListener('click',openShop);
   els.shopClose.addEventListener('click',closeShop);
   els.guideBtn.addEventListener('click',openGuide);
@@ -2658,7 +2981,7 @@
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   window.addEventListener('resize',draw);
   window.addEventListener('BCAFirebaseAuthChanged',handleFirebaseAuthChanged);
-  showWelcome();
+  bootGame();
   populateDuelStageSelects();
   renderMap();
   waitFirebaseSdk().then(()=>handleFirebaseAuthChanged());
