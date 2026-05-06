@@ -1,5 +1,5 @@
 <!--
-  Box Chain Arena V4.5 - Stable Online Duels
+  Box Chain Arena V4.6 - Online Flow Simplification
   Copyright (c) 2026 Bhuvaneshwaran R.
   All rights reserved.
 
@@ -15,7 +15,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-  <title>Box Chain Arena V4.5 - Stable Online Duels</title>
+  <title>Box Chain Arena V4.6 - Online Flow Simplification</title>
   <style>
     :root{
       --ink:#172033;
@@ -121,12 +121,13 @@
     .teach-banner{position:absolute;left:12px;right:12px;top:12px;background:rgba(16,24,39,.94);color:#fff;border-radius:var(--radius);padding:10px 12px;font-size:13px;font-weight:1000;text-align:center;box-shadow:0 12px 28px rgba(15,23,42,.2);pointer-events:none;z-index:3}.teach-banner b{color:#ffd36d}
     .room-panel{text-align:left}.room-panel h2,.room-panel p{text-align:center}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.room-code{font-size:30px;font-weight:1000;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:14px;margin:10px 0;letter-spacing:1px}.room-input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:18px;font-weight:1000;text-align:center;text-transform:uppercase}.room-status{text-align:center;color:var(--muted);font-size:12px;font-weight:1000;min-height:20px;margin-top:8px}
     .entry-grid,.stake-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.entry-grid label,.stake-grid label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.entry-grid input,.entry-grid select,.stake-grid input,.stake-grid select{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:14px;font-weight:900;background:#fff}.stake-summary{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;font-size:12px;font-weight:1000;color:var(--muted);line-height:1.45}.stake-summary b{color:var(--ink)}.lobby-summary{text-align:left;display:grid;gap:9px}.lobby-arena{background:#101827;color:#fff;border-radius:var(--radius);padding:10px;text-align:center}.lobby-arena span{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-arena b{color:#fff;font-size:16px}.lobby-players{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lobby-player{background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);padding:10px}.lobby-player span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-player b{display:block;font-size:15px;margin:3px 0}.ready{color:var(--good)!important}.waiting{color:#b45309!important}.reward-pot{background:#fff7d6;border:1px solid rgba(246,181,29,.35);border-radius:var(--radius);padding:9px;text-align:center;font-size:13px}.entry-note{background:#eef6ff;border:1px solid rgba(63,140,255,.16);border-radius:var(--radius);padding:9px;text-align:center;font-size:11px;font-weight:1000;color:#365074}.invite-entry-label{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase;margin:4px 0 6px}
+    .online-flow{display:grid;gap:10px}.flow-kicker{font-size:11px;font-weight:1000;color:var(--muted);text-transform:uppercase;text-align:center}.online-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.flow-panel{display:grid;gap:9px}.flow-panel .room-actions{margin:0}.flow-hint{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;line-height:1.45}.stake-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;grid-column:1/-1}.stake-presets button.active{background:#101827;color:#fff}.entry-grid>.primary{grid-column:1/-1}.flow-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prototype-note{margin-top:2px}.online-guide-modal{z-index:75}.online-guide-never{width:100%;margin-top:8px}.challenge-setup{display:grid;gap:9px}.challenge-setup .room-actions{margin:0}
     .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
 
     @media(max-width:760px){
       body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
       .game-screen{padding:8px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto}.score-hud{gap:7px}.score-box strong{font-size:18px}.board-wrap{width:min(100%,calc(100svh - 238px));margin-top:2px}.tool-row button{padding:9px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
-      .welcome-actions,.portal-actions{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
+      .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
     @media(max-width:390px){
       .map-grid{grid-template-columns:1fr}.board-wrap{width:min(100%,calc(100svh - 244px))}
@@ -149,8 +150,8 @@
   <main id="mapScreen" class="screen hidden">
     <header class="map-head">
       <div class="brand">
-        <h1>Box Chain Arena V4.5</h1>
-        <p>Guided learning, star progression, and polished online duels with virtual Entry Gold.</p>
+        <h1>Box Chain Arena V4.6</h1>
+        <p>Guided learning, star progression, and simplified online duels with virtual Entry Gold.</p>
       </div>
       <div class="wallet">
         <div class="pill"><span class="coin"></span><span id="walletGold">0</span></div>
@@ -159,7 +160,7 @@
         <button class="soft" id="guideBtn">❔ Guide</button>
         <button class="soft" id="demoBtn">🎓 Demo</button>
         <button class="soft" id="twoPlayerBtn">👥 2P</button>
-        <button class="soft" id="onlineBtn">🌐 Room</button>
+        <button class="soft" id="onlineBtn">Online</button>
         <button class="soft" id="portalBtn">👤 Portal</button>
         <button class="soft" id="shopBtn">🛒 Shop</button>
         <button class="gold" id="dailyBtn">🎁 Daily</button>
@@ -244,25 +245,62 @@
   </div>
 
   <div class="modal" id="onlineModal">
-    <div class="modal-box room-panel">
-      <h2>Online Duel Room</h2>
-      <p>Create a private code or join a friend. Entry Gold is optional and uses only earned in-game gold.</p>
-      <div class="room-code" id="roomCode">BOX-0000</div>
-      <div class="entry-grid">
-        <label>Duel Stage<select id="roomStageSelect"></select></label>
-        <label>Your Entry Gold<input id="roomStakeInput" type="number" min="0" step="1" value="0" /></label>
+    <div class="modal-box room-panel online-flow">
+      <div class="flow-kicker" id="onlineStepLabel">Online Play</div>
+      <h2 id="onlineTitle">Online Play</h2>
+      <p id="onlineIntro">Choose a simple path. Use a room code with a friend, or challenge a registered online player.</p>
+      <div class="online-choice-grid" id="onlineChoicePanel">
+        <button class="primary" id="roomCodeFlowBtn">Play with Room Code</button>
+        <button id="challengeFlowBtn">Challenge Online Player</button>
       </div>
-      <input class="room-input" id="roomInput" maxlength="9" placeholder="ROOM CODE" />
-      <div class="room-actions">
+      <div class="room-actions hidden" id="roomActionPanel">
         <button class="primary" id="createRoomBtn">Create Room</button>
-        <button id="joinRoomBtn">Join Room</button>
+        <button id="showJoinRoomBtn">Join Room</button>
+      </div>
+      <div class="flow-panel hidden" id="createRoomPanel">
+        <div class="room-code" id="roomCode">BOX-0000</div>
+        <div class="room-actions">
         <button id="copyRoomBtn">Copy Code</button>
         <button id="shareRoomBtn">Share Code</button>
-        <button class="primary hidden" id="confirmStakeBtn">Confirm Entry Gold</button>
+        </div>
+        <div class="flow-hint">Waiting for friend...</div>
       </div>
-      <div class="stake-summary" id="stakeSummary">Entry Gold is optional. Winner receives the opponent's Entry Gold. Gold is a virtual game reward only. No real money value.</div>
+      <div class="flow-panel hidden" id="joinRoomPanel">
+        <input class="room-input" id="roomInput" maxlength="9" placeholder="ROOM CODE" />
+        <button class="primary" id="joinRoomBtn">Join Room</button>
+      </div>
+      <div class="entry-grid hidden" id="roomStakePanel">
+        <label>Arena<select id="roomStageSelect"></select></label>
+        <label>Custom Entry Gold<input id="roomStakeInput" type="number" min="0" step="1" value="0" /></label>
+        <div class="stake-presets" id="roomStakePresets">
+          <button data-stake="0">0 Gold</button>
+          <button data-stake="10">10 Gold</button>
+          <button data-stake="25">25 Gold</button>
+        </div>
+        <button class="primary hidden" id="confirmStakeBtn">Confirm</button>
+      </div>
+      <div class="stake-summary hidden" id="stakeSummary">Entry Gold is optional. Winner receives the opponent's Entry Gold. Gold is a virtual game reward only. No real money value.</div>
       <div class="room-status" id="roomStatus">Waiting for room action.</div>
-      <button id="onlineClose">Close</button>
+      <div class="entry-note prototype-note">Testing prototype: online match results and Entry Gold updates still use the Firebase client flow. Cloud Functions verification is planned before public release.</div>
+      <div class="flow-footer">
+        <button id="onlineBackBtn" class="hidden">Back</button>
+        <button id="onlineClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal online-guide-modal" id="onlineGuideModal">
+    <div class="modal-box">
+      <div class="guide-icon" id="onlineGuideIcon">1</div>
+      <h2 id="onlineGuideTitle">Online Duel</h2>
+      <p id="onlineGuideText">Play with a friend using a room code, or challenge an online player.</p>
+      <div class="guide-count" id="onlineGuideCount">1 / 5</div>
+      <div class="guide-actions">
+        <button id="onlineGuidePrev">Back</button>
+        <button class="primary" id="onlineGuideNext">Next</button>
+        <button id="onlineGuideSkip">Skip</button>
+      </div>
+      <button class="soft online-guide-never" id="onlineGuideNever">Don't show again</button>
     </div>
   </div>
 
@@ -313,12 +351,24 @@
   <div class="modal" id="playersModal">
     <div class="modal-box room-panel">
       <h2>Online Players</h2>
-      <p>Challenge active players. Green means seen in the last 30 seconds. Gold has no real money value.</p>
-      <div class="entry-grid">
-        <label>Duel Stage<select id="challengeStageSelect"></select></label>
-        <label>Your Entry Gold<input id="challengeStakeInput" type="number" min="0" step="1" value="0" /></label>
-      </div>
+      <p id="playersIntro">Select an online player, then choose arena and optional Entry Gold.</p>
       <div class="player-list" id="playersList"></div>
+      <div class="challenge-setup hidden" id="challengeSetup">
+        <div class="stake-summary" id="challengeTargetSummary">Choose a player to challenge.</div>
+        <div class="entry-grid">
+        <label>Duel Stage<select id="challengeStageSelect"></select></label>
+          <label>Custom Entry Gold<input id="challengeStakeInput" type="number" min="0" step="1" value="0" /></label>
+          <div class="stake-presets" id="challengeStakePresets">
+            <button data-stake="0">0 Gold</button>
+            <button data-stake="10">10 Gold</button>
+            <button data-stake="25">25 Gold</button>
+          </div>
+        </div>
+        <div class="room-actions">
+          <button class="primary" id="sendChallengeBtn">Send Challenge</button>
+          <button id="challengeBackBtn">Back</button>
+        </div>
+      </div>
       <button id="playersClose">Close</button>
       <div class="players-msg" id="playersMsg"></div>
     </div>
@@ -431,10 +481,20 @@
     shopBtn:document.getElementById('shopBtn'), shopModal:document.getElementById('shopModal'),
     shopList:document.getElementById('shopList'), shopGold:document.getElementById('shopGold'),
     shopDiamonds:document.getElementById('shopDiamonds'), shopMsg:document.getElementById('shopMsg'), shopClose:document.getElementById('shopClose'),
-    onlineModal:document.getElementById('onlineModal'), roomCode:document.getElementById('roomCode'),
+    onlineModal:document.getElementById('onlineModal'), onlineTitle:document.getElementById('onlineTitle'),
+    onlineIntro:document.getElementById('onlineIntro'), onlineStepLabel:document.getElementById('onlineStepLabel'),
+    onlineChoicePanel:document.getElementById('onlineChoicePanel'), roomCodeFlowBtn:document.getElementById('roomCodeFlowBtn'),
+    challengeFlowBtn:document.getElementById('challengeFlowBtn'), roomActionPanel:document.getElementById('roomActionPanel'),
+    createRoomPanel:document.getElementById('createRoomPanel'), joinRoomPanel:document.getElementById('joinRoomPanel'),
+    roomStakePanel:document.getElementById('roomStakePanel'), roomStakePresets:document.getElementById('roomStakePresets'),
+    onlineBackBtn:document.getElementById('onlineBackBtn'), roomCode:document.getElementById('roomCode'),
     roomInput:document.getElementById('roomInput'), roomStatus:document.getElementById('roomStatus'),
     roomStageSelect:document.getElementById('roomStageSelect'), roomStakeInput:document.getElementById('roomStakeInput'), stakeSummary:document.getElementById('stakeSummary'),
-    createRoomBtn:document.getElementById('createRoomBtn'), joinRoomBtn:document.getElementById('joinRoomBtn'), copyRoomBtn:document.getElementById('copyRoomBtn'), shareRoomBtn:document.getElementById('shareRoomBtn'), confirmStakeBtn:document.getElementById('confirmStakeBtn'), onlineClose:document.getElementById('onlineClose'),
+    createRoomBtn:document.getElementById('createRoomBtn'), showJoinRoomBtn:document.getElementById('showJoinRoomBtn'), joinRoomBtn:document.getElementById('joinRoomBtn'), copyRoomBtn:document.getElementById('copyRoomBtn'), shareRoomBtn:document.getElementById('shareRoomBtn'), confirmStakeBtn:document.getElementById('confirmStakeBtn'), onlineClose:document.getElementById('onlineClose'),
+    onlineGuideModal:document.getElementById('onlineGuideModal'), onlineGuideIcon:document.getElementById('onlineGuideIcon'),
+    onlineGuideTitle:document.getElementById('onlineGuideTitle'), onlineGuideText:document.getElementById('onlineGuideText'),
+    onlineGuideCount:document.getElementById('onlineGuideCount'), onlineGuidePrev:document.getElementById('onlineGuidePrev'),
+    onlineGuideNext:document.getElementById('onlineGuideNext'), onlineGuideSkip:document.getElementById('onlineGuideSkip'), onlineGuideNever:document.getElementById('onlineGuideNever'),
     authModal:document.getElementById('authModal'), authTitle:document.getElementById('authTitle'),
     registerTab:document.getElementById('registerTab'), loginTab:document.getElementById('loginTab'),
     authEmail:document.getElementById('authEmail'), authPassword:document.getElementById('authPassword'), authNickname:document.getElementById('authNickname'),
@@ -445,7 +505,9 @@
     portalStatus:document.getElementById('portalStatus'), portalGold:document.getElementById('portalGold'), portalDiamonds:document.getElementById('portalDiamonds'),
     playersOpenBtn:document.getElementById('playersOpenBtn'), invitesOpenBtn:document.getElementById('invitesOpenBtn'), historyBtn:document.getElementById('historyBtn'),
     logoutBtn:document.getElementById('logoutBtn'), portalClose:document.getElementById('portalClose'), portalMsg:document.getElementById('portalMsg'),
-    playersModal:document.getElementById('playersModal'), playersList:document.getElementById('playersList'), challengeStageSelect:document.getElementById('challengeStageSelect'), challengeStakeInput:document.getElementById('challengeStakeInput'), playersClose:document.getElementById('playersClose'), playersMsg:document.getElementById('playersMsg'),
+    playersModal:document.getElementById('playersModal'), playersIntro:document.getElementById('playersIntro'), playersList:document.getElementById('playersList'), challengeSetup:document.getElementById('challengeSetup'),
+    challengeTargetSummary:document.getElementById('challengeTargetSummary'), challengeStageSelect:document.getElementById('challengeStageSelect'), challengeStakeInput:document.getElementById('challengeStakeInput'),
+    challengeStakePresets:document.getElementById('challengeStakePresets'), sendChallengeBtn:document.getElementById('sendChallengeBtn'), challengeBackBtn:document.getElementById('challengeBackBtn'), playersClose:document.getElementById('playersClose'), playersMsg:document.getElementById('playersMsg'),
     invitePopup:document.getElementById('invitePopup'), inviteTitle:document.getElementById('inviteTitle'), inviteText:document.getElementById('inviteText'),
     inviteStakeInput:document.getElementById('inviteStakeInput'), inviteAcceptBtn:document.getElementById('inviteAcceptBtn'), inviteRejectBtn:document.getElementById('inviteRejectBtn'),
     guideBtn:document.getElementById('guideBtn'), guideModal:document.getElementById('guideModal'),
@@ -522,6 +584,13 @@
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
     {icon:'🔎', title:'Easy touch', text:'Use Zoom when dots feel tiny. Hints are free early, then cost a little gold.'}
   ];
+  const ONLINE_GUIDE = [
+    {icon:'1', title:'Online Duel', text:'Play with a friend using a room code, or challenge an online player.'},
+    {icon:'#', title:'Room Code', text:'Create a room and share the code. Your friend joins using the same code.'},
+    {icon:'0', title:'Entry Gold', text:'Entry Gold is optional virtual game gold. It has no real money value.'},
+    {icon:'OK', title:'Ready Lobby', text:'Both players confirm. Then the match starts automatically.'},
+    {icon:'@', title:'Online Players', text:'Registered players can challenge each other directly.'}
+  ];
   const TARGETS = ['boxes','gold','chain','margin'];
   const BASE_GOLD = 10;
   const HINT_COST = 20;
@@ -552,12 +621,14 @@
   let playersUnsub = null;
   let invitesUnsub = null;
   let activeInvite = null;
+  let selectedChallengeTarget = null;
   let audioCtx = null, musicTimer = null, musicOn = false, musicTouched = false, musicStep = 0;
   let guideIndex = 0;
+  let onlineGuideIndex = 0;
   let drawLoop = false;
 
   function loadSave(){
-    const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,tutorialDone:false};
+    const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,onlineGuideSeen:false,tutorialDone:false};
     try{return normalizeSave(Object.assign(base, JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')));}
     catch(e){return normalizeSave(base);}
   }
@@ -569,6 +640,7 @@
     data.cleared=Array.isArray(data.cleared) ? data.cleared : [];
     data.inventory=Object.assign({hints:0,retries:0,boosts:0}, data.inventory || {});
     data.dailyStreak=Number(data.dailyStreak||0);
+    data.onlineGuideSeen=!!data.onlineGuideSeen;
     return data;
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
@@ -896,21 +968,91 @@
     endReaction(true); playResultSound(true); updateUI();
   }
 
+  function setOnlineFlowState(state){
+    const isChoice=state==='choice';
+    const isRoomChoice=state==='roomChoice';
+    const isCreate=state==='create';
+    const isJoin=state==='join';
+    const isStake=state==='stake';
+    els.onlineChoicePanel.classList.toggle('hidden', !isChoice);
+    els.roomActionPanel.classList.toggle('hidden', !isRoomChoice);
+    els.createRoomPanel.classList.toggle('hidden', !isCreate);
+    els.joinRoomPanel.classList.toggle('hidden', !isJoin);
+    els.roomStakePanel.classList.toggle('hidden', !isStake);
+    els.stakeSummary.classList.toggle('hidden', !isStake);
+    els.onlineBackBtn.classList.toggle('hidden', isChoice || isStake);
+    if(isChoice){
+      els.onlineStepLabel.textContent='Online Play';
+      els.onlineTitle.textContent='Online Play';
+      els.onlineIntro.textContent='Choose a simple path. Use a room code with a friend, or challenge a registered online player.';
+      els.roomStatus.textContent=firebaseReady() ? 'Choose how you want to play online.' : 'Connecting Firebase. Please wait.';
+    } else if(isRoomChoice){
+      els.onlineStepLabel.textContent='Step 1';
+      els.onlineTitle.textContent='Play with Room Code';
+      els.onlineIntro.textContent='Create a room for a friend, or join with a code your friend shared.';
+      els.roomStatus.textContent=firebaseReady() ? 'Choose Create Room or Join Room.' : 'Connecting Firebase. Please wait.';
+    } else if(isCreate){
+      els.onlineStepLabel.textContent='Step 2';
+      els.onlineTitle.textContent='Invite Friend';
+      els.onlineIntro.textContent='Share this code. Arena and Entry Gold come after your friend joins.';
+    } else if(isJoin){
+      els.onlineStepLabel.textContent='Step 2';
+      els.onlineTitle.textContent='Join Room';
+      els.onlineIntro.textContent='Enter the room code from your friend.';
+      els.roomStatus.textContent='Enter a room code to join.';
+    } else if(isStake){
+      els.onlineStepLabel.textContent='Step 3';
+      els.onlineTitle.textContent='Confirm Duel';
+      els.onlineIntro.textContent='Both players are connected. Choose arena and optional Entry Gold, then confirm.';
+    }
+  }
   function openOnline(){
     closeOnlineChannel();
     applyEntryGoldLimits();
     els.roomCode.textContent='BOX-0000';
     els.roomInput.value='';
     els.roomStakeInput.value='0';
-    els.stakeSummary.className='stake-summary';
+    setStakePresetActive(els.roomStakePresets, 0);
+    els.roomStageSelect.disabled=false;
+    els.roomStakeInput.disabled=false;
+    els.stakeSummary.className='stake-summary hidden';
     els.stakeSummary.textContent="Entry Gold is optional. Winner receives the opponent's Entry Gold. "+entryLimitText();
     els.confirmStakeBtn.classList.add('hidden');
-    els.roomStatus.textContent=firebaseReady() ? 'Firebase ready. Create a room, then share the code.' : 'Connecting Firebase. Please wait.';
+    setOnlineFlowState('choice');
     els.onlineModal.classList.add('show');
+    maybeOpenOnlineGuide();
   }
   function closeOnline(){
     els.onlineModal.classList.remove('show');
+    els.onlineGuideModal.classList.remove('show');
     if(!game || game.mode!=='online') closeLobbyListener();
+  }
+  function openRoomCodeFlow(){ setOnlineFlowState('roomChoice'); }
+  function showJoinRoomFlow(){
+    closeOnlineChannel();
+    els.roomInput.value='';
+    els.roomCode.textContent='BOX-0000';
+    els.stakeSummary.className='stake-summary hidden';
+    els.confirmStakeBtn.classList.add('hidden');
+    setOnlineFlowState('join');
+  }
+  function backOnlineFlow(){
+    closeOnlineChannel();
+    els.roomCode.textContent='BOX-0000';
+    els.roomInput.value='';
+    els.roomStakeInput.value='0';
+    els.stakeSummary.className='stake-summary hidden';
+    els.confirmStakeBtn.classList.add('hidden');
+    setOnlineFlowState('choice');
+  }
+  function openChallengeFlow(){
+    closeOnline();
+    if(playerProfile){
+      openPlayers();
+      return;
+    }
+    openPortal();
+    els.portalMsg.textContent='Register/Login to challenge online players. Room-code play works in guest mode.';
   }
   function firebaseApi(){ return window.BCAFirebase || null; }
   function firebaseReady(){ const fb=firebaseApi(); return !!(fb && fb.ready && fb.uid); }
@@ -1175,12 +1317,15 @@
   function openPlayers(){
     if(!playerProfile){ els.portalMsg.textContent='Login first to challenge players.'; return; }
     applyEntryGoldLimits();
+    clearChallengeTarget();
+    els.playersIntro.textContent='Select an online player, then choose arena and optional Entry Gold.';
     els.playersMsg.textContent=entryLimitText();
     els.playersModal.classList.add('show');
     listenPlayers();
   }
   function closePlayers(){
     els.playersModal.classList.remove('show');
+    clearChallengeTarget();
     if(playersUnsub){ try{ playersUnsub(); } catch(e){} playersUnsub=null; }
   }
   function listenPlayers(){
@@ -1207,10 +1352,29 @@
       const row=document.createElement('div');
       row.className='player-row';
       row.innerHTML=`<div><div class="player-name"><span class="dot ${p.online?'online':''}"></span>${p.nickname||'Player'}</div><div class="player-meta">${p.online?'Online':'Offline'} · ${p.wins||0}W ${p.losses||0}L</div></div><button ${p.online?'':'disabled'}>Challenge</button>`;
-      row.querySelector('button').addEventListener('click',()=>sendChallenge(p.uid,p.nickname||'Player'));
+      row.querySelector('button').addEventListener('click',()=>selectChallengeTarget(p));
       els.playersList.appendChild(row);
     }
     els.playersMsg.textContent='Online players appear first. '+entryLimitText();
+  }
+  function clearChallengeTarget(){
+    selectedChallengeTarget=null;
+    els.challengeSetup.classList.add('hidden');
+    els.playersList.classList.remove('hidden');
+    els.challengeStakeInput.value='0';
+    setStakePresetActive(els.challengeStakePresets, 0);
+  }
+  function selectChallengeTarget(player){
+    selectedChallengeTarget={uid:player.uid,nickname:player.nickname||'Player'};
+    applyEntryGoldLimits();
+    els.playersList.classList.add('hidden');
+    els.challengeSetup.classList.remove('hidden');
+    els.challengeTargetSummary.textContent='Challenge '+selectedChallengeTarget.nickname+'. Choose arena and optional Entry Gold.';
+    els.playersMsg.textContent=entryLimitText();
+  }
+  function sendSelectedChallenge(){
+    if(!selectedChallengeTarget){ els.playersMsg.textContent='Choose a player first.'; return; }
+    sendChallenge(selectedChallengeTarget.uid, selectedChallengeTarget.nickname);
   }
   async function sendChallenge(receiverUid, receiverNickname){
     if(!playerProfile){ els.playersMsg.textContent='Login first.'; return; }
@@ -1240,6 +1404,7 @@
         closePortal();
         els.roomCode.textContent=invite.roomCode;
         els.roomStatus.textContent='Opponent accepted. Confirm Entry Gold to start.';
+        setOnlineFlowState('stake');
         els.onlineModal.classList.add('show');
         listenFirebaseLobby(invite.roomCode,1);
       }
@@ -1292,6 +1457,7 @@
       hideInvite();
       els.roomCode.textContent=code;
       els.roomStatus.textContent='Waiting for challenger to confirm Entry Gold.';
+      setOnlineFlowState('stake');
       els.onlineModal.classList.add('show');
       listenFirebaseLobby(code,2);
     } catch(e){
@@ -1316,6 +1482,21 @@
   }
   function parseStake(input){
     return Math.max(0, Math.floor(Number(input?.value || 0) || 0));
+  }
+  function setStakePresetActive(container, amount){
+    if(!container) return;
+    container.querySelectorAll('button[data-stake]').forEach(btn=>{
+      btn.classList.toggle('active', Number(btn.dataset.stake)===Number(amount));
+    });
+  }
+  function applyStakePreset(input, container, amount){
+    const max=Number(input?.max || Infinity);
+    const next=Math.min(Math.max(0, Number(amount)||0), max);
+    input.value=String(next);
+    setStakePresetActive(container, next);
+  }
+  function syncStakePreset(input, container){
+    setStakePresetActive(container, parseStake(input));
   }
   function setText(targetEl, text){
     if(targetEl) targetEl.textContent=text;
@@ -1380,10 +1561,28 @@
     return room.playerNames?.[role] || (role==='p1' ? 'Player 1' : 'Player 2');
   }
   function renderStakeLobby(room={}, localPlayer=1){
+    applyEntryGoldLimits();
     const p1=Number(room.stakes?.p1 || 0), p2=Number(room.stakes?.p2 || 0);
     const c1=!!room.stakeConfirmed?.p1, c2=!!room.stakeConfirmed?.p2;
     const stageId=Number(room.stageId || 1);
     const total=p1+p2;
+    const bothPlayers=!!(room.players?.p1 && room.players?.p2);
+    const role=localPlayer===1?'p1':'p2';
+    const confirmed=!!room.stakeConfirmed?.[role];
+    if(!bothPlayers){
+      setOnlineFlowState('create');
+      els.stakeSummary.className='stake-summary hidden';
+      els.confirmStakeBtn.classList.add('hidden');
+      return;
+    }
+    setOnlineFlowState('stake');
+    els.roomStageSelect.value=String(stageId);
+    els.roomStageSelect.disabled=localPlayer!==1 || c1 || room.status==='joined';
+    els.roomStakeInput.disabled=confirmed || room.status==='joined';
+    if(document.activeElement!==els.roomStakeInput){
+      els.roomStakeInput.value=String(role==='p1'?p1:p2);
+      syncStakePreset(els.roomStakeInput, els.roomStakePresets);
+    }
     els.stakeSummary.textContent='Preparing duel lobby...';
     els.stakeSummary.className='stake-summary lobby-summary';
     els.stakeSummary.innerHTML=
@@ -1393,12 +1592,9 @@
         '<div class="lobby-player"><span>Player 2</span><b>'+safeHtml(roomPlayerName(room,'p2'))+'</b><span>Entry Gold</span><b>'+p2+'</b><span class="'+(c2?'ready':'waiting')+'">'+(c2?'Ready':'Waiting')+'</span></div>'+
       '</div>'+
       '<div class="reward-pot"><b>Reward Pot: '+total+' gold</b><br>Winner receives the opponent&#39;s Entry Gold.</div>'+
-      '<div class="entry-note">'+ENTRY_GOLD_NOTICE+'</div>';
-    const bothPlayers=!!(room.players?.p1 && room.players?.p2);
-    const role=localPlayer===1?'p1':'p2';
-    const confirmed=!!room.stakeConfirmed?.[role];
+      '<div class="entry-note">'+ENTRY_GOLD_NOTICE+' Testing prototype: browser Firebase saves are allowed for testing; Cloud Functions verification is planned.</div>';
     els.confirmStakeBtn.classList.toggle('hidden', !bothPlayers || confirmed || room.status==='joined');
-    els.confirmStakeBtn.textContent=confirmed?'Entry Gold Confirmed':'Confirm Entry Gold';
+    els.confirmStakeBtn.textContent=confirmed?'Entry Gold Confirmed':'Confirm';
   }
   async function confirmStake(){
     if(!stakeLobby) return;
@@ -1408,20 +1604,28 @@
     const roomSnap=await fb.get(fb.ref(fb.db, firebaseRoomPath(code)));
     const room=roomSnap.val() || {};
     const role=localPlayer===1?'p1':'p2';
-    const amount=Number(room.stakes?.[role] || 0);
+    const amount=roomStakeAmount();
     if(!validateStake(amount, els.roomStatus)) return;
-    await fb.update(fb.ref(fb.db, firebaseRoomPath(code)), {
+    const payload={
+      ['stakes/'+role]:amount,
+      ['entryGold/'+role]:amount,
       ['stakeConfirmed/'+role]:true,
       updatedAt:fb.serverTimestamp()
-    });
+    };
+    if(localPlayer===1){
+      const stageId=selectedRoomStageId();
+      payload.stageId=stageId;
+      payload.boardSeed=stageId;
+    }
+    await fb.update(fb.ref(fb.db, firebaseRoomPath(code)), payload);
     els.roomStatus.textContent='Entry Gold confirmed. Waiting for opponent...';
   }
   async function createRoom(){
     closeOnlineChannel();
     const code=makeRoomCode();
-    const stake=roomStakeAmount(), stageId=selectedRoomStageId();
-    if(!validateStake(stake, els.roomStatus)) return;
+    const stageId=selectedRoomStageId();
     els.roomCode.textContent=code;
+    setOnlineFlowState('create');
     els.roomStatus.textContent='Creating room...';
     const fb=await waitFirebaseReady();
     if(!fb){ els.roomStatus.textContent='Firebase not connected. Enable Anonymous Auth and database rules.'; return; }
@@ -1437,8 +1641,8 @@
         scores:{p1:0,p2:0},
         players:{p1:fb.uid},
         playerNames:{p1:localDuelName('Player 1')},
-        stakes:{p1:stake,p2:0},
-        entryGold:{p1:stake,p2:0},
+        stakes:{p1:0,p2:0},
+        entryGold:{p1:0,p2:0},
         stakeConfirmed:{p1:false,p2:false},
         moveCount:0,
         resetVersion:0,
@@ -1476,9 +1680,7 @@
   async function joinRoom(){
     closeOnlineChannel();
     const code=els.roomInput.value.trim().toUpperCase();
-    const stake=roomStakeAmount();
     if(!code){ els.roomStatus.textContent='Enter a room code.'; return; }
-    if(!validateStake(stake, els.roomStatus)) return;
     els.roomStatus.textContent='Joining room...';
     const fb=await waitFirebaseReady();
     if(!fb){ els.roomStatus.textContent='Firebase not connected. Please wait and try again.'; return; }
@@ -1493,12 +1695,13 @@
         guestUid:fb.uid,
         'players/p2':fb.uid,
         'playerNames/p2':localDuelName('Player 2'),
-        'stakes/p2':stake,
-        'entryGold/p2':stake,
+        'stakes/p2':0,
+        'entryGold/p2':0,
         'stakeConfirmed/p2':false,
         joinedAt:fb.serverTimestamp()
       });
       els.roomCode.textContent=code;
+      setOnlineFlowState('stake');
       els.roomStatus.textContent='Duel lobby ready. Confirm Entry Gold to start.';
       listenFirebaseLobby(code,2);
     } catch(e){
@@ -2358,6 +2561,36 @@
     else closeGuide();
   }
   function prevGuide(){ if(guideIndex>0){ guideIndex--; renderGuide(); } }
+  function maybeOpenOnlineGuide(){
+    if(save.onlineGuideSeen) return;
+    setTimeout(openOnlineGuide, 120);
+  }
+  function openOnlineGuide(){
+    onlineGuideIndex=0;
+    renderOnlineGuide();
+    els.onlineGuideModal.classList.add('show');
+  }
+  function closeOnlineGuide(markSeen=true){
+    els.onlineGuideModal.classList.remove('show');
+    if(markSeen && !save.onlineGuideSeen){
+      save.onlineGuideSeen=true;
+      storeSave();
+    }
+  }
+  function renderOnlineGuide(){
+    const slide=ONLINE_GUIDE[onlineGuideIndex];
+    els.onlineGuideIcon.textContent=slide.icon;
+    els.onlineGuideTitle.textContent=slide.title;
+    els.onlineGuideText.textContent=slide.text;
+    els.onlineGuideCount.textContent=(onlineGuideIndex+1)+' / '+ONLINE_GUIDE.length;
+    els.onlineGuidePrev.disabled=onlineGuideIndex===0;
+    els.onlineGuideNext.textContent=onlineGuideIndex===ONLINE_GUIDE.length-1?'Done':'Next';
+  }
+  function nextOnlineGuide(){
+    if(onlineGuideIndex<ONLINE_GUIDE.length-1){ onlineGuideIndex++; renderOnlineGuide(); }
+    else closeOnlineGuide(true);
+  }
+  function prevOnlineGuide(){ if(onlineGuideIndex>0){ onlineGuideIndex--; renderOnlineGuide(); } }
   function nextResultAction(){
     if(game?.mode==='tutorial'){ startStage(1); return; }
     if(game?.mode==='twoPlayer' || game?.mode==='online'){ backToMap(); return; }
@@ -2383,18 +2616,32 @@
   els.demoBtn.addEventListener('click',startTeachingDemo);
   els.twoPlayerBtn.addEventListener('click',startTwoPlayerStage);
   els.onlineBtn.addEventListener('click',openOnline);
+  els.roomCodeFlowBtn.addEventListener('click',openRoomCodeFlow);
+  els.challengeFlowBtn.addEventListener('click',openChallengeFlow);
   els.createRoomBtn.addEventListener('click',createRoom);
+  els.showJoinRoomBtn.addEventListener('click',showJoinRoomFlow);
   els.joinRoomBtn.addEventListener('click',joinRoom);
   els.copyRoomBtn.addEventListener('click',copyRoomCode);
   els.shareRoomBtn.addEventListener('click',shareRoomCode);
   els.confirmStakeBtn.addEventListener('click',confirmStake);
+  els.onlineBackBtn.addEventListener('click',backOnlineFlow);
   els.onlineClose.addEventListener('click',closeOnline);
+  els.sendChallengeBtn.addEventListener('click',sendSelectedChallenge);
+  els.challengeBackBtn.addEventListener('click',clearChallengeTarget);
+  els.roomStakePresets.addEventListener('click',e=>{ const btn=e.target.closest('button[data-stake]'); if(btn) applyStakePreset(els.roomStakeInput, els.roomStakePresets, btn.dataset.stake); });
+  els.challengeStakePresets.addEventListener('click',e=>{ const btn=e.target.closest('button[data-stake]'); if(btn) applyStakePreset(els.challengeStakeInput, els.challengeStakePresets, btn.dataset.stake); });
+  els.roomStakeInput.addEventListener('input',()=>syncStakePreset(els.roomStakeInput, els.roomStakePresets));
+  els.challengeStakeInput.addEventListener('input',()=>syncStakePreset(els.challengeStakeInput, els.challengeStakePresets));
   els.shopBtn.addEventListener('click',openShop);
   els.shopClose.addEventListener('click',closeShop);
   els.guideBtn.addEventListener('click',openGuide);
   els.guideClose.addEventListener('click',closeGuide);
   els.guideNext.addEventListener('click',nextGuide);
   els.guidePrev.addEventListener('click',prevGuide);
+  els.onlineGuidePrev.addEventListener('click',prevOnlineGuide);
+  els.onlineGuideNext.addEventListener('click',nextOnlineGuide);
+  els.onlineGuideSkip.addEventListener('click',()=>closeOnlineGuide(true));
+  els.onlineGuideNever.addEventListener('click',()=>closeOnlineGuide(true));
   els.endlessBtn.addEventListener('click',()=>startStage(highestUnlockedStage()));
   els.musicBtn.addEventListener('click',toggleMusic);
   els.mapBtn.addEventListener('click',backToMap);
