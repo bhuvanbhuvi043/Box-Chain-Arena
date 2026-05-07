@@ -1,5 +1,5 @@
 <!--
-  Box Chain Arena V4.6 - Online Flow Simplification
+  Box Chain Arena - Online Flow Simplification
   Copyright (c) 2026 Bhuvaneshwaran R.
   All rights reserved.
 
@@ -109,8 +109,8 @@
     .toast{position:absolute;left:50%;bottom:12px;transform:translate(-50%,20px);opacity:0;background:#101827;color:#fff;border-radius:var(--radius);padding:9px 12px;font-size:12px;font-weight:1000;text-align:center;max-width:270px;white-space:pre-line;transition:.22s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
     .tool-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px}
 
-    .modal{position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:50;display:none;align-items:center;justify-content:center;padding:14px}.modal.show{display:flex}
-    .modal-box{width:min(520px,96vw);background:var(--panel);border-radius:var(--radius);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:20px;text-align:center;position:relative;overflow:hidden}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:50;display:none;align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto}.modal.show{display:flex}
+    .modal-box{width:min(520px,96vw);max-height:calc(100svh - 28px);background:var(--panel);border-radius:var(--radius);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:20px;text-align:center;position:relative;overflow-y:auto;overscroll-behavior:contain}
     .modal-box h2{font-size:28px;margin-bottom:8px}.modal-box p{color:var(--muted);line-height:1.55;margin-bottom:14px}.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.result-stats div{background:#f5f7fb;border-radius:var(--radius);padding:12px}.result-stats b{font-size:26px;display:block}
     .modal-box.win{background:linear-gradient(180deg,#fffaf0,#f1fff8)}.modal-box.loss{background:linear-gradient(180deg,#f8fbff,#fff3f4)}
     .reaction{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px}.reaction-face{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#101827;color:#fff;font-size:28px;font-weight:1000;box-shadow:0 12px 28px rgba(15,23,42,.2)}.reaction-face.win{background:#10b981}.reaction-face.loss{background:#64748b}
@@ -127,6 +127,7 @@
 
     @media(max-width:760px){
       body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.map-menu-panel{left:0;right:auto}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
+      .modal{padding:10px}.modal-box{width:min(540px,100%);max-height:calc(100svh - 20px);padding:16px}
       .game-screen{padding:8px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto}.score-hud{gap:7px}.score-box strong{font-size:18px}.board-wrap{width:min(100%,calc(100svh - 238px));margin-top:2px}.tool-row button{padding:9px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
       .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
@@ -1224,9 +1225,11 @@
     }
   }
   function openAuth(mode='register'){
+    closePortal();
     setAuthMode(mode);
     els.authMsg.textContent='';
     els.authModal.classList.add('show');
+    requestAnimationFrame(()=>els.authModal.querySelector('.modal-box')?.scrollTo(0,0));
   }
   function closeAuth(){ els.authModal.classList.remove('show'); }
   function hideAccountModals(){
@@ -1276,11 +1279,13 @@
       });
       currentUser={uid,email,isGuest:false};
       playerProfile=profile;
+      hydrateSaveFromProfile(profile);
       startPresence();
       listenInvites();
       closeAuth();
       enterMap();
       openPortal();
+      renderPortal();
     } catch(e){
       console.warn('Register failed:', e);
       els.authMsg.textContent=authErrorText(e);
@@ -1295,12 +1300,14 @@
       currentUser={uid:result.user.uid,email,isGuest:false};
       playerProfile=await loadPlayerProfile(result.user.uid);
       if(!playerProfile){ els.authMsg.textContent='Player profile missing. Register a nickname first.'; return; }
+      hydrateSaveFromProfile(playerProfile);
       await setPlayerOnline();
       startPresence();
       listenInvites();
       closeAuth();
       enterMap();
       openPortal();
+      renderPortal();
     } catch(e){
       console.warn('Login failed:', e);
       els.authMsg.textContent=authErrorText(e);
@@ -1373,7 +1380,10 @@
       els.welcomeMsg.textContent=firebaseSdkReady()?'Choose how to play.':'Firebase connecting...';
       return;
     }
-    if(currentUser && currentUser.uid===fb.user.uid) return;
+    if(currentUser && currentUser.uid===fb.user.uid && ((playerProfile && !fb.user.isAnonymous) || (!playerProfile && fb.user.isAnonymous))) {
+      if(els.portalModal.classList.contains('show')) renderPortal();
+      return;
+    }
     const profile=await loadPlayerProfile(fb.user.uid);
     if(profile){
       currentUser={uid:fb.user.uid,email:fb.user.email,isGuest:false};
@@ -1421,6 +1431,7 @@
     syncProfileEconomy();
     renderPortal();
     els.portalModal.classList.add('show');
+    requestAnimationFrame(()=>els.portalModal.querySelector('.modal-box')?.scrollTo(0,0));
   }
   function closePortal(){ els.portalModal.classList.remove('show'); }
   function renderPortal(){
