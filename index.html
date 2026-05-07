@@ -15,7 +15,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-  <title>Box Chain Arena V4.6 - Online Flow Simplification</title>
+  <title>Box Chain Arena V1 - Online Flow Simplification</title>
   <style>
     :root{
       --ink:#172033;
@@ -71,7 +71,7 @@
     .map-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
     .brand h1{font-size:34px;line-height:1;letter-spacing:0}.brand p{color:var(--muted);line-height:1.45;margin-top:6px;max-width:720px}
     .wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;position:relative}
-    .map-menu{position:static}.map-menu-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:45;width:min(340px,100%);max-height:min(70svh,430px);overflow-y:auto;background:#fff;border:1px solid rgba(23,32,51,.12);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;overscroll-behavior:contain}.map-menu-panel.hidden{display:none!important}.map-menu-panel button{width:100%;box-shadow:none}
+    .map-menu{position:relative}.map-menu-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:45;width:min(340px,calc(100vw - 16px));max-height:min(70svh,430px);overflow-y:auto;background:#fff;border:1px solid rgba(23,32,51,.12);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;overscroll-behavior:contain}.map-menu-panel.hidden{display:none!important}.map-menu-panel button{width:100%;box-shadow:none}
     .pill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:999px;padding:9px 12px;font-weight:1000;box-shadow:0 8px 20px rgba(15,23,42,.08)}
     .coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff6a8 0 18%,#ffd24d 34%,#f6b51d 74%,#a65d00 100%);border:2px solid #fff2a8;box-shadow:0 5px 12px rgba(166,93,0,.25),inset -3px -4px 0 rgba(120,53,15,.18)}
     .star-icon{width:24px;height:24px;display:grid;place-items:center;color:#f6b51d;font-size:21px;text-shadow:0 2px 0 #9a5b00,0 6px 12px rgba(154,91,0,.18)}
@@ -106,6 +106,14 @@
     @keyframes rise{0%{opacity:0;transform:translate(-50%,-25%) scale(.72)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-120%) scale(.9)}}
     @keyframes spark{to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.55) rotate(210deg)}}
     @keyframes coinFly{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35) rotate(360deg)}}
+    .emoji-burst{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);display:grid;gap:4px;justify-items:center;pointer-events:none;z-index:4;text-align:center;animation:emojiPop 1.65s ease-out forwards}
+    .emoji-burst .emoji-face{font-size:52px;line-height:1;filter:drop-shadow(0 10px 18px rgba(15,23,42,.24));animation:emojiWiggle .62s ease-in-out infinite alternate}
+    .emoji-burst .emoji-label{background:rgba(16,24,39,.92);color:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:1000;white-space:nowrap;max-width:min(300px,72vw);overflow:hidden;text-overflow:ellipsis;box-shadow:0 10px 24px rgba(15,23,42,.18)}
+    .emoji-burst.good .emoji-label{background:#047857}
+    .emoji-burst.warn .emoji-label{background:#92400e}
+    .emoji-burst.bad .emoji-label{background:#b91c1c}
+    @keyframes emojiPop{0%{opacity:0;transform:translate(-50%,-20%) scale(.65)}16%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}72%{opacity:1;transform:translate(-50%,-58%) scale(1)}100%{opacity:0;transform:translate(-50%,-92%) scale(.86)}}
+    @keyframes emojiWiggle{from{transform:rotate(-7deg) scale(.98)}to{transform:rotate(7deg) scale(1.04)}}
     .toast{position:absolute;left:50%;bottom:12px;transform:translate(-50%,20px);opacity:0;background:#101827;color:#fff;border-radius:var(--radius);padding:9px 12px;font-size:12px;font-weight:1000;text-align:center;max-width:270px;white-space:pre-line;transition:.22s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
     .tool-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px}
 
@@ -126,13 +134,13 @@
     .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
 
     @media(max-width:760px){
-      body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{justify-content:flex-start;margin-top:10px}.map-menu-panel{left:0;right:0;width:100%;grid-template-columns:1fr 1fr}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
+      body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;margin-top:10px;width:100%}.wallet .pill,.wallet .map-menu{min-width:0;width:100%}.wallet .pill{justify-content:center}.map-menu{position:static}.map-menu-panel{left:0;right:0;top:calc(100% + 8px);width:100%;max-height:min(68svh,520px);grid-template-columns:1fr 1fr}.map-menu-panel button{min-height:52px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
       .modal{padding:10px}.modal-box{width:min(540px,100%);max-height:calc(100svh - 20px);padding:16px}
       .game-screen{padding:8px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto}.score-hud{gap:7px}.score-box strong{font-size:18px}.board-wrap{width:min(100%,calc(100svh - 238px));margin-top:2px}.tool-row button{padding:9px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
       .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
     @media(max-width:390px){
-      .map-grid{grid-template-columns:1fr}.board-wrap{width:min(100%,calc(100svh - 244px))}
+      .wallet{grid-template-columns:repeat(2,minmax(0,1fr))}.map-grid{grid-template-columns:1fr}.board-wrap{width:min(100%,calc(100svh - 244px))}
       .map-menu-panel{grid-template-columns:1fr}
     }
   </style>
@@ -153,7 +161,7 @@
   <main id="mapScreen" class="screen hidden">
     <header class="map-head">
       <div class="brand">
-        <h1>Box Chain Arena V4.6</h1>
+        <h1>Box Chain Arena V1</h1>
         <p>Guided learning, star progression, and simplified online duels with virtual Entry Gold.</p>
       </div>
       <div class="wallet">
@@ -167,7 +175,7 @@
             <button class="gold" id="dailyBtn">🎁 Daily</button>
             <button class="soft" id="endlessBtn">▶ Next</button>
             <button class="soft" id="shopBtn">🛒 Shop</button>
-            <button class="soft" id="portalBtn">👤 Portal</button>
+            <button class="soft" id="portalBtn">👤 Profile</button>
             <button class="soft" id="guideBtn">❔ Guide</button>
             <button class="soft" id="demoBtn">🎓 Demo</button>
             <button class="soft" id="twoPlayerBtn">👥 2P</button>
@@ -261,6 +269,9 @@
         <button class="primary" id="roomCodeFlowBtn">Play with Room Code</button>
         <button id="challengeFlowBtn">Challenge Online Player</button>
       </div>
+      <div class="flow-panel hidden" id="onlineLoginPanel">
+        <button class="primary" id="onlineLoginBtn">Register / Login</button>
+      </div>
       <div class="room-actions hidden" id="roomActionPanel">
         <button class="primary" id="createRoomBtn">Create Room</button>
         <button id="showJoinRoomBtn">Join Room</button>
@@ -333,7 +344,7 @@
 
   <div class="modal" id="portalModal">
     <div class="modal-box room-panel">
-      <h2>Player Portal</h2>
+      <h2>Player Profile</h2>
       <p id="portalIntro">Login to challenge online players and save match stats.</p>
       <div class="portal-grid">
         <div><span>Nickname</span><b id="portalNickname">Guest</b></div>
@@ -494,6 +505,7 @@
     onlineIntro:document.getElementById('onlineIntro'), onlineStepLabel:document.getElementById('onlineStepLabel'),
     onlineChoicePanel:document.getElementById('onlineChoicePanel'), roomCodeFlowBtn:document.getElementById('roomCodeFlowBtn'),
     challengeFlowBtn:document.getElementById('challengeFlowBtn'), roomActionPanel:document.getElementById('roomActionPanel'),
+    onlineLoginPanel:document.getElementById('onlineLoginPanel'), onlineLoginBtn:document.getElementById('onlineLoginBtn'),
     createRoomPanel:document.getElementById('createRoomPanel'), joinRoomPanel:document.getElementById('joinRoomPanel'),
     roomStakePanel:document.getElementById('roomStakePanel'), roomStakePresets:document.getElementById('roomStakePresets'),
     onlineBackBtn:document.getElementById('onlineBackBtn'), roomCode:document.getElementById('roomCode'),
@@ -608,6 +620,10 @@
   ];
   const MASTER_AI_STAKE = 100;
   const STARTER_PLAYER_STAKE = 50;
+  const PLAYER_ONLINE_WINDOW_MS = 45000;
+  const INVITE_TTL_MS = 5 * 60 * 1000;
+  const LATE_MOVE_MS = 20000;
+  const LATE_MOVE_REPEAT_MS = 15000;
   const MUSIC_TRACKS = {
     map:{src:'https://opengameart.org/sites/default/files/flowerbed_fields.ogg',name:'Flowerbed Fields',source:'OpenGameArt CC0'},
     stage:{src:'https://opengameart.org/sites/default/files/8BitBattleLoop_0.ogg',name:'8-Bit Battle Loop',source:'OpenGameArt CC0'},
@@ -644,10 +660,18 @@
   let playersUnsub = null;
   let invitesUnsub = null;
   let activeInvite = null;
+  let inviteListenVersion = 0;
   let selectedChallengeTarget = null;
   let mapEntered = false;
   let challengePracticeMode = false;
   let onlineTrainingPending = false;
+  let openOnlineAfterAuth = false;
+  let authReturnTarget = '';
+  let authFlowActive = false;
+  let bootAuthPromise = null;
+  let networkOnline = navigator.onLine !== false;
+  let roomConnectionTimer = null;
+  let lastRoomConnection = null;
   let introTimer = null;
   let audioCtx = null, musicTimer = null, musicAudio = null, activeMusicKey = '', musicOn = false, musicTouched = false, musicStep = 0;
   let guideIndex = 0;
@@ -927,8 +951,12 @@
     const counts={classic:18,heart:20,star:17,spiral:22,diamond:16,bench:18,festival:20,map:19};
     return Array.from({length:counts[shape]||18},(_,i)=>`<span class="preview-dot" style="background:${THEMES[shape][1]};opacity:${.45+(i%5)*.11}"></span>`).join('');
   }
+  function cancelIntroDemo(){
+    if(introTimer){ clearTimeout(introTimer); introTimer=null; }
+  }
 
   function startStage(id){
+    cancelIntroDemo();
     closeOnlineChannel();
     hideAccountModals();
     setTeach('');
@@ -959,6 +987,7 @@
     setTimeout(()=>autoTutorialMove('h:0:0'),700);
   }
   function startTwoPlayerStage(){
+    cancelIntroDemo();
     closeOnlineChannel();
     hideAccountModals();
     setTeach('');
@@ -978,7 +1007,7 @@
     const stage=buildStage(clamp(Number(stageId||1),1,DUEL_STAGE_COUNT));
     stage.name='Duel: '+stage.name;
     stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
-    game = {mode:'online',roomCode:code,roomStatus:status,localPlayer,syncedMoveCount:0,seenFirebaseMoves:new Set(),resetVersion:0,stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,suppressBroadcast:false};
+    game = {mode:'online',roomCode:code,roomStatus:status,localPlayer,syncedMoveCount:0,seenFirebaseMoves:new Set(),resetVersion:0,stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,suppressBroadcast:false,lastOpponentOnline:null,turnStartedAt:Date.now(),lastLateEmotionAt:0,lastObservedTurn:1};
     document.body.classList.add('playing');
     document.body.dataset.boardTheme=stage.shape;
     window.scrollTo(0,0);
@@ -989,7 +1018,7 @@
   function validateMasterStake(amount){
     const max=Math.min(STARTER_PLAYER_STAKE, Number(save.gold||0));
     if(amount>max){
-      els.playersMsg.textContent='Master AI practice stake limit is '+max+' gold.';
+      els.playersMsg.textContent='Master AI challenge stake limit is '+max+' gold.';
       return false;
     }
     return true;
@@ -1068,13 +1097,15 @@
     const isCreate=state==='create';
     const isJoin=state==='join';
     const isStake=state==='stake';
+    const isLogin=state==='login';
     els.onlineChoicePanel.classList.toggle('hidden', !isChoice);
+    els.onlineLoginPanel.classList.toggle('hidden', !isLogin);
     els.roomActionPanel.classList.toggle('hidden', !isRoomChoice);
     els.createRoomPanel.classList.toggle('hidden', !isCreate);
     els.joinRoomPanel.classList.toggle('hidden', !isJoin);
     els.roomStakePanel.classList.toggle('hidden', !isStake);
     els.stakeSummary.classList.toggle('hidden', !isStake);
-    els.onlineBackBtn.classList.toggle('hidden', isChoice || isStake);
+    els.onlineBackBtn.classList.toggle('hidden', isChoice || isStake || isLogin);
     if(isChoice){
       els.onlineStepLabel.textContent='Online Play';
       els.onlineTitle.textContent='Online Play';
@@ -1098,9 +1129,15 @@
       els.onlineStepLabel.textContent='Step 3';
       els.onlineTitle.textContent='Confirm Duel';
       els.onlineIntro.textContent='Both players are connected. Choose arena and optional Entry Gold, then confirm.';
+    } else if(isLogin){
+      els.onlineStepLabel.textContent='Online Login';
+      els.onlineTitle.textContent='Register / Login';
+      els.onlineIntro.textContent='Login first to create rooms, join friends, and challenge online players.';
+      els.roomStatus.textContent='Your offline progress stays saved. Login connects it to your online profile.';
     }
   }
   function openOnline(){
+    cancelIntroDemo();
     closeOnlineChannel();
     applyEntryGoldLimits();
     els.roomCode.textContent='BOX-0000';
@@ -1112,18 +1149,22 @@
     els.stakeSummary.className='stake-summary hidden';
     els.stakeSummary.textContent="Entry Gold is optional. Winner receives the opponent's Entry Gold. "+entryLimitText();
     els.confirmStakeBtn.classList.add('hidden');
-    setOnlineFlowState('choice');
+    setOnlineFlowState(playerProfile ? 'choice' : 'login');
     els.onlineModal.classList.add('show');
     playSfx('room');
-    maybeOpenOnlineGuide();
+    if(playerProfile) maybeOpenOnlineGuide();
   }
   function closeOnline(){
     els.onlineModal.classList.remove('show');
     els.onlineGuideModal.classList.remove('show');
-    if(!game || game.mode!=='online') closeLobbyListener();
+    if(!game || game.mode!=='online') closeOnlineChannel();
   }
-  function openRoomCodeFlow(){ setOnlineFlowState('roomChoice'); }
+  function openRoomCodeFlow(){
+    if(!requireOnlineProfile('Register/Login before creating or joining online rooms.')) return;
+    setOnlineFlowState('roomChoice');
+  }
   function showJoinRoomFlow(){
+    if(!requireOnlineProfile('Register/Login before joining an online room.')) return;
     closeOnlineChannel();
     els.roomInput.value='';
     els.roomCode.textContent='BOX-0000';
@@ -1142,11 +1183,34 @@
   }
   function openChallengeFlow(){
     closeOnline();
-    if(playerProfile){
-      openPlayers();
-      return;
+    if(playerProfile) openPlayers();
+    else openOnlineLogin();
+  }
+  function openOnlineLogin(returnTarget='online'){
+    authReturnTarget=returnTarget;
+    openOnlineAfterAuth=returnTarget==='online';
+    closeOnline();
+    openAuth('login');
+    els.authMsg.textContent='Login or register to use online rooms and player challenges.';
+  }
+  function openProfileLogin(){
+    authReturnTarget='profile';
+    openOnlineAfterAuth=false;
+    openAuth('login');
+    els.authMsg.textContent='Login or register to show your saved profile.';
+  }
+  function requireOnlineProfile(message='Login first to use online play.'){
+    if(playerProfile) return true;
+    authReturnTarget='online';
+    openOnlineAfterAuth=true;
+    if(els.onlineModal.classList.contains('show')){
+      setOnlineFlowState('login');
+      els.roomStatus.textContent=message;
+    } else {
+      openAuth('login');
+      els.authMsg.textContent=message;
     }
-    openPracticePlayers();
+    return false;
   }
   function firebaseApi(){ return window.BCAFirebase || null; }
   function firebaseReady(){ const fb=firebaseApi(); return !!(fb && fb.ready && fb.uid); }
@@ -1194,14 +1258,17 @@
     enterMap();
     const fb=await waitFirebaseSdk();
     if(!fb) return;
-    try{
-      if(!firebaseReady() && !fb.user) await fb.signInAnonymously(fb.auth);
-      await waitFirebaseReady(4500);
-      await handleFirebaseAuthChanged();
-      syncCloudSave();
-    } catch(e){
-      console.warn('Background Firebase sign-in failed:', e);
-    }
+    bootAuthPromise=(async()=>{
+      try{
+        if(!authFlowActive && !firebaseReady() && !fb.user) await fb.signInAnonymously(fb.auth);
+        await waitFirebaseReady(4500);
+        await handleFirebaseAuthChanged();
+        syncCloudSave();
+      } catch(e){
+        console.warn('Background Firebase sign-in failed:', e);
+      }
+    })();
+    await bootAuthPromise;
   }
   async function continueAsGuest(){
     els.welcomeMsg.textContent='Connecting guest...';
@@ -1226,13 +1293,24 @@
     }
   }
   function openAuth(mode='register'){
+    authFlowActive=true;
     closePortal();
     setAuthMode(mode);
     els.authMsg.textContent='';
     els.authModal.classList.add('show');
     requestAnimationFrame(()=>els.authModal.querySelector('.modal-box')?.scrollTo(0,0));
   }
-  function closeAuth(){ els.authModal.classList.remove('show'); }
+  function closeAuth(){ els.authModal.classList.remove('show'); authFlowActive=false; }
+  async function settleBootAuth(){
+    if(bootAuthPromise) await bootAuthPromise.catch(()=>{});
+  }
+  function completeAuthReturn(){
+    const target=authReturnTarget || (openOnlineAfterAuth ? 'online' : 'profile');
+    authReturnTarget='';
+    openOnlineAfterAuth=false;
+    if(target==='online') openOnline();
+    else { openPortal(); renderPortal(); }
+  }
   function hideAccountModals(){
     els.authModal.classList.remove('show');
     els.portalModal.classList.remove('show');
@@ -1263,6 +1341,7 @@
     if(!validNickname(nickname)){ els.authMsg.textContent='Nickname: 3-15 letters, numbers, underscore.'; return; }
     const fb=await waitFirebaseSdk();
     if(!fb){ els.authMsg.textContent='Firebase SDK not loaded.'; return; }
+    await settleBootAuth();
     const lower=nicknameKey(nickname);
     els.authMsg.textContent='Checking nickname...';
     try{
@@ -1285,8 +1364,7 @@
       listenInvites();
       closeAuth();
       enterMap();
-      openPortal();
-      renderPortal();
+      completeAuthReturn();
     } catch(e){
       console.warn('Register failed:', e);
       els.authMsg.textContent=authErrorText(e);
@@ -1295,6 +1373,7 @@
   async function loginPlayer(email,password){
     const fb=await waitFirebaseSdk();
     if(!fb){ els.authMsg.textContent='Firebase SDK not loaded.'; return; }
+    await settleBootAuth();
     els.authMsg.textContent='Logging in...';
     try{
       const result=await fb.signInWithEmailAndPassword(fb.auth,email,password);
@@ -1307,8 +1386,7 @@
       listenInvites();
       closeAuth();
       enterMap();
-      openPortal();
-      renderPortal();
+      completeAuthReturn();
     } catch(e){
       console.warn('Login failed:', e);
       els.authMsg.textContent=authErrorText(e);
@@ -1429,6 +1507,7 @@
     }
   }
   function openPortal(){
+    cancelIntroDemo();
     syncProfileEconomy();
     renderPortal();
     els.portalModal.classList.add('show');
@@ -1437,13 +1516,13 @@
   function closePortal(){ els.portalModal.classList.remove('show'); }
   function renderPortal(){
     const p=playerProfile;
-    els.portalIntro.textContent=p?'Online account ready for challenges.':'Guest mode can play stages and room-code games.';
+    els.portalIntro.textContent=p?'Online account ready for rooms and challenges.':'Guest profile can play stages. Login to use online rooms and challenges.';
     els.portalNickname.textContent=p?.nickname || 'Guest';
     els.portalEmail.textContent=p?.email || 'Guest';
     els.portalWins.textContent=p?.wins || 0;
     els.portalLosses.textContent=p?.losses || 0;
     els.portalMatches.textContent=p?.totalMatches || 0;
-    els.portalStatus.textContent=p?'Online':'Guest';
+    els.portalStatus.textContent=p?(networkOnline?'Online':'Offline'):'Guest';
     els.portalGold.textContent=p?.gold ?? save.gold ?? 0;
     els.portalDiamonds.textContent=p?.diamonds ?? save.diamonds ?? 0;
     els.playersOpenBtn.disabled=false;
@@ -1454,7 +1533,7 @@
     els.portalMsg.textContent=p?entryLimitText():'Register/Login to use player challenges.';
   }
   function openPlayers(){
-    if(!playerProfile){ els.portalMsg.textContent='Login first to challenge players.'; return; }
+    if(!playerProfile){ openOnlineLogin(); return; }
     challengePracticeMode=false;
     applyEntryGoldLimits();
     clearChallengeTarget();
@@ -1488,7 +1567,7 @@
       snap.forEach(child=>{
         const uid=child.key, p=child.val()||{};
         if(uid===fb.uid) return;
-        const online=p.status==='online' && now-Number(p.lastSeen||0)<30000;
+        const online=playerIsOnline(p, now);
         rows.push({...p,uid,online});
       });
       rows.sort((a,b)=>Number(b.online)-Number(a.online) || String(a.nickname||'').localeCompare(String(b.nickname||'')));
@@ -1530,7 +1609,7 @@
   function renderPlayers(rows){
     els.playersList.innerHTML='';
     if(!rows.length){
-      els.playersList.innerHTML='<div class="player-row"><div><div class="player-name">No players yet</div><div class="player-meta">Master AI practice is available while you wait for real players.</div></div></div>';
+      els.playersList.innerHTML='<div class="player-row"><div><div class="player-name">No players yet</div><div class="player-meta">Master AI challenge is available while you wait for real players.</div></div></div>';
       els.playersMsg.textContent=challengePracticeMode?'Choose Master AI to practice now.':'No real players online yet.';
       return;
     }
@@ -1580,14 +1659,14 @@
     sendChallenge(selectedChallengeTarget.uid, selectedChallengeTarget.nickname);
   }
   async function sendChallenge(receiverUid, receiverNickname){
-    if(!playerProfile){ els.playersMsg.textContent='Login first.'; return; }
+    if(!requireOnlineProfile('Register/Login before sending online challenges.')) return;
     const stake=challengeStakeAmount(), stageId=selectedChallengeStageId();
     if(!validateStake(stake, els.playersMsg)) return;
     const fb=firebaseApi();
     if(!firebaseReady()){ els.playersMsg.textContent='Firebase not connected.'; return; }
     try{
       const inviteRef=fb.push(fb.ref(fb.db,'invites/'+receiverUid));
-      await fb.set(inviteRef,{fromUid:fb.uid,fromNickname:playerProfile.nickname,fromStake:stake,stageId,status:'pending',roomCode:'',createdAt:fb.serverTimestamp()});
+      await fb.set(inviteRef,{fromUid:fb.uid,fromNickname:playerProfile.nickname,fromStake:stake,stageId,status:'pending',roomCode:'',createdAt:fb.serverTimestamp(),expiresAt:Date.now()+INVITE_TTL_MS});
       els.playersMsg.textContent='Challenge sent to '+receiverNickname+' with '+stake+' Entry Gold.';
       playSfx('challenge');
       listenInviteResponse(receiverUid, inviteRef.key);
@@ -1607,7 +1686,7 @@
         closePlayers();
         closePortal();
         els.roomCode.textContent=invite.roomCode;
-        els.roomStatus.textContent='Opponent accepted. Confirm Entry Gold to start.';
+        els.roomStatus.textContent='Opponent accepted. Starting duel...';
         setOnlineFlowState('stake');
         els.onlineModal.classList.add('show');
         listenFirebaseLobby(invite.roomCode,1);
@@ -1616,31 +1695,94 @@
         unsub();
         els.playersMsg.textContent='Challenge rejected.';
       }
+      if(invite.status==='expired'){
+        unsub();
+        els.playersMsg.textContent=invite.reason==='senderOffline' ? 'Challenge expired because you went offline.' : 'Challenge expired. Send a new challenge when both players are online.';
+      }
     });
+  }
+  function playerIsOnline(profile, now=Date.now()){
+    return !!profile && profile.status==='online' && now-Number(profile.lastSeen||0)<PLAYER_ONLINE_WINDOW_MS;
+  }
+  function inviteExpiresAt(invite){
+    const explicit=Number(invite?.expiresAt || 0);
+    if(explicit) return explicit;
+    const created=Number(invite?.createdAt || 0);
+    return created ? created + INVITE_TTL_MS : 0;
+  }
+  function inviteExpired(invite, now=Date.now()){
+    const expiresAt=inviteExpiresAt(invite);
+    return !!expiresAt && now>expiresAt;
+  }
+  async function markInviteExpired(invite, reason='expired'){
+    const fb=firebaseApi();
+    if(!firebaseReady() || !invite?.id) return;
+    try{
+      await fb.update(fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id), {
+        status:'expired',
+        reason,
+        expiredAt:fb.serverTimestamp()
+      });
+    } catch(e){}
+  }
+  async function inviteSenderAvailable(invite){
+    const fb=firebaseApi();
+    if(!firebaseReady() || !invite?.fromUid) return false;
+    try{
+      const snap=await fb.get(fb.ref(fb.db,'players/'+invite.fromUid));
+      return playerIsOnline(snap.val());
+    } catch(e){
+      return false;
+    }
   }
   function listenInvites(){
     closeInvites();
     const fb=firebaseApi();
     if(!firebaseReady() || !playerProfile) return;
-    invitesUnsub=fb.onValue(fb.ref(fb.db,'invites/'+fb.uid), snap=>{
-      let pending=null;
+    invitesUnsub=fb.onValue(fb.ref(fb.db,'invites/'+fb.uid), async snap=>{
+      const version=++inviteListenVersion;
+      if(!networkOnline){ hideInvite(); return; }
+      const pending=[];
+      const now=Date.now();
       snap.forEach(child=>{
         const v=child.val()||{};
-        if(!pending && v.status==='pending') pending={...v,id:child.key};
+        if(v.status!=='pending') return;
+        const invite={...v,id:child.key};
+        if(inviteExpired(invite, now)){
+          markInviteExpired(invite,'expired');
+          return;
+        }
+        pending.push(invite);
       });
-      if(pending) showInvite(pending);
+      pending.sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+      for(const invite of pending){
+        if(activeInvite?.id===invite.id && els.invitePopup.classList.contains('show')) return;
+        const senderAvailable=await inviteSenderAvailable(invite);
+        if(version!==inviteListenVersion) return;
+        if(!senderAvailable){
+          await markInviteExpired(invite,'senderOffline');
+          if(activeInvite?.id===invite.id) hideInvite();
+          continue;
+        }
+        showInvite(invite);
+        return;
+      }
+      hideInvite();
     });
   }
   function closeInvites(){
+    inviteListenVersion++;
     if(invitesUnsub){ try{ invitesUnsub(); } catch(e){} invitesUnsub=null; }
     hideInvite();
   }
   function showInvite(invite){
+    if(activeInvite?.id===invite.id && els.invitePopup.classList.contains('show')) return;
     activeInvite=invite;
     applyEntryGoldLimits();
     els.inviteTitle.textContent='Challenge received';
     els.inviteText.textContent=(invite.fromNickname||'A player')+' challenged you on '+stageNameById(invite.stageId||1)+' with '+Number(invite.fromStake||0)+' Entry Gold. '+ENTRY_GOLD_NOTICE;
     els.inviteStakeInput.value='0';
+    els.inviteAcceptBtn.textContent='Accept & Start';
     els.invitePopup.classList.add('show');
     playSfx('challenge');
   }
@@ -1654,15 +1796,35 @@
     const stake=inviteStakeAmount();
     if(!validateStake(stake, {set textContent(v){ els.inviteText.textContent=v; }})) return;
     try{
+      const inviteRef=fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id);
+      const latestSnap=await fb.get(inviteRef);
+      const latest=latestSnap.val() ? {...latestSnap.val(),id:invite.id} : null;
+      if(!latest || latest.status!=='pending'){
+        hideInvite();
+        showToast('Challenge is no longer available');
+        return;
+      }
+      if(inviteExpired(latest)){
+        await markInviteExpired(latest,'expired');
+        hideInvite();
+        showToast('Challenge expired');
+        return;
+      }
+      if(!(await inviteSenderAvailable(latest))){
+        await markInviteExpired(latest,'senderOffline');
+        hideInvite();
+        showToast('Challenger is offline');
+        return;
+      }
       await fb.set(fb.ref(fb.db, firebaseRoomPath(code)), {
-        code,status:'stakeReview',stageId:Number(invite.stageId||1),boardSeed:Number(invite.stageId||1),current:1,hostUid:invite.fromUid,guestUid:fb.uid,
-        scores:{p1:0,p2:0},players:{p1:invite.fromUid,p2:fb.uid},playerNames:{p1:invite.fromNickname||'Player 1',p2:localDuelName('Player 2')},stakes:{p1:Number(invite.fromStake||0),p2:stake},entryGold:{p1:Number(invite.fromStake||0),p2:stake},stakeConfirmed:{p1:false,p2:true},moveCount:0,resetVersion:0,createdAt:fb.serverTimestamp()
+        code,status:'joined',stageId:Number(latest.stageId||1),boardSeed:Number(latest.stageId||1),current:1,hostUid:latest.fromUid,guestUid:fb.uid,
+        scores:{p1:0,p2:0},players:{p1:latest.fromUid,p2:fb.uid},playerNames:{p1:latest.fromNickname||'Player 1',p2:localDuelName('Player 2')},stakes:{p1:Number(latest.fromStake||0),p2:stake},entryGold:{p1:Number(latest.fromStake||0),p2:stake},stakeConfirmed:{p1:true,p2:true},moveCount:0,resetVersion:0,createdAt:fb.serverTimestamp(),joinedAt:fb.serverTimestamp(),updatedAt:fb.serverTimestamp()
       });
-      await fb.update(fb.ref(fb.db,'invites/'+fb.uid+'/'+invite.id),{status:'accepted',roomCode:code,acceptedAt:fb.serverTimestamp()});
+      await fb.update(inviteRef,{status:'accepted',roomCode:code,acceptedAt:fb.serverTimestamp()});
       hideInvite();
       playSfx('ready');
       els.roomCode.textContent=code;
-      els.roomStatus.textContent='Waiting for challenger to confirm Entry Gold.';
+      els.roomStatus.textContent='Challenge accepted. Starting duel...';
       setOnlineFlowState('stake');
       els.onlineModal.classList.add('show');
       listenFirebaseLobby(code,2);
@@ -1804,6 +1966,7 @@
   }
   async function confirmStake(){
     if(!stakeLobby) return;
+    if(!requireOnlineProfile('Register/Login before confirming Entry Gold.')) return;
     const fb=firebaseApi();
     if(!firebaseReady()) return;
     const {code,localPlayer}=stakeLobby;
@@ -1828,6 +1991,7 @@
     playSfx('ready');
   }
   async function createRoom(){
+    if(!requireOnlineProfile('Register/Login before creating an online room.')) return;
     closeOnlineChannel();
     const code=makeRoomCode();
     const stageId=selectedRoomStageId();
@@ -1888,6 +2052,7 @@
     }
   }
   async function joinRoom(){
+    if(!requireOnlineProfile('Register/Login before joining an online room.')) return;
     closeOnlineChannel();
     const code=els.roomInput.value.trim().toUpperCase();
     if(!code){ els.roomStatus.textContent='Enter a room code.'; return; }
@@ -1920,11 +2085,96 @@
       els.roomStatus.textContent='Firebase join failed. Check the room code and database rules.';
     }
   }
+  function roomRole(localPlayer){ return Number(localPlayer)===2 ? 'p2' : 'p1'; }
+  function opponentRole(localPlayer){ return Number(localPlayer)===2 ? 'p1' : 'p2'; }
+  function syncRoomConnection(code, localPlayer, online=networkOnline){
+    const fb=firebaseApi();
+    if(!fb || !firebaseReady() || !code) return;
+    const role=roomRole(localPlayer);
+    const roomRef=fb.ref(fb.db, firebaseRoomPath(code)+'/connections/'+role);
+    fb.update(roomRef, {
+      online:!!online,
+      uid:fb.uid,
+      nickname:localDuelName(role==='p1'?'Player 1':'Player 2'),
+      lastSeen:fb.serverTimestamp()
+    }).catch(()=>{});
+  }
+  function armRoomDisconnect(code, localPlayer){
+    const fb=firebaseApi();
+    if(!fb || !firebaseReady() || !code) return;
+    const role=roomRole(localPlayer);
+    const roomRef=fb.ref(fb.db, firebaseRoomPath(code)+'/connections/'+role);
+    try{
+      fb.onDisconnect(roomRef).update({
+        online:false,
+        uid:fb.uid,
+        nickname:localDuelName(role==='p1'?'Player 1':'Player 2'),
+        lastSeen:fb.serverTimestamp()
+      }).catch(()=>{});
+    } catch(e){}
+  }
+  function startRoomConnectionHeartbeat(code, localPlayer){
+    stopRoomConnectionHeartbeat(false);
+    lastRoomConnection={code,localPlayer};
+    syncRoomConnection(code,localPlayer,true);
+    armRoomDisconnect(code,localPlayer);
+    roomConnectionTimer=setInterval(()=>syncRoomConnection(code,localPlayer,networkOnline),12000);
+  }
+  function stopRoomConnectionHeartbeat(markOffline=false){
+    if(roomConnectionTimer){ clearInterval(roomConnectionTimer); roomConnectionTimer=null; }
+    if(markOffline && lastRoomConnection) syncRoomConnection(lastRoomConnection.code,lastRoomConnection.localPlayer,false);
+    lastRoomConnection=null;
+  }
+  function currentRoomConnection(){
+    if(game?.mode==='online') return {code:game.roomCode,localPlayer:game.localPlayer};
+    if(stakeLobby) return {code:stakeLobby.code,localPlayer:stakeLobby.localPlayer};
+    return lastRoomConnection;
+  }
+  function handleNetworkChange(){
+    const wasOnline=networkOnline;
+    networkOnline=navigator.onLine!==false;
+    const ctx=currentRoomConnection();
+    if(ctx) syncRoomConnection(ctx.code,ctx.localPlayer,networkOnline);
+    if(playerProfile && networkOnline) setPlayerOnline();
+    if(!networkOnline) hideInvite();
+    const text=networkOnline?'Reconnected. Continue the duel.':'You are offline. Reconnect to continue.';
+    if(game?.mode==='online'){
+      game.roomStatus=text;
+      updateUI();
+      if(wasOnline!==networkOnline){
+        showToast(text);
+        showEmotion(networkOnline?'reconnect':'offline', networkOnline?'Back online':'You are offline');
+      }
+    }
+    if(els.onlineModal.classList.contains('show')) els.roomStatus.textContent=text;
+  }
+  function applyRoomConnectionStatus(room){
+    if(!game || game.mode!=='online') return false;
+    if(!networkOnline){
+      const text='You are offline. Reconnect to continue.';
+      if(game.roomStatus!==text){ game.roomStatus=text; updateUI(); showEmotion('offline','You are offline'); }
+      return true;
+    }
+    const opponent=room?.connections?.[opponentRole(game.localPlayer)];
+    if(opponent && opponent.online===false){
+      const text='Opponent offline. Waiting to reconnect...';
+      if(game.roomStatus!==text){ game.roomStatus=text; updateUI(); showToast(text); showEmotion('offline','Opponent out/offline'); }
+      game.lastOpponentOnline=false;
+      return true;
+    }
+    if(opponent && opponent.online===true && game.lastOpponentOnline===false){
+      showToast('Opponent reconnected');
+      showEmotion('reconnect','Opponent reconnected');
+    }
+    if(opponent) game.lastOpponentOnline=!!opponent.online;
+    return false;
+  }
   function listenFirebaseLobby(code, localPlayer){
     closeLobbyListener();
     const fb=firebaseApi();
     if(!firebaseReady()) return;
     stakeLobby={code,localPlayer};
+    startRoomConnectionHeartbeat(code,localPlayer);
     const roomRef=fb.ref(fb.db, firebaseRoomPath(code));
     onlineLobbyUnsub=fb.onValue(roomRef, async snap=>{
       const room=snap.val();
@@ -1968,6 +2218,7 @@
   function setupFirebaseRoom(code){
     const fb=firebaseApi();
     if(!firebaseReady()) return;
+    startRoomConnectionHeartbeat(code,game?.localPlayer || 1);
     const roomRef=fb.ref(fb.db, firebaseRoomPath(code));
     const movesRef=fb.ref(fb.db, firebaseRoomPath(code)+'/moves');
     const roomUnsub=fb.onValue(roomRef, snap=>{
@@ -1975,12 +2226,13 @@
       const room=snap.val();
       if(!room) return;
       game.onlineRoom=room;
-      if(room.status==='joined' && game.roomStatus!=='Connected'){
+      const connectionBlocked=applyRoomConnectionStatus(room);
+      if(room.status==='joined' && !connectionBlocked && game.roomStatus!=='Connected'){
         game.roomStatus='Connected';
         updateUI();
         showToast('Connected');
       }
-      if(room.status==='waiting' && game.localPlayer===1 && game.roomStatus!=='Waiting for opponent'){
+      if(room.status==='waiting' && !connectionBlocked && game.localPlayer===1 && game.roomStatus!=='Waiting for opponent'){
         game.roomStatus='Waiting for opponent';
         updateUI();
       }
@@ -2007,9 +2259,11 @@
   function closeOnlineChannel(){
     closeLobbyListener();
     closeGameFirebaseListeners();
+    stopRoomConnectionHeartbeat(true);
   }
   async function saveRoomMove(edgeKey, player){
     if(!game || game.mode!=='online') return;
+    if(!networkOnline){ showToast('You are offline. Reconnect to send moves.'); return; }
     const fb=firebaseApi();
     if(!firebaseReady()){ showToast('Firebase offline'); return; }
     try{
@@ -2087,6 +2341,7 @@
   }
   function drawFrame(){
     if(game && !game.over){
+      checkLateMoveEmotion();
       draw();
       requestAnimationFrame(drawFrame);
     } else {
@@ -2148,6 +2403,7 @@
       const coinCaptured = captured.map(key=>({key,coin:game.stage.coinBoxes.get(key)})).filter(x=>x.coin);
       const reward=awardGold(player,coinCaptured);
       showReward(edge,reward,gained,coinCaptured,player);
+      if(game.chains[player]>=3 || gained>1) showEmotion(game.chains[player]>=4?'chain':'wow',(player===1?'P1':'P2')+' chain x'+game.chains[player]);
       showToast((gained>1?'Chain x'+game.chains[player]:'+1 box')+(reward?'\n+'+reward+' gold':''));
       playSfx(gained>1?'chain':'capture');
     } else {
@@ -2157,6 +2413,7 @@
     if(game.mode==='online' && !game.suppressBroadcast){
       saveRoomMove(edge.key, player);
     }
+    if(game.mode==='online') resetTurnEmotionTimer();
     game.hint=null; updateUI(); draw();
     if(game.mode==='tutorial'){ handleTutorialMove(edge,gained); return; }
     checkEnd();
@@ -2211,6 +2468,7 @@
       els.resultDiamond.textContent='0';
       els.nextBtn.textContent=game.mode==='online' ? 'Rematch Room' : (game.mode==='masterAI' ? 'Next Challenge' : 'Level Map');
       els.resultMapBtn.textContent='Level Map';
+      showEmotion(localWon?'win':'lose',localWon?'You won':'You lost');
       els.resultModal.classList.add('show');
       endReaction(localWon); playResultSound(localWon); updateUI();
       return;
@@ -2244,6 +2502,7 @@
     els.resultStars.textContent=starText(earnedStars);
     els.resultDiamond.textContent=diamondEarned?'+1':'0';
     els.nextBtn.textContent=win && canPlayStage(game.stage.id+1)?'Next Stage':'Replay Stage';
+    showEmotion(win?'win':'lose',win?'Stage clear':'Try again');
     els.resultModal.classList.add('show');
     endReaction(win);
     playResultSound(win);
@@ -2272,7 +2531,7 @@
     const delta=masterAiStakeDelta(p1Win);
     if(delta>0) return 'Master AI staked '+aiStake+' gold. You won +'+delta+' virtual gold. Next Challenge gives a new random arena. '+ENTRY_GOLD_NOTICE;
     if(delta<0) return 'Master AI wins by box majority. Your Entry Gold used '+Math.abs(delta)+' gold. Try Next Challenge or return to the map. '+ENTRY_GOLD_NOTICE;
-    return 'Practice duel finished with no player Entry Gold. Master AI stake: '+aiStake+' gold. Next Challenge gives a new random arena. '+ENTRY_GOLD_NOTICE;
+    return 'Challenge duel finished with no player Entry Gold. Master AI stake: '+aiStake+' gold. Next Challenge gives a new random arena. '+ENTRY_GOLD_NOTICE;
   }
   function stakeDeltaForLocal(p1Win){
     if(!game || game.mode!=='online') return 0;
@@ -2525,7 +2784,9 @@
   function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
   function pointerDown(e){
-    if(!game || game.over || game.aiBusy || !isHumanTurn()) return;
+    if(!game || game.over || game.aiBusy) return;
+    if(game.mode==='online' && onlineWaiting()){ playSfx('bad'); showToast(onlineWaitMessage()); return; }
+    if(!isHumanTurn()) return;
     const p=pointFromEvent(e), d=nearestDot(p);
     if(!d){ playSfx('bad'); showToast('Start closer to a dot'); return; }
     game.drag={start:d,current:p}; canvas.setPointerCapture?.(e.pointerId); e.preventDefault(); draw();
@@ -2546,7 +2807,15 @@
     return game.current===1;
   }
   function onlineWaiting(){
-    return game?.mode==='online' && game.localPlayer===1 && /waiting/i.test(game.roomStatus || '');
+    if(game?.mode!=='online') return false;
+    if(!networkOnline) return true;
+    const status=game.roomStatus || '';
+    return /offline|reconnect/i.test(status) || (game.localPlayer===1 && /waiting/i.test(status));
+  }
+  function onlineWaitMessage(){
+    if(!networkOnline) return 'You are offline. Reconnect to continue.';
+    if(/opponent offline/i.test(game?.roomStatus || '')) return 'Opponent offline. Waiting to reconnect.';
+    return game?.roomStatus || 'Waiting for opponent.';
   }
   function cellCenter(key){
     const [r,c]=key.split(',').map(Number), m=boardMetrics(), p=dotPos({r,c});
@@ -2586,6 +2855,47 @@
     setTimeout(()=>coin.remove(),780);
   }
   function showToast(text){ els.toast.textContent=text; els.toast.classList.add('show'); setTimeout(()=>els.toast.classList.remove('show'),1200); }
+  function showEmojiPopup(face,label,type='good',x=50,y=46){
+    if(!els.rewardLayer) return;
+    const pop=document.createElement('div');
+    pop.className='emoji-burst '+type;
+    pop.style.left=x+'%';
+    pop.style.top=y+'%';
+    pop.innerHTML='<div class="emoji-face">'+face+'</div><div class="emoji-label">'+safeHtml(label)+'</div>';
+    els.rewardLayer.appendChild(pop);
+    setTimeout(()=>pop.remove(),1700);
+  }
+  function showEmotion(kind,label=''){
+    const e=(code)=>String.fromCodePoint(code);
+    const emotions={
+      late:[e(0x23F3),label||'Waiting for move','warn'],
+      yourTurn:[e(0x1F449),label||'Your move','good'],
+      offline:[e(0x1F4F5),label||'Player offline','bad'],
+      reconnect:[e(0x2705),label||'Reconnected','good'],
+      chain:[e(0x1F525),label||'Box chain','good'],
+      wow:[e(0x1F929),label||'Great move','good'],
+      oops:[e(0x1F62C),label||'Try again','warn'],
+      win:[e(0x1F3C6),label||'Victory','good'],
+      lose:[e(0x1F622),label||'Better luck next time','bad']
+    };
+    const item=emotions[kind] || emotions.wow;
+    showEmojiPopup(item[0],item[1],item[2]);
+  }
+  function resetTurnEmotionTimer(){
+    if(game?.mode!=='online') return;
+    game.turnStartedAt=Date.now();
+    game.lastLateEmotionAt=0;
+    game.lastObservedTurn=game.current;
+  }
+  function checkLateMoveEmotion(){
+    if(!game || game.mode!=='online' || game.over || onlineWaiting()) return;
+    if(game.lastObservedTurn!==game.current || !game.turnStartedAt) resetTurnEmotionTimer();
+    const now=Date.now();
+    if(now-game.turnStartedAt<LATE_MOVE_MS) return;
+    if(now-(game.lastLateEmotionAt||0)<LATE_MOVE_REPEAT_MS) return;
+    game.lastLateEmotionAt=now;
+    showEmotion('late',game.current===game.localPlayer?'Your move is waiting':'Opponent is thinking...');
+  }
 
   function initAudio(){
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2813,6 +3123,7 @@
     playSfx('reward');
   }
   function openShop(){
+    cancelIntroDemo();
     renderShop();
     els.shopModal.classList.add('show');
   }
@@ -2860,7 +3171,7 @@
     renderMap();
     playSfx('buy');
   }
-  function openGuide(){ guideIndex=0; renderGuide(); els.guideModal.classList.add('show'); }
+  function openGuide(){ cancelIntroDemo(); guideIndex=0; renderGuide(); els.guideModal.classList.add('show'); }
   function closeGuide(){
     els.guideModal.classList.remove('show');
     if(!save.guideSeen){ save.guideSeen=true; storeSave(); }
@@ -2948,7 +3259,7 @@
   els.authClose.addEventListener('click',closeAuth);
   els.portalBtn.addEventListener('click',openPortal);
   els.portalClose.addEventListener('click',closePortal);
-  els.playersOpenBtn.addEventListener('click',()=>playerProfile ? openPlayers() : openAuth('register'));
+  els.playersOpenBtn.addEventListener('click',()=>playerProfile ? openPlayers() : openProfileLogin());
   els.playersClose.addEventListener('click',closePlayers);
   els.invitesOpenBtn.addEventListener('click',()=>{ els.portalMsg.textContent=playerProfile?'Incoming challenges pop up automatically.':'Login first.'; });
   els.historyBtn.addEventListener('click',()=>{ els.portalMsg.textContent='Match history is saved after online matches. Leaderboard comes next.'; });
@@ -2961,6 +3272,7 @@
   els.demoBtn.addEventListener('click',startTeachingDemo);
   els.twoPlayerBtn.addEventListener('click',startTwoPlayerStage);
   els.onlineBtn.addEventListener('click',openOnline);
+  els.onlineLoginBtn.addEventListener('click',()=>openOnlineLogin());
   els.roomCodeFlowBtn.addEventListener('click',openRoomCodeFlow);
   els.challengeFlowBtn.addEventListener('click',openChallengeFlow);
   els.createRoomBtn.addEventListener('click',createRoom);
@@ -3002,6 +3314,12 @@
   canvas.addEventListener('pointercancel',pointerUp);
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   window.addEventListener('resize',draw);
+  window.addEventListener('online',handleNetworkChange);
+  window.addEventListener('offline',handleNetworkChange);
+  window.addEventListener('beforeunload',()=>{
+    const ctx=currentRoomConnection();
+    if(ctx) syncRoomConnection(ctx.code,ctx.localPlayer,false);
+  });
   window.addEventListener('BCAFirebaseAuthChanged',handleFirebaseAuthChanged);
   bootGame();
   populateDuelStageSelects();
