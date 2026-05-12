@@ -98,7 +98,7 @@
     .turn-box{height:56px;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:8px;min-width:0;display:flex;flex-direction:column;justify-content:center}
     .turn-box strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.turn-box span{display:block;color:#ffd36d;font-size:11px;font-weight:1000;text-transform:uppercase;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .board-zone{flex:1;display:flex;align-items:flex-start;justify-content:center;min-height:0}
-    .board-wrap{position:relative;width:min(100%,calc(100svh - 218px),720px);aspect-ratio:1/1;background:rgba(255,250,240,.96);border:2px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;touch-action:none}
+    .board-wrap{position:relative;width:min(100%,calc(100svh - 218px),720px);aspect-ratio:1/1;background:linear-gradient(135deg,#fffaf0,#eef7ff);border:2px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;touch-action:none}
     canvas{width:100%;height:100%;display:block;touch-action:none}
     .reward-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
     .reward-pop{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:7px;background:rgba(16,24,39,.92);color:#fff;border-radius:999px;padding:8px 11px;font-size:15px;font-weight:1000;transform:translate(-50%,-50%);animation:rise 1s ease-out forwards;white-space:nowrap}
@@ -131,7 +131,7 @@
     .room-panel{text-align:left}.room-panel h2,.room-panel p{text-align:center}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.room-code{font-size:30px;font-weight:1000;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:14px;margin:10px 0;letter-spacing:1px}.room-input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:18px;font-weight:1000;text-align:center;text-transform:uppercase}.room-status{text-align:center;color:var(--muted);font-size:12px;font-weight:1000;min-height:20px;margin-top:8px}
     .entry-grid,.stake-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.entry-grid label,.stake-grid label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.entry-grid input,.entry-grid select,.stake-grid input,.stake-grid select{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:14px;font-weight:900;background:#fff}.stake-summary{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;font-size:12px;font-weight:1000;color:var(--muted);line-height:1.45}.stake-summary b{color:var(--ink)}.lobby-summary{text-align:left;display:grid;gap:9px}.lobby-arena{background:#101827;color:#fff;border-radius:var(--radius);padding:10px;text-align:center}.lobby-arena span{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-arena b{color:#fff;font-size:16px}.lobby-players{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lobby-player{background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);padding:10px}.lobby-player span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-player b{display:block;font-size:15px;margin:3px 0}.ready{color:var(--good)!important}.waiting{color:#b45309!important}.reward-pot{background:#fff7d6;border:1px solid rgba(246,181,29,.35);border-radius:var(--radius);padding:9px;text-align:center;font-size:13px}.entry-note{background:#eef6ff;border:1px solid rgba(63,140,255,.16);border-radius:var(--radius);padding:9px;text-align:center;font-size:11px;font-weight:1000;color:#365074}.invite-entry-label{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase;margin:4px 0 6px}
     .online-flow{display:grid;gap:10px}.flow-kicker{font-size:11px;font-weight:1000;color:var(--muted);text-transform:uppercase;text-align:center}.online-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.flow-panel{display:grid;gap:9px}.flow-panel .room-actions{margin:0}.flow-hint{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;line-height:1.45}.stake-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;grid-column:1/-1}.stake-presets button.active{background:#101827;color:#fff}.entry-grid>.primary{grid-column:1/-1}.flow-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prototype-note{margin-top:2px}.online-guide-modal{z-index:75}.online-guide-never{width:100%;margin-top:8px}.challenge-setup{display:grid;gap:9px}.challenge-setup .room-actions{margin:0}
-    .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
+    .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.password-field{display:grid;grid-template-columns:minmax(0,1fr) auto;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);background:#fff;overflow:hidden}.password-field input{border:0!important;border-radius:0!important;min-width:0}.password-field button{border:0;border-left:1px solid rgba(23,32,51,.12);border-radius:0;background:#f4f7ff;box-shadow:none;min-height:44px;padding:0 12px;white-space:nowrap}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
 
     @media(max-width:760px){
       body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;margin-top:10px;width:100%}.wallet .pill,.wallet .map-menu{min-width:0;width:100%}.wallet .pill{justify-content:center}.map-menu{position:static}.map-menu-panel{left:0;right:0;top:calc(100% + 8px);width:100%;max-height:min(68svh,520px);grid-template-columns:1fr 1fr}.map-menu-panel button{min-height:52px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
@@ -333,7 +333,10 @@
       </div>
       <div class="auth-grid">
         <input id="authEmail" type="email" autocomplete="email" placeholder="Email" />
-        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
+        <div class="password-field">
+          <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
+          <button type="button" id="authPassToggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
         <input id="authNickname" maxlength="15" placeholder="Nickname" />
       </div>
       <button class="primary" id="authSubmitBtn">Create Player</button>
@@ -518,7 +521,7 @@
     onlineGuideNext:document.getElementById('onlineGuideNext'), onlineGuideSkip:document.getElementById('onlineGuideSkip'), onlineGuideNever:document.getElementById('onlineGuideNever'),
     authModal:document.getElementById('authModal'), authTitle:document.getElementById('authTitle'),
     registerTab:document.getElementById('registerTab'), loginTab:document.getElementById('loginTab'),
-    authEmail:document.getElementById('authEmail'), authPassword:document.getElementById('authPassword'), authNickname:document.getElementById('authNickname'),
+    authEmail:document.getElementById('authEmail'), authPassword:document.getElementById('authPassword'), authPassToggle:document.getElementById('authPassToggle'), authNickname:document.getElementById('authNickname'),
     authSubmitBtn:document.getElementById('authSubmitBtn'), authClose:document.getElementById('authClose'), authMsg:document.getElementById('authMsg'),
     portalModal:document.getElementById('portalModal'), portalIntro:document.getElementById('portalIntro'),
     portalNickname:document.getElementById('portalNickname'), portalEmail:document.getElementById('portalEmail'),
@@ -560,7 +563,7 @@
     spiral:['#eef7ff','#3f8cff'], diamond:['#f5f0ff','#7c3aed'], bench:['#f2fff8','#10b981'],
     festival:['#fff4ea','#f97316'], map:['#effaf4','#10b981']
   };
-  const DUEL_STAGE_COUNT = 20;
+  const DUEL_STAGE_COUNT = 100;
   const ENTRY_GOLD_NOTICE = 'Gold is a virtual game reward only. No real money value.';
   const ENTRY_LIMITS = [
     {name:'Starter', max:50, matches:0, stars:0},
@@ -588,7 +591,87 @@
     {name:'Double Crown',layout:'double_crown',shape:'star',rows:10,cols:10,targetType:'gold'},
     {name:'Side Chambers',layout:'side_chambers',shape:'diamond',rows:10,cols:10,targetType:'boxes'},
     {name:'River Break',layout:'river',shape:'map',rows:10,cols:10,targetType:'chain'},
-    {name:'Grand Labyrinth',layout:'labyrinth',shape:'spiral',rows:10,cols:10,targetType:'margin'}
+    {name:'Grand Labyrinth',layout:'labyrinth',shape:'spiral',rows:10,cols:10,targetType:'margin'},
+    {name:'Twin Gate Storm',layout:'twin_gates',shape:'festival',rows:8,cols:10,targetType:'gold'},
+    {name:'Crown Spiral',layout:'crown',shape:'spiral',rows:9,cols:9,targetType:'chain'},
+    {name:'Bridge Market',layout:'bridges',shape:'map',rows:8,cols:10,targetType:'boxes'},
+    {name:'Hourglass Vault',layout:'hourglass',shape:'diamond',rows:9,cols:9,targetType:'margin'},
+    {name:'Fortress Bloom',layout:'fortress',shape:'heart',rows:9,cols:9,targetType:'gold'},
+    {name:'Zigzag Ridge',layout:'zigzag',shape:'bench',rows:8,cols:11,targetType:'chain'},
+    {name:'Lotus Ring',layout:'lotus',shape:'star',rows:9,cols:9,targetType:'boxes'},
+    {name:'Arrow Delta',layout:'arrow',shape:'map',rows:9,cols:10,targetType:'margin'},
+    {name:'Shield Maze',layout:'shield',shape:'classic',rows:10,cols:10,targetType:'gold'},
+    {name:'Comet Crown',layout:'comet',shape:'festival',rows:9,cols:10,targetType:'chain'},
+    {name:'Stairway Split',layout:'stairs',shape:'diamond',rows:9,cols:9,targetType:'boxes'},
+    {name:'Butterfly Gate',layout:'butterfly',shape:'heart',rows:10,cols:10,targetType:'margin'},
+    {name:'Cross Citadel',layout:'arena_cross',shape:'classic',rows:10,cols:10,targetType:'gold'},
+    {name:'Jagged Reef',layout:'jagged',shape:'map',rows:10,cols:10,targetType:'chain'},
+    {name:'Vortex Garden',layout:'vortex',shape:'spiral',rows:10,cols:10,targetType:'boxes'},
+    {name:'Final Bridge',layout:'final_gate',shape:'bench',rows:10,cols:11,targetType:'margin'},
+    {name:'Royal Crown',layout:'double_crown',shape:'star',rows:11,cols:11,targetType:'gold'},
+    {name:'Chamber Rush',layout:'side_chambers',shape:'diamond',rows:11,cols:11,targetType:'boxes'},
+    {name:'River Spiral',layout:'river',shape:'spiral',rows:11,cols:11,targetType:'chain'},
+    {name:'Labyrinth Core',layout:'labyrinth',shape:'festival',rows:11,cols:11,targetType:'margin'},
+    {name:'Gate of Coins',layout:'twin_gates',shape:'classic',rows:9,cols:11,targetType:'gold'},
+    {name:'Crown Collapse',layout:'crown',shape:'diamond',rows:11,cols:11,targetType:'chain'},
+    {name:'Mirror Harbor',layout:'bridges',shape:'map',rows:10,cols:12,targetType:'boxes'},
+    {name:'Hourglass Peak',layout:'hourglass',shape:'star',rows:11,cols:11,targetType:'margin'},
+    {name:'Fortress Cross',layout:'fortress',shape:'classic',rows:11,cols:11,targetType:'gold'},
+    {name:'Lightning Spiral',layout:'zigzag',shape:'spiral',rows:10,cols:12,targetType:'chain'},
+    {name:'Lotus Vault',layout:'lotus',shape:'heart',rows:11,cols:11,targetType:'boxes'},
+    {name:'Arrow Fortress',layout:'arrow',shape:'festival',rows:10,cols:12,targetType:'margin'},
+    {name:'Shield River',layout:'shield',shape:'map',rows:12,cols:12,targetType:'gold'},
+    {name:'Champion Labyrinth',layout:'labyrinth',shape:'spiral',rows:12,cols:12,targetType:'chain'},
+    {name:'Nebula Gates',layout:'twin_gates',shape:'star',rows:10,cols:12,targetType:'boxes'},
+    {name:'Crown Harbor',layout:'crown',shape:'map',rows:12,cols:12,targetType:'margin'},
+    {name:'Crystal Bridges',layout:'bridges',shape:'diamond',rows:11,cols:13,targetType:'gold'},
+    {name:'Hourglass Bloom',layout:'hourglass',shape:'heart',rows:12,cols:12,targetType:'chain'},
+    {name:'Fortress Spiral',layout:'fortress',shape:'spiral',rows:12,cols:12,targetType:'boxes'},
+    {name:'Lightning Bazaar',layout:'zigzag',shape:'festival',rows:11,cols:13,targetType:'margin'},
+    {name:'Lotus Citadel',layout:'lotus',shape:'classic',rows:12,cols:12,targetType:'gold'},
+    {name:'Arrow Reef',layout:'arrow',shape:'map',rows:11,cols:13,targetType:'chain'},
+    {name:'Shield Summit',layout:'shield',shape:'star',rows:13,cols:13,targetType:'boxes'},
+    {name:'Comet Fortress',layout:'comet',shape:'diamond',rows:12,cols:13,targetType:'margin'},
+    {name:'Stair Crown',layout:'stairs',shape:'bench',rows:12,cols:12,targetType:'gold'},
+    {name:'Butterfly Market',layout:'butterfly',shape:'festival',rows:13,cols:13,targetType:'chain'},
+    {name:'Cross River',layout:'arena_cross',shape:'map',rows:12,cols:12,targetType:'boxes'},
+    {name:'Jagged Crown',layout:'jagged',shape:'star',rows:13,cols:13,targetType:'margin'},
+    {name:'Vortex Vault',layout:'vortex',shape:'diamond',rows:13,cols:13,targetType:'gold'},
+    {name:'Final Lotus',layout:'final_gate',shape:'heart',rows:12,cols:13,targetType:'chain'},
+    {name:'Double Spiral',layout:'double_crown',shape:'spiral',rows:13,cols:13,targetType:'boxes'},
+    {name:'Chamber Harbor',layout:'side_chambers',shape:'map',rows:13,cols:13,targetType:'margin'},
+    {name:'River Crown',layout:'river',shape:'star',rows:13,cols:13,targetType:'gold'},
+    {name:'Labyrinth Bloom',layout:'labyrinth',shape:'heart',rows:13,cols:13,targetType:'chain'},
+    {name:'Twin Citadel',layout:'twin_gates',shape:'classic',rows:11,cols:13,targetType:'boxes'},
+    {name:'Crown Vault',layout:'crown',shape:'diamond',rows:13,cols:13,targetType:'margin'},
+    {name:'Bridge Spiral',layout:'bridges',shape:'spiral',rows:12,cols:13,targetType:'gold'},
+    {name:'Hourglass Market',layout:'hourglass',shape:'festival',rows:13,cols:13,targetType:'chain'},
+    {name:'Fortress Harbor',layout:'fortress',shape:'map',rows:13,cols:13,targetType:'boxes'},
+    {name:'Lightning Crown',layout:'zigzag',shape:'star',rows:12,cols:13,targetType:'margin'},
+    {name:'Lotus Diamond',layout:'lotus',shape:'diamond',rows:13,cols:13,targetType:'gold'},
+    {name:'Arrow Bloom',layout:'arrow',shape:'heart',rows:12,cols:13,targetType:'chain'},
+    {name:'Shield Bazaar',layout:'shield',shape:'festival',rows:13,cols:13,targetType:'boxes'},
+    {name:'Comet River',layout:'comet',shape:'map',rows:13,cols:13,targetType:'margin'},
+    {name:'Stair Labyrinth',layout:'stairs',shape:'spiral',rows:13,cols:13,targetType:'gold'},
+    {name:'Butterfly Citadel',layout:'butterfly',shape:'classic',rows:13,cols:13,targetType:'chain'},
+    {name:'Cross Crown',layout:'arena_cross',shape:'star',rows:13,cols:13,targetType:'boxes'},
+    {name:'Jagged Vault',layout:'jagged',shape:'diamond',rows:13,cols:13,targetType:'margin'},
+    {name:'Vortex Harbor',layout:'vortex',shape:'map',rows:13,cols:13,targetType:'gold'},
+    {name:'Final Spiral',layout:'final_gate',shape:'spiral',rows:13,cols:13,targetType:'chain'},
+    {name:'Double Bloom',layout:'double_crown',shape:'heart',rows:13,cols:13,targetType:'boxes'},
+    {name:'Chamber Crown',layout:'side_chambers',shape:'star',rows:13,cols:13,targetType:'margin'},
+    {name:'River Citadel',layout:'river',shape:'classic',rows:13,cols:13,targetType:'gold'},
+    {name:'Labyrinth Reef',layout:'labyrinth',shape:'map',rows:13,cols:13,targetType:'chain'},
+    {name:'Grand Gate',layout:'twin_gates',shape:'festival',rows:12,cols:13,targetType:'boxes'},
+    {name:'Royal Spiral',layout:'crown',shape:'spiral',rows:13,cols:13,targetType:'margin'},
+    {name:'Mirror Vault',layout:'bridges',shape:'diamond',rows:13,cols:13,targetType:'gold'},
+    {name:'Peak Hourglass',layout:'hourglass',shape:'star',rows:13,cols:13,targetType:'chain'},
+    {name:'Fortress Royale',layout:'fortress',shape:'classic',rows:13,cols:13,targetType:'boxes'},
+    {name:'Lightning Reef',layout:'zigzag',shape:'map',rows:13,cols:13,targetType:'margin'},
+    {name:'Lotus Crown',layout:'lotus',shape:'star',rows:13,cols:13,targetType:'gold'},
+    {name:'Arrow Labyrinth',layout:'arrow',shape:'spiral',rows:13,cols:13,targetType:'chain'},
+    {name:'Shield Champion',layout:'shield',shape:'diamond',rows:13,cols:13,targetType:'boxes'},
+    {name:'Master Labyrinth',layout:'labyrinth',shape:'festival',rows:13,cols:13,targetType:'margin'}
   ];
   const OPPONENTS = [
     {name:'Friendly Rival', base:.62, style:'playful'},
@@ -754,12 +837,12 @@
   function canPlayStage(id){ return totalStars() >= starRequirement(id); }
   function highestUnlockedStage(){
     let id=1;
-    while(id<240 && canPlayStage(id+1)) id++;
+    while(id<DUEL_STAGE_COUNT && canPlayStage(id+1)) id++;
     return id;
   }
   function starText(count){ return '★'.repeat(count) + '☆'.repeat(3-count); }
   function nextLockedStage(){
-    for(let id=1; id<240; id++) if(!canPlayStage(id)) return id;
+    for(let id=1; id<=DUEL_STAGE_COUNT; id++) if(!canPlayStage(id)) return id;
     return null;
   }
   function dayKey(date=new Date()){
@@ -931,8 +1014,7 @@
     const daily = dailyRewardInfo();
     els.dailyBtn.disabled = daily.claimed;
     els.dailyBtn.textContent = daily.claimed ? '✓ Daily' : '🎁 +'+daily.reward;
-    const openTo = highestUnlockedStage();
-    const maxCards = Math.max(24, openTo+8);
+    const maxCards = DUEL_STAGE_COUNT;
     els.levelMap.innerHTML='';
     for(let id=1; id<=maxCards; id++){
       const st=stageDef(id), req=starRequirement(id), locked=!canPlayStage(id), bestStars=stageBestStars(id);
@@ -1327,6 +1409,17 @@
     els.authSubmitBtn.textContent=mode==='register'?'Create Player':'Login';
     els.authNickname.style.display=mode==='register'?'block':'none';
     els.authPassword.autocomplete=mode==='register'?'new-password':'current-password';
+    setPasswordVisible(false);
+  }
+  function setPasswordVisible(visible){
+    els.authPassword.type=visible?'text':'password';
+    els.authPassToggle.textContent=visible?'Hide':'Show';
+    els.authPassToggle.setAttribute('aria-pressed',visible?'true':'false');
+    els.authPassToggle.setAttribute('aria-label',visible?'Hide password':'Show password');
+  }
+  function togglePasswordVisible(){
+    setPasswordVisible(els.authPassword.type==='password');
+    els.authPassword.focus();
   }
   async function submitAuth(){
     const email=els.authEmail.value.trim();
@@ -2501,7 +2594,7 @@
     els.resultGold.textContent=game.finalGold;
     els.resultStars.textContent=starText(earnedStars);
     els.resultDiamond.textContent=diamondEarned?'+1':'0';
-    els.nextBtn.textContent=win && canPlayStage(game.stage.id+1)?'Next Stage':'Replay Stage';
+    els.nextBtn.textContent=win && game.stage.id<DUEL_STAGE_COUNT && canPlayStage(game.stage.id+1)?'Next Stage':'Replay Stage';
     showEmotion(win?'win':'lose',win?'Stage clear':'Try again');
     els.resultModal.classList.add('show');
     endReaction(win);
@@ -2690,8 +2783,79 @@
   function draw(){
     if(!game) return;
     ctx.clearRect(0,0,900,900);
-    ctx.fillStyle=game.stage.theme[0]; ctx.fillRect(0,0,900,900);
-    drawCells(); drawEdges(); drawAiAnim(); drawHint(); drawDrag(); drawDots(); drawTutorialGuide();
+    drawArenaBackground();
+    drawCells(); drawAvailableEdges(); drawEdges(); drawAiAnim(); drawHint(); drawDrag(); drawDots(); drawTutorialGuide();
+  }
+  function drawArenaBackground(){
+    const shape=game.stage.shape || 'classic', base=game.stage.theme[0], accent=game.stage.theme[1];
+    const bg=ctx.createLinearGradient(0,0,900,900);
+    bg.addColorStop(0,base);
+    bg.addColorStop(.62,'#ffffff');
+    bg.addColorStop(1,base);
+    ctx.fillStyle=bg; ctx.fillRect(0,0,900,900);
+    ctx.save();
+    ctx.strokeStyle=accent;
+    ctx.fillStyle=accent;
+    ctx.lineWidth=2;
+    ctx.globalAlpha=.12;
+    if(shape==='classic'){
+      for(let i=70;i<900;i+=70){ lineRaw(i,0,i,900); lineRaw(0,i,900,i); }
+    } else if(shape==='heart'){
+      for(let x=100;x<860;x+=150) for(let y=110;y<850;y+=145) drawHeartMark(x,y,30);
+    } else if(shape==='star'){
+      for(let x=105;x<850;x+=160) for(let y=100;y<820;y+=150) drawStarMark(x,y,35,15);
+    } else if(shape==='spiral'){
+      ctx.beginPath();
+      for(let t=0;t<Math.PI*10;t+=.12){
+        const r=12+t*12, x=450+Math.cos(t)*r, y=450+Math.sin(t)*r;
+        if(t===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    } else if(shape==='diamond'){
+      for(let i=-900;i<1800;i+=72){ lineRaw(i,0,i+900,900); lineRaw(i,900,i+900,0); }
+    } else if(shape==='bench'){
+      ctx.lineWidth=6;
+      for(let y=90;y<850;y+=95) lineRaw(70,y,830,y);
+      ctx.lineWidth=2;
+      for(let x=130;x<820;x+=170) lineRaw(x,70,x,830);
+    } else if(shape==='festival'){
+      for(let i=0;i<80;i++){
+        const x=(i*97)%900, y=(i*53)%900, len=18+(i%4)*7;
+        ctx.save(); ctx.translate(x,y); ctx.rotate((i%12)*.5); lineRaw(-len/2,0,len/2,0); ctx.restore();
+      }
+    } else if(shape==='map'){
+      ctx.lineWidth=3;
+      for(let i=0;i<6;i++){
+        ctx.beginPath();
+        const y=120+i*125;
+        ctx.moveTo(70,y);
+        ctx.bezierCurveTo(210,y-70,320,y+70,450,y);
+        ctx.bezierCurveTo(610,y-70,720,y+70,850,y);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    function lineRaw(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  }
+  function drawHeartMark(x,y,r){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.beginPath();
+    ctx.moveTo(0,r*.7);
+    ctx.bezierCurveTo(-r*1.2,-r*.1,-r*.75,-r*1.1,0,-r*.45);
+    ctx.bezierCurveTo(r*.75,-r*1.1,r*1.2,-r*.1,0,r*.7);
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawStarMark(x,y,outer,inner){
+    ctx.beginPath();
+    for(let i=0;i<10;i++){
+      const a=-Math.PI/2+i*Math.PI/5, r=i%2===0?outer:inner;
+      const px=x+Math.cos(a)*r, py=y+Math.sin(a)*r;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fill();
   }
   function drawCells(){
     const m=boardMetrics();
@@ -2699,10 +2863,10 @@
       const [r,c]=key.split(',').map(Number), owner=game.stage.boxes.get(key);
       const p=dotPos({r,c});
       ctx.save();
-      ctx.globalAlpha=owner ? .2 : .07;
+      ctx.globalAlpha=owner ? .28 : .2;
       ctx.fillStyle=owner ? (owner===1?'#ff4f6f':'#7c3aed') : game.stage.theme[1];
       roundRect(p.x+6,p.y+6,m.scale-12,m.scale-12,8); ctx.fill();
-      ctx.globalAlpha=.18; ctx.strokeStyle=game.stage.theme[1]; ctx.lineWidth=2; roundRect(p.x+6,p.y+6,m.scale-12,m.scale-12,8); ctx.stroke();
+      ctx.globalAlpha=owner ? .42 : .36; ctx.strokeStyle=game.stage.theme[1]; ctx.lineWidth=2; roundRect(p.x+6,p.y+6,m.scale-12,m.scale-12,8); ctx.stroke();
       if(!owner && game.stage.coinBoxes.has(key)){
         const coin=game.stage.coinBoxes.get(key), bob=Math.sin(performance.now()/420 + r*1.7 + c*.9)*m.scale*.025;
         ctx.globalAlpha=1;
@@ -2744,6 +2908,21 @@
   function drawEdges(){
     const m=boardMetrics();
     for(const e of game.stage.edges.values()) if(e.owner) line(dotPos(e.a),dotPos(e.b),e.owner===1?'#ff4f6f':'#7c3aed',m.lineW,1);
+  }
+  function drawAvailableEdges(){
+    const m=boardMetrics();
+    ctx.save();
+    ctx.strokeStyle=game.stage.theme[1];
+    ctx.lineWidth=Math.max(3,m.lineW*.3);
+    ctx.lineCap='round';
+    ctx.globalAlpha=.34;
+    ctx.setLineDash([Math.max(6,m.lineW*.6), Math.max(8,m.lineW*.8)]);
+    for(const e of game.stage.edges.values()){
+      if(e.owner) continue;
+      const a=dotPos(e.a), b=dotPos(e.b);
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+    ctx.restore();
   }
   function drawAiAnim(){
     if(!game.aiAnim) return;
@@ -3243,7 +3422,7 @@
     if(game?.mode==='tutorial'){ startOnlineTrainingDemo(); return; }
     if(game?.mode==='online' || game?.mode==='masterAI'){ nextChallengeAction(); return; }
     if(game?.mode==='twoPlayer'){ backToMap(); return; }
-    startStage(game.lastWin && canPlayStage(game.stage.id+1) ? game.stage.id+1 : game.stage.id);
+    startStage(game.lastWin && game.stage.id<DUEL_STAGE_COUNT && canPlayStage(game.stage.id+1) ? game.stage.id+1 : game.stage.id);
   }
 
   els.guestBtn.addEventListener('click',continueAsGuest);
@@ -3256,6 +3435,7 @@
   els.registerTab.addEventListener('click',()=>setAuthMode('register'));
   els.loginTab.addEventListener('click',()=>setAuthMode('login'));
   els.authSubmitBtn.addEventListener('click',submitAuth);
+  els.authPassToggle.addEventListener('click',togglePasswordVisible);
   els.authClose.addEventListener('click',closeAuth);
   els.portalBtn.addEventListener('click',openPortal);
   els.portalClose.addEventListener('click',closePortal);
