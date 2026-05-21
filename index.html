@@ -74,6 +74,7 @@
     .brand h1{font-size:34px;line-height:1;letter-spacing:0}.brand p{color:var(--muted);line-height:1.45;margin-top:6px;max-width:720px}
     .wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;position:relative}
     .map-menu{position:relative}.map-menu-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:45;width:min(340px,calc(100vw - 16px));max-height:min(70svh,430px);overflow-y:auto;background:#fff;border:1px solid rgba(23,32,51,.12);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;overscroll-behavior:contain}.map-menu-panel.hidden{display:none!important}.map-menu-panel button{width:100%;box-shadow:none}
+    .menu-submenu-toggle{grid-column:1/-1;background:#eef6ff}.menu-submenu{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;border-radius:var(--radius);background:#f7f9fd;border:1px solid rgba(23,32,51,.08)}.menu-submenu.hidden{display:none!important}.menu-submenu button{min-height:42px;font-size:12px}
     .pill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:999px;padding:9px 12px;font-weight:1000;box-shadow:0 8px 20px rgba(15,23,42,.08)}
     .coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff6a8 0 18%,#ffd24d 34%,#f6b51d 74%,#a65d00 100%);border:2px solid #fff2a8;box-shadow:0 5px 12px rgba(166,93,0,.25),inset -3px -4px 0 rgba(120,53,15,.18)}
     .star-icon{width:24px;height:24px;display:grid;place-items:center;color:#f6b51d;font-size:21px;text-shadow:0 2px 0 #9a5b00,0 6px 12px rgba(154,91,0,.18)}
@@ -150,25 +151,32 @@
     .room-panel{text-align:left}.room-panel h2,.room-panel p{text-align:center}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.room-code{font-size:30px;font-weight:1000;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:14px;margin:10px 0;letter-spacing:1px}.room-input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:18px;font-weight:1000;text-align:center;text-transform:uppercase}.room-status{text-align:center;color:var(--muted);font-size:12px;font-weight:1000;min-height:20px;margin-top:8px}
     .entry-grid,.stake-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.entry-grid label,.stake-grid label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.entry-grid input,.entry-grid select,.stake-grid input,.stake-grid select{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:14px;font-weight:900;background:#fff}.stake-summary{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;font-size:12px;font-weight:1000;color:var(--muted);line-height:1.45}.stake-summary b{color:var(--ink)}.lobby-summary{text-align:left;display:grid;gap:9px}.lobby-arena{background:#101827;color:#fff;border-radius:var(--radius);padding:10px;text-align:center}.lobby-arena span{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-arena b{color:#fff;font-size:16px}.lobby-players{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lobby-player{background:#fff;border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);padding:10px}.lobby-player span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.lobby-player b{display:block;font-size:15px;margin:3px 0}.ready{color:var(--good)!important}.waiting{color:#b45309!important}.reward-pot{background:#fff7d6;border:1px solid rgba(246,181,29,.35);border-radius:var(--radius);padding:9px;text-align:center;font-size:13px}.entry-note{background:#eef6ff;border:1px solid rgba(63,140,255,.16);border-radius:var(--radius);padding:9px;text-align:center;font-size:11px;font-weight:1000;color:#365074}.invite-entry-label{display:block;color:#dbeafe;font-size:11px;font-weight:1000;text-transform:uppercase;margin:4px 0 6px}
     .online-flow{display:grid;gap:10px}.flow-kicker{font-size:11px;font-weight:1000;color:var(--muted);text-transform:uppercase;text-align:center}.online-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.flow-panel{display:grid;gap:9px}.flow-panel .room-actions{margin:0}.flow-hint{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;line-height:1.45}.stake-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;grid-column:1/-1}.stake-presets button.active{background:#101827;color:#fff}.entry-grid>.primary{grid-column:1/-1}.flow-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prototype-note{margin-top:2px}.online-guide-modal{z-index:75}.online-guide-never{width:100%;margin-top:8px}.challenge-setup{display:grid;gap:9px}.challenge-setup .room-actions{margin:0}
-    .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.password-field{display:grid;grid-template-columns:minmax(0,1fr) auto;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);background:#fff;overflow:hidden}.password-field input{border:0!important;border-radius:0!important;min-width:0}.password-field button{border:0;border-left:1px solid rgba(23,32,51,.12);border-radius:0;background:#f4f7ff;box-shadow:none;min-height:44px;padding:0 12px;white-space:nowrap}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.compliance-body{display:grid;gap:10px;margin:12px 0;text-align:left}.compliance-body p,.compliance-body li{color:var(--muted);font-size:13px;line-height:1.52}.compliance-body ul{padding-left:20px}.compliance-card{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:11px}.compliance-card b{display:block;color:var(--ink);font-size:13px;margin-bottom:5px}.compliance-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.public-page{min-height:100svh;display:flex;align-items:flex-start;justify-content:center}.public-card{width:min(920px,100%);background:rgba(255,255,255,.96);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}.public-card h1{font-size:30px;line-height:1.1;margin-bottom:6px}.public-updated{color:var(--muted);font-weight:1000;font-size:12px;text-transform:uppercase}.public-card .compliance-body{margin-top:16px}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
+    .welcome-screen{min-height:100svh;display:grid;place-items:center;padding:18px}.welcome-card{width:min(560px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center}.welcome-card h1{font-size:34px;line-height:1;margin-bottom:8px}.welcome-card p{color:var(--muted);line-height:1.5;margin-bottom:16px}.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-grid{display:grid;gap:9px;margin:10px 0}.auth-grid input{width:100%;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);min-height:44px;padding:10px 12px;font-size:15px;font-weight:800}.password-field{display:grid;grid-template-columns:minmax(0,1fr) auto;border:1px solid rgba(23,32,51,.14);border-radius:var(--radius);background:#fff;overflow:hidden}.password-field input{border:0!important;border-radius:0!important;min-width:0}.password-field button{border:0;border-left:1px solid rgba(23,32,51,.12);border-radius:0;background:#f4f7ff;box-shadow:none;min-height:44px;padding:0 12px;white-space:nowrap}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.auth-tabs button.active{background:#101827;color:#fff}.auth-msg,.portal-msg,.players-msg{min-height:20px;text-align:center;color:var(--muted);font-size:12px;font-weight:1000;margin-top:8px}.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.portal-grid div{background:#f5f7fb;border-radius:var(--radius);padding:10px;text-align:left}.portal-grid span{display:block;color:var(--muted);font-size:11px;font-weight:1000;text-transform:uppercase}.portal-grid b{font-size:16px}.portal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.compliance-body{display:grid;gap:10px;margin:12px 0;text-align:left}.compliance-body p,.compliance-body li{color:var(--muted);font-size:13px;line-height:1.52}.compliance-body ul{padding-left:20px}.compliance-card{background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:11px}.compliance-card b{display:block;color:var(--ink);font-size:13px;margin-bottom:5px}.compliance-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.trust-chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.trust-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(23,32,51,.1);background:#fff;border-radius:999px;padding:7px 9px;font-size:11px;font-weight:1000;color:#365074}.trust-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.trust-summary div{background:#fff;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.trust-summary span{display:block;color:var(--muted);font-size:10px;font-weight:1000;text-transform:uppercase}.trust-summary b{display:block;color:var(--ink);font-size:13px;margin-top:3px}.public-page{min-height:100svh;display:flex;align-items:flex-start;justify-content:center}.public-card{width:min(960px,100%);background:rgba(255,255,255,.97);border:1px solid rgba(23,32,51,.1);border-radius:var(--radius);box-shadow:var(--shadow);padding:0;overflow:hidden}.public-hero{background:linear-gradient(135deg,#101827,#263a5f);color:#fff;padding:22px;position:relative}.public-hero:after{content:"";position:absolute;right:-32px;top:-38px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(246,181,29,.32),rgba(255,255,255,0) 70%)}.public-brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}.public-logo{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:#fff4c4;color:#8a5b00;font-weight:1000;box-shadow:0 10px 20px rgba(0,0,0,.16)}.public-brand b{display:block;font-size:15px}.public-brand span:last-child{display:block;color:#dbeafe;font-size:12px;font-weight:900}.public-card h1{font-size:31px;line-height:1.1;margin-bottom:6px}.public-updated{color:#dbeafe;font-weight:1000;font-size:12px;text-transform:uppercase}.public-card .compliance-body{margin:0;padding:16px 22px 2px}.public-card .compliance-actions{padding:0 22px 22px}.public-card .compliance-card{background:#fff;border-color:rgba(23,32,51,.1);box-shadow:0 8px 18px rgba(15,23,42,.05)}.player-list{display:grid;gap:8px;max-height:54vh;overflow:auto;margin:12px 0}.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7f9fd;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:10px}.player-name{font-weight:1000}.player-meta{color:var(--muted);font-size:12px;font-weight:900}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:7px}.dot.online{background:#10b981}.invite-popup{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;width:min(440px,calc(100vw - 24px));background:#101827;color:#fff;border-radius:var(--radius);box-shadow:0 18px 44px rgba(15,23,42,.28);padding:14px;display:none}.invite-popup.show{display:block}.invite-popup b{display:block;font-size:17px}.invite-popup span{display:block;color:#dbeafe;font-size:13px;margin:4px 0 10px}.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.invite-actions button{box-shadow:none}
 
     @media(max-width:760px){
       body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;margin-top:10px;width:100%}.wallet .pill,.wallet .map-menu{min-width:0;width:100%}.wallet .pill{justify-content:center}.map-menu{position:static}.map-menu-panel{left:0;right:0;top:calc(100% + 8px);width:100%;max-height:min(68svh,520px);grid-template-columns:1fr 1fr}.map-menu-panel button{min-height:52px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
       .modal{padding:10px}.modal-box{width:min(540px,100%);max-height:calc(100svh - 20px);padding:16px}
+      .public-card h1{font-size:26px}.public-hero{padding:18px}.public-card .compliance-body{padding:14px 14px 2px}.public-card .compliance-actions{padding:0 14px 16px}.trust-summary{grid-template-columns:1fr}
       .game-screen{padding:8px}.game-shell{gap:5px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto;min-height:48px}.score-hud{gap:5px;padding:5px;min-height:56px}.score-box{height:44px;padding:6px}.score-box strong{font-size:18px}.turn-box{height:44px;padding-top:6px;padding-bottom:6px}.kingdom-row{gap:5px;padding:5px;min-height:48px}.board-zone{align-items:stretch;padding:0}.board-wrap{width:100%;height:100%;max-width:720px;max-height:none;aspect-ratio:auto;margin-top:0}.kingdom-seat{width:100%;min-height:42px;padding:4px 6px;gap:5px;border-radius:10px;opacity:.96}.player-seat,.enemy-seat{inset:auto}.royal{width:21px;height:28px;font-size:21px}.royal.queen{width:20px;height:27px;font-size:20px}.seat-copy b{font-size:9px}.seat-copy span{font-size:9px;max-width:none;min-height:11px;margin-top:2px}.tool-row{min-height:56px}.tool-row button{padding:8px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
       .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer,.compliance-actions{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
     @media(max-width:390px){
       .wallet{grid-template-columns:repeat(2,minmax(0,1fr))}.map-grid{grid-template-columns:1fr}.board-wrap{width:100%;height:100%}
-      .map-menu-panel{grid-template-columns:1fr}
+      .map-menu-panel,.menu-submenu{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
   <main id="publicPageScreen" class="screen public-page hidden">
     <section class="public-card">
-      <h1 id="publicPageTitle">Box Chain Arena</h1>
-      <p class="public-updated" id="publicPageUpdated">Last updated: May 19, 2026</p>
+      <div class="public-hero">
+        <div class="public-brand">
+          <span class="public-logo">BCA</span>
+          <div><b>Box Chain Arena</b><span>Bhuvi Digital Works trust center</span></div>
+        </div>
+        <h1 id="publicPageTitle">Box Chain Arena</h1>
+        <p class="public-updated" id="publicPageUpdated">Last updated: May 20, 2026</p>
+      </div>
       <div class="compliance-body" id="publicPageBody"></div>
       <div class="compliance-actions">
         <button class="primary" id="publicBackBtn">Back to Game</button>
@@ -211,13 +219,17 @@
             <button class="soft" id="demoBtn">🎓 Demo</button>
             <button class="soft" id="twoPlayerBtn">👥 2P</button>
             <button class="soft" id="musicBtn">♪ Sound Off</button>
-            <button class="soft" id="privacyBtn">🔒 Privacy</button>
-            <button class="soft" id="aboutBtn">About</button>
-            <button class="soft" id="developerBtn">Developer</button>
-            <button class="soft" id="termsBtn">Terms</button>
-            <button class="soft" id="rewardsBtn">Rewards</button>
-            <button class="soft" id="contactBtn">Contact Support</button>
-            <button class="soft" id="feedbackBtn">Feedback</button>
+            <button class="soft menu-submenu-toggle" id="trustMenuBtn" aria-expanded="false" aria-controls="trustSubmenu">Trust & Support</button>
+            <div class="menu-submenu hidden" id="trustSubmenu">
+              <button class="soft" id="privacyBtn">Privacy</button>
+              <button class="soft" id="deletionPageBtn">Data Deletion</button>
+              <button class="soft" id="termsBtn">Terms</button>
+              <button class="soft" id="rewardsBtn">Rewards</button>
+              <button class="soft" id="aboutBtn">About Game</button>
+              <button class="soft" id="developerBtn">Developer</button>
+              <button class="soft" id="contactBtn">Contact</button>
+              <button class="soft" id="feedbackBtn">Feedback</button>
+            </div>
           </div>
         </div>
       </div>
@@ -585,10 +597,11 @@
     levelMap:document.getElementById('levelMap'), walletGold:document.getElementById('walletGold'),
     walletStars:document.getElementById('walletStars'), walletDiamonds:document.getElementById('walletDiamonds'),
     mapMenuBtn:document.getElementById('mapMenuBtn'), mapMenuPanel:document.getElementById('mapMenuPanel'),
+    trustMenuBtn:document.getElementById('trustMenuBtn'), trustSubmenu:document.getElementById('trustSubmenu'),
     dailyBtn:document.getElementById('dailyBtn'), endlessBtn:document.getElementById('endlessBtn'), musicBtn:document.getElementById('musicBtn'),
     demoBtn:document.getElementById('demoBtn'), twoPlayerBtn:document.getElementById('twoPlayerBtn'), onlineBtn:document.getElementById('onlineBtn'), portalBtn:document.getElementById('portalBtn'),
     shopBtn:document.getElementById('shopBtn'), shopModal:document.getElementById('shopModal'),
-    privacyBtn:document.getElementById('privacyBtn'), aboutBtn:document.getElementById('aboutBtn'), developerBtn:document.getElementById('developerBtn'),
+    privacyBtn:document.getElementById('privacyBtn'), deletionPageBtn:document.getElementById('deletionPageBtn'), aboutBtn:document.getElementById('aboutBtn'), developerBtn:document.getElementById('developerBtn'),
     termsBtn:document.getElementById('termsBtn'), rewardsBtn:document.getElementById('rewardsBtn'), contactBtn:document.getElementById('contactBtn'), feedbackBtn:document.getElementById('feedbackBtn'),
     privacyModal:document.getElementById('privacyModal'), privacyClose:document.getElementById('privacyClose'), privacyPolicyBtn:document.getElementById('privacyPolicyBtn'),
     complianceModal:document.getElementById('complianceModal'), complianceTitle:document.getElementById('complianceTitle'), complianceBody:document.getElementById('complianceBody'),
@@ -667,17 +680,16 @@
     neutral:{name:'Neutral Pawns', main:'#111827', deep:'#ffffff', glow:'#94a3b8', soft:'rgba(15,23,42,.08)'}
   };
   const DUEL_STAGE_COUNT = 100;
-  const PUBLIC_BASE_URL = 'https://box-chain-arena.web.app';
   const SUPPORT_EMAIL = 'bhuvanbhuvi043@gmail.com';
   const PUBLIC_PAGES = {
-    privacy: PUBLIC_BASE_URL + '/#privacy-policy',
-    deletion: PUBLIC_BASE_URL + '/#account-deletion',
-    terms: PUBLIC_BASE_URL + '/#terms',
-    rewards: PUBLIC_BASE_URL + '/#virtual-rewards',
-    about: PUBLIC_BASE_URL + '/#about-game',
-    developer: PUBLIC_BASE_URL + '/#about-developer',
-    contact: PUBLIC_BASE_URL + '/#contact-support',
-    feedback: PUBLIC_BASE_URL + '/#feedback'
+    privacy: '#privacy-policy',
+    deletion: '#account-deletion',
+    terms: '#terms',
+    rewards: '#virtual-rewards',
+    about: '#about-game',
+    developer: '#about-developer',
+    contact: '#contact-support',
+    feedback: '#feedback'
   };
   const PUBLIC_ROUTE_BY_HASH = {
     '#privacy-policy':'privacy',
@@ -689,19 +701,32 @@
     '#contact-support':'contact',
     '#feedback':'feedback'
   };
+  const PUBLIC_ROUTE_BY_PATH = {
+    '/privacy_policy.html':'privacy',
+    '/account_deletion.html':'deletion',
+    '/terms.html':'terms',
+    '/virtual_rewards_disclaimer.html':'rewards',
+    '/about_game.html':'about',
+    '/about_developer.html':'developer',
+    '/contact_support.html':'contact',
+    '/feedback_report_bug.html':'feedback'
+  };
   const SUPPORT_MAILTO = 'mailto:' + SUPPORT_EMAIL + '?subject=Box%20Chain%20Arena%20Support';
   const FEEDBACK_MAILTO = 'mailto:' + SUPPORT_EMAIL + '?subject=Box%20Chain%20Arena%20Feedback%20%2F%20Bug%20Report';
   const ENTRY_GOLD_NOTICE = 'Gold, Entry Gold, Stars, Diamonds, Reward Pots, and all rewards are virtual only. No real money value, no withdrawal, no cash conversion, no betting, no gambling.';
   const COMPLIANCE_PAGES = {
     privacy:{
       title:'Privacy Policy',
-      updated:'Last updated: May 19, 2026',
-      intro:'Box Chain Arena uses Firebase for login, online rooms, player presence, invites, match records, saved progress, and virtual rewards. This single-file page explains what is stored and how to request deletion.',
+      updated:'Last updated: May 20, 2026',
+      intro:'Box Chain Arena respects player trust. This Privacy Policy explains how the game uses Firebase for login, online rooms, player presence, invites, match records, saved progress, support, and virtual rewards.',
+      chips:['Firebase Authentication','Realtime multiplayer','No data selling','Account deletion available'],
+      summary:[['Developer','Bhuvi Digital Works'],['Support',SUPPORT_EMAIL],['App Type','Strategy game with virtual rewards']],
       bullets:['We use Firebase Authentication and Firebase Realtime Database for account, profile, presence, online room, invite, and match-sync features.','We do not sell user data.','Gold, Entry Gold, Stars, Diamonds, Reward Pots, boosters, and all rewards are virtual only and have no real money value.'],
       sections:[
-        {title:'Information We Collect',items:['Guest play may use Firebase Anonymous Authentication for a temporary identifier and saved progress.','Registered online play may store email, nickname, nickname availability key, online/offline status, last-seen time, stage progress, wins, losses, match count, virtual rewards, inventory, rooms, invites, moves, scores, selected arenas, and match results.']},
-        {title:'How We Use Information',items:['To provide login, player profiles, saved progress, online rooms, presence, challenges, match syncing, match history, virtual rewards, account deletion, and support.']},
-        {title:'Data Deletion',items:['In the app, open Menu, Profile, then Delete Account.','If you cannot access the app, email '+SUPPORT_EMAIL+' with your registered email and nickname.']},
+        {title:'Information We Collect',items:['Guest play may use Firebase Anonymous Authentication for a temporary identifier and saved progress.','Registered online play may store email, nickname, nickname availability key, online/offline status, last-seen time, stage progress, wins, losses, match count, virtual rewards, inventory, rooms, invites, moves, scores, selected arenas, and match results.','Support messages may include information you choose to send, such as nickname, registered email, device model, screenshots, stage number, room code, or issue details.']},
+        {title:'How We Use Information',items:['To provide login, player profiles, saved progress, online rooms, presence, challenges, match syncing, match history, virtual rewards, account deletion, fraud prevention, abuse prevention, and support.','To improve game stability, fix bugs, protect online rooms, and help players recover from account or match issues.']},
+        {title:'Data Sharing',items:['We use Google Firebase services to run authentication and realtime game features. Firebase processes data according to Google Firebase terms and privacy practices.','We do not sell personal information and do not provide cash-prize, gambling, betting, or withdrawal services.']},
+        {title:'Data Deletion',items:['In the app, open Menu, Profile, then Delete Account.','If you cannot access the app, email '+SUPPORT_EMAIL+' with your registered email and nickname.','Some security, diagnostic, or hosting logs may remain for limited periods where required for abuse prevention, legal compliance, or platform security.']},
         {title:'Contact',items:['Developer: Bhuvi Digital Works.','Support, privacy, and deletion email: '+SUPPORT_EMAIL+'.']}
       ],
       primaryLabel:'Back to Game',
@@ -711,8 +736,10 @@
     },
     deletion:{
       title:'Account Deletion',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'Registered players can delete or request deletion of their Box Chain Arena account and related Firebase profile data.',
+      chips:['In-app deletion','Email deletion request','Guest explanation','Firebase profile cleanup'],
+      summary:[['Where','Menu -> Profile -> Delete Account'],['Guest Accounts','No registered account to delete'],['Support',SUPPORT_EMAIL]],
       bullets:['Inside the app: Menu -> Profile -> Delete Account.','Guest users do not have a registered account to delete; guest progress can be cleared from device/app data.','If Firebase requires recent login, log in again and repeat Delete Account, or email support.'],
       sections:[
         {title:'What Is Deleted',items:['Firebase Authentication account when Firebase allows deletion from the current session.','Player profile, nickname reservation, online status, incoming invites, saved progress, match stats, virtual gold, stars, diamonds, and inventory linked to the account.']},
@@ -726,9 +753,15 @@
     },
     about:{
       title:'About Game',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'Box Chain Arena is a kingdom strategy dots-and-boxes game with stages, AI duels, online private rooms, player profiles, and virtual reward progression.',
+      chips:['Strategy stages','Offline play','Online rooms','Virtual rewards only'],
+      summary:[['Genre','Mobile strategy puzzle'],['Modes','AI, 2 Player, Online Room'],['Rewards','Gold, Stars, Diamonds']],
       bullets:['Draw gates between nearby dots, capture boxes, win by majority control, and progress through arenas.','Gold, stars, diamonds, and Entry Gold are virtual game rewards only.','The game is built for entertainment and strategic play, not real-money rewards.'],
+      sections:[
+        {title:'Player Experience',items:['The game is designed to be simple to learn, fast to play, and rich to feel through kingdom reactions, coin animations, shaped stages, and progression goals.','Players win matches by capturing more boxes than the opponent, not through chance-based real-money systems.']},
+        {title:'Fair Play',items:['Online rooms are intended for friendly private duels and challenge practice.','Virtual rewards are part of the game economy only and cannot be withdrawn or converted to money.']}
+      ],
       primaryLabel:'Open About Page',
       primaryUrl:PUBLIC_PAGES.about,
       secondaryLabel:'Email Support',
@@ -736,9 +769,15 @@
     },
     developer:{
       title:'About Developer',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'Box Chain Arena is developed by Bhuvi Digital Works.',
+      chips:['Independent developer','Support email available','Privacy contact','Player-first updates'],
+      summary:[['Developer','Bhuvi Digital Works'],['Contact',SUPPORT_EMAIL],['Product','Box Chain Arena']],
       bullets:['Developer contact: '+SUPPORT_EMAIL+'.','Bhuvi Digital Works builds lightweight digital games and web products.','For privacy, deletion, support, or feedback, use the support email shown here and in the public policy pages.'],
+      sections:[
+        {title:'Our Product Promise',items:['We aim to build a clear, enjoyable, and trustworthy strategy game experience.','Player feedback, bug reports, and Play Store review concerns can be sent directly to the support email.']},
+        {title:'Business Transparency',items:['Box Chain Arena uses virtual game rewards only. The developer does not offer cash withdrawal, real-money betting, gambling, or real-world prize redemption through this game.']}
+      ],
       primaryLabel:'Open Developer Page',
       primaryUrl:PUBLIC_PAGES.developer,
       secondaryLabel:'Email Developer',
@@ -746,9 +785,17 @@
     },
     terms:{
       title:'Terms & Conditions',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'These terms explain the game rules, virtual rewards, online play, account usage, and support path for Box Chain Arena.',
+      chips:['Entertainment only','Fair play required','No cash rewards','No gambling purpose'],
+      summary:[['Applies To','Game, profiles, online rooms'],['Rewards','Virtual only'],['Support',SUPPORT_EMAIL]],
       bullets:['Use fair play in online rooms and challenges.','Virtual rewards have no real money value and cannot be withdrawn, sold, transferred for money, or converted to cash.','Entry Gold and Reward Pots are virtual game mechanics only and are not betting, wagering, gambling, lottery, casino, or real-money prize features.'],
+      sections:[
+        {title:'Using the Game',items:['You may play stages, offline two-player games, AI duels, private online rooms, and online challenges for entertainment.','Do not cheat, exploit bugs, impersonate other players, abuse room systems, harass players, or attempt to disrupt Firebase services.']},
+        {title:'Accounts',items:['Registered play uses Firebase email/password login and nickname profile data.','You are responsible for using accurate account information and keeping access to your email secure.']},
+        {title:'Online Matches',items:['Online rooms sync board seed, drawn moves, scores, selected arena, player names, Entry Gold values, and match results.','Temporary connection issues may affect realtime rooms. If a problem happens, contact support with your nickname, room code, and screenshots where possible.']},
+        {title:'Virtual Rewards',items:['Gold, Entry Gold, Stars, Diamonds, Reward Pots, boosters, daily rewards, and shop items are virtual game rewards only.','No reward has real money value, withdrawal value, resale value, cash value, cryptocurrency value, or real-world prize value.']}
+      ],
       primaryLabel:'Open Terms Page',
       primaryUrl:PUBLIC_PAGES.terms,
       secondaryLabel:'Email Support',
@@ -756,9 +803,16 @@
     },
     rewards:{
       title:'Virtual Rewards Disclaimer',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'Gold, Entry Gold, Stars, Diamonds, Reward Pots, boosts, and all Box Chain Arena rewards are virtual game rewards only.',
+      chips:['No withdrawal','No cash conversion','No betting','No gambling'],
+      summary:[['Gold','Regular virtual reward'],['Stars','Stage progress key'],['Diamonds','Rare achievement reward']],
       bullets:['No real money value.','No withdrawal, sale, cash conversion, cryptocurrency conversion, or external transfer.','No betting, wagering, gambling purpose, casino purpose, lottery purpose, or real-world prize purpose.'],
+      sections:[
+        {title:'What Rewards Are Used For',items:['Gold can be used inside the game for small gameplay actions or virtual unlocks.','Stars help guide stage progression.','Diamonds are rare virtual achievement rewards for strong stage performance.']},
+        {title:'Entry Gold and Reward Pot',items:['Entry Gold and Reward Pot are optional virtual challenge mechanics only.','They are not deposits, stakes, bets, wagers, casino chips, lottery tickets, cash balances, or redeemable prizes.']},
+        {title:'No Real-World Value',items:['Players cannot withdraw, sell, trade, transfer, cash out, exchange, or convert any reward into real money, cryptocurrency, gift cards, goods, or services.']}
+      ],
       primaryLabel:'Open Rewards Page',
       primaryUrl:PUBLIC_PAGES.rewards,
       secondaryLabel:'Email Support',
@@ -766,9 +820,15 @@
     },
     contact:{
       title:'Contact Support',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'For gameplay, account, privacy, deletion, or multiplayer support, contact Box Chain Arena support.',
+      chips:['Gameplay support','Privacy support','Deletion support','Bug help'],
+      summary:[['Email',SUPPORT_EMAIL],['Developer','Bhuvi Digital Works'],['Best For','Account, privacy, bugs']],
       bullets:['Email: '+SUPPORT_EMAIL+'.','For faster help, include your nickname, device model, Android version, room code if any, and a short description.','For account deletion help, include the registered email and nickname.'],
+      sections:[
+        {title:'When to Contact Us',items:['Account login or nickname problems.','Online room, invite, or match sync issues.','Privacy, data deletion, virtual reward, or Play Store review questions.']},
+        {title:'What to Include',items:['Registered email or guest status.','Nickname, stage number, room code, device model, Android version, screenshots, and the time the issue happened.']}
+      ],
       primaryLabel:'Email Support',
       primaryUrl:SUPPORT_MAILTO,
       secondaryLabel:'Open Support Page',
@@ -776,9 +836,15 @@
     },
     feedback:{
       title:'Feedback / Report Bug',
-      updated:'Last updated: May 19, 2026',
+      updated:'Last updated: May 20, 2026',
       intro:'Send gameplay ideas, bug reports, online room issues, or Play Store review concerns to the developer.',
+      chips:['Bug reports','Gameplay ideas','Visual feedback','Online issue reports'],
+      summary:[['Email',SUPPORT_EMAIL],['Subject','Feedback / Bug Report'],['Helpful Detail','Screenshot or room code']],
       bullets:['Email: '+SUPPORT_EMAIL+'.','For bugs, mention what screen you were on, what you tapped, and what happened.','Screenshots are helpful for visual or mobile layout issues.'],
+      sections:[
+        {title:'Good Bug Report Format',items:['What you were trying to do.','What happened instead.','Whether it happened once or many times.','The screen, stage, room code, or button involved.']},
+        {title:'Product Feedback',items:['You can suggest new stages, better AI behavior, smoother mobile controls, sound effects, kingdom animations, or Play Store listing improvements.']}
+      ],
       primaryLabel:'Email Feedback',
       primaryUrl:FEEDBACK_MAILTO,
       secondaryLabel:'Open Feedback Page',
@@ -4505,9 +4571,19 @@
     els.mapMenuBtn.setAttribute('aria-expanded', willOpen?'true':'false');
     playSfx('menu');
   }
+  function toggleTrustSubmenu(e){
+    e?.stopPropagation();
+    const willOpen=els.trustSubmenu.classList.contains('hidden');
+    els.trustSubmenu.classList.toggle('hidden', !willOpen);
+    els.trustMenuBtn.setAttribute('aria-expanded', willOpen?'true':'false');
+    els.trustMenuBtn.textContent=willOpen?'Trust & Support ▲':'Trust & Support';
+  }
   function closeMapMenu(){
     els.mapMenuPanel.classList.add('hidden');
+    els.trustSubmenu.classList.add('hidden');
     els.mapMenuBtn.setAttribute('aria-expanded','false');
+    els.trustMenuBtn.setAttribute('aria-expanded','false');
+    els.trustMenuBtn.textContent='Trust & Support';
   }
   function closeShop(){ els.shopModal.classList.remove('show'); }
   function openPrivacy(){
@@ -4521,9 +4597,16 @@
   }
   function openExternalUrl(url){
     try{
-      if(String(url).startsWith('mailto:')){ location.href=url; return; }
-      const opened=window.open(url,'_blank','noopener');
-      if(!opened) location.href=url;
+      const target=String(url || '');
+      if(target==='#game'){ closePublicPage(); return; }
+      if(target.startsWith('#')){
+        if(location.hash!==target) history.pushState('', document.title, target);
+        handlePublicRoute();
+        return;
+      }
+      if(target.startsWith('mailto:')){ location.href=target; return; }
+      const opened=window.open(target,'_blank','noopener');
+      if(!opened) location.href=target;
     } catch(e){ location.href=url; }
   }
   function openCompliancePage(type){
@@ -4548,6 +4631,32 @@
     const intro=document.createElement('p');
     intro.textContent=page.intro;
     container.appendChild(intro);
+    if(page.chips?.length){
+      const chips=document.createElement('div');
+      chips.className='trust-chips';
+      page.chips.forEach(item=>{
+        const chip=document.createElement('span');
+        chip.className='trust-chip';
+        chip.textContent=item;
+        chips.appendChild(chip);
+      });
+      container.appendChild(chips);
+    }
+    if(page.summary?.length){
+      const summary=document.createElement('div');
+      summary.className='trust-summary';
+      page.summary.forEach(row=>{
+        const box=document.createElement('div');
+        const label=document.createElement('span');
+        label.textContent=row[0];
+        const value=document.createElement('b');
+        value.textContent=row[1];
+        box.appendChild(label);
+        box.appendChild(value);
+        summary.appendChild(box);
+      });
+      container.appendChild(summary);
+    }
     if(page.bullets?.length){
       const card=document.createElement('div');
       card.className='compliance-card';
@@ -4580,7 +4689,7 @@
     });
   }
   function activePublicRoute(){
-    return PUBLIC_ROUTE_BY_HASH[location.hash] || '';
+    return PUBLIC_ROUTE_BY_HASH[location.hash] || PUBLIC_ROUTE_BY_PATH[location.pathname] || '';
   }
   function renderPublicCompliancePage(type){
     const page=COMPLIANCE_PAGES[type];
@@ -4609,12 +4718,42 @@
     window.scrollTo(0,0);
     return true;
   }
+  function gameEntryUrl(){
+    try{
+      if(location.protocol==='file:') return 'index.html';
+      if(PUBLIC_ROUTE_BY_PATH[location.pathname]) return location.pathname.replace(/\/[^\/]*$/, '/index.html');
+      return location.pathname + location.search;
+    } catch(e){
+      return './';
+    }
+  }
+  function showGameMapFromPublic(){
+    if(introTimer){ clearTimeout(introTimer); introTimer=null; }
+    cancelIntroDemo();
+    document.body.classList.remove('playing');
+    delete document.body.dataset.boardTheme;
+    setTeach('');
+    els.publicPageScreen.classList.add('hidden');
+    els.welcomeScreen.classList.add('hidden');
+    els.gameScreen.classList.add('hidden');
+    els.mapScreen.classList.remove('hidden');
+    els.resultModal.classList.remove('show');
+    els.guideModal.classList.remove('show');
+    els.shopModal.classList.remove('show');
+    els.onlineModal.classList.remove('show');
+    els.portalModal.classList.remove('show');
+    els.privacyModal.classList.remove('show');
+    els.complianceModal.classList.remove('show');
+    mapEntered=true;
+    renderMap();
+    updateMusicTheme();
+    window.scrollTo(0,0);
+  }
   function closePublicPage(){
     if(activePublicRoute()){
-      history.pushState('', document.title, location.pathname + location.search);
+      try{ history.replaceState('', document.title, gameEntryUrl()); } catch(e){}
     }
-    els.publicPageScreen.classList.add('hidden');
-    enterMap();
+    showGameMapFromPublic();
   }
   function handlePublicRoute(){
     const route=activePublicRoute();
@@ -4756,7 +4895,8 @@
   els.inviteAcceptBtn.addEventListener('click',acceptInvite);
   els.inviteRejectBtn.addEventListener('click',rejectInvite);
   els.mapMenuBtn.addEventListener('click',toggleMapMenu);
-  els.mapMenuPanel.addEventListener('click',e=>{ if(e.target.closest('button')) closeMapMenu(); });
+  els.trustMenuBtn.addEventListener('click',toggleTrustSubmenu);
+  els.mapMenuPanel.addEventListener('click',e=>{ if(e.target.closest('#trustMenuBtn')) return; if(e.target.closest('button')) closeMapMenu(); });
   els.dailyBtn.addEventListener('click',dailyChest);
   els.demoBtn.addEventListener('click',startTeachingDemo);
   els.twoPlayerBtn.addEventListener('click',startTwoPlayerStage);
@@ -4783,6 +4923,7 @@
   els.privacyBtn.addEventListener('click',openPrivacy);
   els.privacyClose.addEventListener('click',closePrivacy);
   els.privacyPolicyBtn.addEventListener('click',openPrivacyPolicy);
+  els.deletionPageBtn.addEventListener('click',()=>openExternalUrl(PUBLIC_PAGES.deletion));
   els.aboutBtn.addEventListener('click',()=>openCompliancePage('about'));
   els.developerBtn.addEventListener('click',()=>openCompliancePage('developer'));
   els.termsBtn.addEventListener('click',()=>openCompliancePage('terms'));
