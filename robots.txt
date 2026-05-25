@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bhuvanbhuvi043.github.io/Box-Chain-Arena/sitemap.xml
