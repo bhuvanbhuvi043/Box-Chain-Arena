@@ -15,24 +15,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
- <meta name="google-site-verification" content="X3wQtewWVD_Q9acQtXNYSK6PONQpFTQMXlU_86DNaq4" />
+  <meta name="description" content="Box Chain Arena is a kingdom dots-and-boxes strategy game with stages, rewards, AI duels, and online private challenges." />
   <meta name="theme-color" content="#101827" />
   <title>Box Chain Arena - Kingdom Strategy Game</title>
-  <meta name="description" content="Play Box Chain Arena, a kingdom strategy dots-and-boxes game with AI duels, stage progression, virtual rewards, and online private challenges. Draw gates, capture territory, and challenge smart AI.">
-<meta name="robots" content="index, follow">
-  
-<link rel="canonical" href="https://bhuvanbhuvi043.github.io/Box-Chain-Arena/">
-
-<meta property="og:title" content="Box Chain Arena - Kingdom Strategy Game">
-<meta property="og:description" content="Draw gates, capture territory, challenge AI, and enjoy a kingdom-style strategy battle inspired by classic dots-and-boxes gameplay.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://bhuvanbhuvi043.github.io/Box-Chain-Arena/">
-<meta property="og:image" content="https://bhuvanbhuvi043.github.io/Box-Chain-Arena/box-chain-arena-feature-graphic.png">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Box Chain Arena - Kingdom Strategy Game">
-<meta name="twitter:description" content="Draw gates, capture territory, challenge AI, and progress through kingdom strategy stages.">
-<meta name="twitter:image" content="https://bhuvanbhuvi043.github.io/Box-Chain-Arena/box-chain-arena-feature-graphic.png">
   <style>
     :root{
       --ink:#172033;
@@ -1061,6 +1046,9 @@
   let guideIndex = 0;
   let onlineGuideIndex = 0;
   let drawLoop = false;
+  let drawLoopTimer = null;
+  let fastDrawUntil = 0;
+  let pointerDrawPending = false;
 
   function loadSave(){
     const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,onlineGuideSeen:false,tutorialDone:false};
@@ -1117,6 +1105,25 @@
     return data;
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+  function mobilePerfMode(){
+    const mem = Number(navigator.deviceMemory || 4);
+    const cores = Number(navigator.hardwareConcurrency || 4);
+    return window.innerWidth <= 720 || mem <= 4 || cores <= 4;
+  }
+  function invalidateBoardCache(){
+    if(game){ game._metrics=null; game._bounds=null; }
+  }
+  function markFastDraw(ms=650){
+    fastDrawUntil=Math.max(fastDrawUntil, performance.now()+ms);
+  }
+  function requestCanvasDraw(){
+    if(!game || pointerDrawPending) return;
+    pointerDrawPending=true;
+    requestAnimationFrame(()=>{
+      pointerDrawPending=false;
+      if(game) draw();
+    });
+  }
   function cellKey(r,c){ return r+','+c; }
   function edgeKey(type,r,c){ return type+':'+r+':'+c; }
   function seeded(id){ let x=(id*9301+49297)%233280; return () => (x=(x*9301+49297)%233280)/233280; }
@@ -1316,23 +1323,28 @@
     els.dailyBtn.disabled = daily.claimed;
     els.dailyBtn.textContent = daily.claimed ? '✓ Daily' : '🎁 +'+daily.reward;
     const maxCards = DUEL_STAGE_COUNT;
+    const starsNow = totalStars();
+    const highestOpen = highestUnlockedStage();
+    const frag = document.createDocumentFragment();
     els.levelMap.innerHTML='';
     for(let id=1; id<=maxCards; id++){
-      const st=stageDef(id), req=starRequirement(id), locked=!canPlayStage(id), bestStars=stageBestStars(id);
+      const st=stageDef(id), req=starRequirement(id), locked=starsNow < req, bestStars=stageBestStars(id);
+      const compactPreview = locked && id > highestOpen + 12;
       const card=document.createElement('article'); card.className='stage-card'+(locked?' locked':'');
       const status = locked ? '🔒 '+req+'★' : (bestStars ? starText(bestStars) : '✨ New');
       card.innerHTML=`<div class="stage-top"><div><div class="stage-index">Stage ${id}</div><div class="stage-name">${st.name}</div></div><span class="tag">${status}</span></div>
         <div class="level-art"><b>${SHAPE_ICONS[st.shape]||'▦'}</b><span>${OPPONENT_ICONS[st.opponent.name]||'♟'} ${st.opponent.name}</span></div>
         <div class="stage-meta"><span class="tag">${SHAPE_LABELS[st.shape]||st.shape}</span><span class="tag">${req}★ req</span><span class="tag">AI ${Math.round(st.opponent.base*100)}%</span></div>
-        <div class="shape-preview">${previewDots(st.shape)}</div>
+        <div class="shape-preview">${previewDots(st.shape, compactPreview)}</div>
         <button class="${locked?'soft':'primary'}" ${locked?'disabled':''}>${locked?'🔒 Need '+Math.max(0,req-totalStars())+'★':(bestStars?'↻ Replay':'▶ Play')}</button>`;
       card.querySelector('button').addEventListener('click',()=>startStage(id));
-      els.levelMap.appendChild(card);
+      frag.appendChild(card);
     }
+    els.levelMap.appendChild(frag);
   }
-  function previewDots(shape){
-    const counts={classic:18,heart:20,star:17,spiral:22,diamond:16,bench:18,festival:20,map:19};
-    return Array.from({length:counts[shape]||18},(_,i)=>`<span class="preview-dot" style="background:${THEMES[shape][1]};opacity:${.45+(i%5)*.11}"></span>`).join('');
+  function previewDots(shape, compact=false){
+    const counts=compact ? {classic:7,heart:8,star:7,spiral:8,diamond:7,bench:7,festival:8,map:7} : {classic:12,heart:13,star:12,spiral:14,diamond:12,bench:12,festival:13,map:12};
+    return Array.from({length:counts[shape]||12},(_,i)=>`<span class="preview-dot" style="background:${THEMES[shape][1]};opacity:${.45+(i%5)*.11}"></span>`).join('');
   }
   function cancelIntroDemo(){
     if(introTimer){ clearTimeout(introTimer); introTimer=null; }
@@ -1427,7 +1439,7 @@
     ensureDrawLoop();
     updateUI(); draw(); playSfx('challenge'); showStageCinematic(stage,'Shadow boss challenge');
   }
-  function backToMap(){ closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.publicPageScreen.classList.add('hidden'); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); updateMusicTheme(); }
+  function backToMap(){ stopDrawLoop(); closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.publicPageScreen.classList.add('hidden'); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); updateMusicTheme(); }
   function setTeach(text){
     if(!els.teachBanner) return;
     els.teachBanner.innerHTML=text;
@@ -2775,28 +2787,45 @@
   }
 
   function boardMetrics(){
-    const dots=[...game.stage.dots.values()];
-    const minR=Math.min(...dots.map(d=>d.r)), maxR=Math.max(...dots.map(d=>d.r));
-    const minC=Math.min(...dots.map(d=>d.c)), maxC=Math.max(...dots.map(d=>d.c));
+    if(game?._metrics) return game._metrics;
+    const stage=game.stage;
+    const dots=stage._dotList || (stage._dotList=[...stage.dots.values()]);
+    if(!stage._dotStats){
+      stage._dotStats = {
+        minR:Math.min(...dots.map(d=>d.r)),
+        maxR:Math.max(...dots.map(d=>d.r)),
+        minC:Math.min(...dots.map(d=>d.c)),
+        maxC:Math.max(...dots.map(d=>d.c))
+      };
+    }
+    const {minR,maxR,minC,maxC}=stage._dotStats;
     const zoom=game.zoom || 1;
     const pad=zoom>1 ? 54 : 72;
     const rows=maxR-minR || 1, cols=maxC-minC || 1;
     const scale=Math.min((canvas.width-pad*2)/cols,(canvas.height-pad*2)/rows);
-    return {minR,maxR,minC,maxC,pad,scale,dotR:Math.max(12,scale*.078)*Math.min(1.6,zoom),hitR:Math.max(82,scale*.62)*zoom,lineW:Math.max(13,scale*.102)*Math.min(1.42,zoom)};
+    game._metrics = {minR,maxR,minC,maxC,pad,scale,dotR:Math.max(12,scale*.078)*Math.min(1.6,zoom),hitR:Math.max(82,scale*.62)*zoom,lineW:Math.max(13,scale*.102)*Math.min(1.42,zoom)};
+    return game._metrics;
   }
   function ensureDrawLoop(){
     if(drawLoop) return;
     drawLoop = true;
+    drawLoopTimer = null;
     requestAnimationFrame(drawFrame);
   }
+  function stopDrawLoop(){
+    drawLoop = false;
+    if(drawLoopTimer){ clearTimeout(drawLoopTimer); drawLoopTimer=null; }
+  }
   function drawFrame(){
-    if(game && !game.over){
-      checkLateMoveEmotion();
-      draw();
-      requestAnimationFrame(drawFrame);
-    } else {
-      drawLoop = false;
+    if(!drawLoop || !game || game.over || document.hidden){
+      stopDrawLoop();
+      return;
     }
+    checkLateMoveEmotion();
+    draw();
+    const fast = game.drag || game.aiAnim || performance.now()<fastDrawUntil;
+    const delay = fast ? 34 : (mobilePerfMode() ? 110 : 72);
+    drawLoopTimer = setTimeout(()=>requestAnimationFrame(drawFrame), delay);
   }
   function dotPos(dot){
     const m=boardMetrics();
@@ -2861,6 +2890,7 @@
     if(!edge || edge.owner || game.over) return;
     edge.owner=player;
     edge.animStart=performance.now();
+    markFastDraw(720);
     game.moves++;
     let gained=0, captured=[];
     for(const key of adjacentCells(edge)){
@@ -2871,6 +2901,8 @@
     if(captured.length){
       game.captureAnim = game.captureAnim || {};
       captured.forEach(key=>game.captureAnim[key]=performance.now());
+      game._dotOwners=null;
+      markFastDraw(900);
     }
     if(gained){
       game.chains[player]+=gained; game.chains[player===1?2:1]=0; game.maxChain[player]=Math.max(game.maxChain[player],game.chains[player]);
@@ -2949,6 +2981,7 @@
   function finishStage(win){
     if(game.over) return;
     game.over=true; game.lastWin=win;
+    stopDrawLoop();
     game.objectiveDone = objectiveComplete();
     if(game.mode==='twoPlayer' || game.mode==='online' || game.mode==='masterAI'){
       const p1Win=hasBoxMajority(), winner=p1Win?'Player 1':'Player 2';
@@ -3138,6 +3171,7 @@
   function animateAIMove(edge, activeGame){
     const start=performance.now(), duration=360;
     activeGame.aiAnim={edge,progress:0};
+    markFastDraw(duration+220);
     function frame(now){
       if(game!==activeGame || activeGame.over) return;
       activeGame.aiAnim.progress=clamp((now-start)/duration,0,1);
@@ -3281,13 +3315,15 @@
     ctx.restore();
   }
   function boardBounds(){
-    const pts=[...game.stage.dots.values()].map(dotPos);
-    return {
+    if(game?._bounds) return game._bounds;
+    const pts=(game.stage._dotList || [...game.stage.dots.values()]).map(dotPos);
+    game._bounds = {
       minX:Math.min(...pts.map(p=>p.x)),
       maxX:Math.max(...pts.map(p=>p.x)),
       minY:Math.min(...pts.map(p=>p.y)),
       maxY:Math.max(...pts.map(p=>p.y))
     };
+    return game._bounds;
   }
   function drawFortressPerimeter(){
     if(!game?.stage?.dots?.size) return;
@@ -3317,8 +3353,9 @@
   function drawFortressLife(){
     if(!game?.stage?.dots?.size) return;
     const b=boardBounds(), t=performance.now()/1000, rand=seeded((game.stage.id||1)*19);
+    const actorCount = mobilePerfMode() ? 4 : 8;
     ctx.save();
-    for(let i=0;i<8;i++){
+    for(let i=0;i<actorCount;i++){
       const side=i%4, offset=(t*(20+rand()*18)+i*113)%760;
       let x=70+offset, y=42;
       if(side===1){ x=858; y=70+offset; }
@@ -3377,13 +3414,14 @@
   }
   function drawCells(){
     const m=boardMetrics();
+    const now=performance.now(), light=mobilePerfMode() && game.completed>8;
     for(const key of game.stage.cells){
       const [r,c]=key.split(',').map(Number), owner=game.stage.boxes.get(key);
       const p=dotPos({r,c});
       ctx.save();
       const x=p.x+6, y=p.y+6, size=m.scale-12;
       if(owner){
-        drawKingdomCell(x,y,size,owner,r,c);
+        drawKingdomCell(x,y,size,owner,r,c,now,light);
       } else {
         ctx.globalAlpha=.14;
         ctx.fillStyle=game.stage.theme[1];
@@ -3399,7 +3437,7 @@
         roundRect(x+size*.16,y+size*.12,size*.68,size*.2,7); ctx.fill();
       }
       if(!owner && game.stage.coinBoxes.has(key)){
-        const coin=game.stage.coinBoxes.get(key), bob=Math.sin(performance.now()/420 + r*1.7 + c*.9)*m.scale*.025;
+        const coin=game.stage.coinBoxes.get(key), bob=Math.sin(now/420 + r*1.7 + c*.9)*m.scale*.025;
         ctx.globalAlpha=1;
         drawBoardCoin(p.x+m.scale/2,p.y+m.scale/2+bob,Math.max(14,m.scale*.18),coin);
       }
@@ -3411,9 +3449,13 @@
     if(owner===2) return (game.mode==='twoPlayer' || game.mode==='online') ? KINGDOMS[2] : KINGDOMS.ai;
     return KINGDOMS.neutral;
   }
-  function drawKingdomCell(x,y,size,owner,r,c){
-    const k=kingdomFor(owner), phase=performance.now()/520 + r*.9 + c*.7;
-    const born=game.captureAnim?.[cellKey(r,c)] || 0, age=born ? performance.now()-born : 9999;
+  function drawKingdomCell(x,y,size,owner,r,c,now=performance.now(),light=false){
+    const k=kingdomFor(owner), phase=now/520 + r*.9 + c*.7;
+    const born=game.captureAnim?.[cellKey(r,c)] || 0, age=born ? now-born : 9999;
+    if(light && age>760){
+      drawLiteKingdomCell(x,y,size,owner,r,c,k);
+      return;
+    }
     const glow=.16+Math.sin(phase)*.05;
     const grad=ctx.createLinearGradient(x,y,x+size,y+size);
     grad.addColorStop(0,k.glow);
@@ -3450,6 +3492,50 @@
       const bx=x+size*(.18+i*.28), by=y+size*.82;
       roundRect(bx,by,size*.12,size*.07,4); ctx.fill();
     }
+  }
+  function drawLiteKingdomCell(x,y,size,owner,r,c,k=kingdomFor(owner)){
+    ctx.globalAlpha=.9;
+    ctx.fillStyle=k.main;
+    roundRect(x,y,size,size,9); ctx.fill();
+    ctx.globalAlpha=.34;
+    ctx.fillStyle=k.glow;
+    roundRect(x+size*.06,y+size*.06,size*.88,size*.88,9); ctx.fill();
+    ctx.globalAlpha=.7;
+    ctx.strokeStyle=k.deep;
+    ctx.lineWidth=Math.max(1.5,size*.035);
+    roundRect(x+size*.04,y+size*.04,size*.92,size*.92,9); ctx.stroke();
+    ctx.globalAlpha=.68;
+    drawLiteEmblem(x+size*.5,y+size*.52,size*.42,owner,k);
+    ctx.globalAlpha=.22;
+    ctx.fillStyle='#ffffff';
+    roundRect(x+size*.16,y+size*.14,size*.68,size*.12,6); ctx.fill();
+  }
+  function drawLiteEmblem(cx,cy,size,owner,k=kingdomFor(owner)){
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.fillStyle='rgba(255,255,255,.86)';
+    ctx.beginPath();
+    ctx.moveTo(0,-size*.48);
+    ctx.lineTo(size*.42,-size*.1);
+    ctx.lineTo(size*.26,size*.42);
+    ctx.lineTo(0,size*.56);
+    ctx.lineTo(-size*.26,size*.42);
+    ctx.lineTo(-size*.42,-size*.1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle=k.deep;
+    if(owner===1){
+      ctx.beginPath();
+      ctx.moveTo(0,-size*.28);
+      ctx.quadraticCurveTo(-size*.24,size*.04,0,size*.34);
+      ctx.quadraticCurveTo(size*.24,size*.04,0,-size*.28);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(0,0,size*.28,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
   function drawTerritoryEmblem(cx,cy,size,owner,phase=0){
     const k=kingdomFor(owner);
@@ -3657,18 +3743,23 @@
   }
   function drawEdges(){
     const m=boardMetrics();
+    const now=performance.now(), light=mobilePerfMode() && game.moves>18;
     for(const e of game.stage.edges.values()){
       if(!e.owner) continue;
-      const closeProgress=e.animStart ? clamp((performance.now()-e.animStart)/440,0,1) : 1;
-      drawGate(dotPos(e.a),dotPos(e.b),kingdomFor(e.owner),m.lineW,1,true,closeProgress);
+      const age=e.animStart ? now-e.animStart : 9999;
+      const closeProgress=e.animStart ? clamp(age/440,0,1) : 1;
+      if(light && age>720) drawSimpleClosedGate(dotPos(e.a),dotPos(e.b),kingdomFor(e.owner),m.lineW);
+      else drawGate(dotPos(e.a),dotPos(e.b),kingdomFor(e.owner),m.lineW,1,true,closeProgress);
     }
   }
   function drawAvailableEdges(){
     const m=boardMetrics();
+    const light=mobilePerfMode() && game.moves>12;
     for(const e of game.stage.edges.values()){
       if(e.owner) continue;
       const a=dotPos(e.a), b=dotPos(e.b);
-      drawOpenGate(a,b,game.stage.theme[1],m.lineW);
+      if(light) drawSimpleOpenGate(a,b,game.stage.theme[1],m.lineW);
+      else drawOpenGate(a,b,game.stage.theme[1],m.lineW);
     }
   }
   function drawAiAnim(){
@@ -3688,17 +3779,24 @@
     const preview=game.drag ? dragGatePreview(game.drag.start,game.drag.current) : null;
     const startKey=game.drag ? cellKey(game.drag.start.r,game.drag.start.c) : '';
     const previewKeys=preview ? [cellKey(preview.edge.a.r,preview.edge.a.c),cellKey(preview.edge.b.r,preview.edge.b.c)] : [];
-    for(const d of game.stage.dots.values()){
+    const light=mobilePerfMode() && game.moves>12;
+    const dots=game.stage._dotList || game.stage.dots.values();
+    for(const d of dots){
       const p=dotPos(d);
       const key=cellKey(d.r,d.c), owner=dotKingdom(d);
-      drawSoldier(p.x,p.y,m.dotR,owner,(d.r+d.c)%2,{
+      const opts={
         active:key===startKey,
         target:previewKeys.includes(key) && key!==startKey,
         neutralPulse:!game.moves && !owner
-      });
+      };
+      if(light && !opts.active && !opts.target && !opts.neutralPulse) drawSimpleSoldier(p.x,p.y,m.dotR,owner,(d.r+d.c)%2);
+      else drawSoldier(p.x,p.y,m.dotR,owner,(d.r+d.c)%2,opts);
     }
   }
   function dotKingdom(dot){
+    const dotKey=cellKey(dot.r,dot.c);
+    game._dotOwners = game._dotOwners || {};
+    if(Object.prototype.hasOwnProperty.call(game._dotOwners,dotKey)) return game._dotOwners[dotKey];
     const keys=[
       cellKey(dot.r-1,dot.c-1),
       cellKey(dot.r-1,dot.c),
@@ -3711,9 +3809,25 @@
       if(owner===1) p1++;
       else if(owner===2) p2++;
     });
-    if(p1>p2) return 1;
-    if(p2>p1) return 2;
-    return 0;
+    const owner=p1>p2 ? 1 : (p2>p1 ? 2 : 0);
+    game._dotOwners[dotKey]=owner;
+    return owner;
+  }
+  function drawSimpleSoldier(x,y,r,owner=0,parity=0){
+    const k=owner ? kingdomFor(owner) : KINGDOMS.neutral;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.fillStyle='rgba(15,23,42,.16)';
+    ctx.beginPath(); ctx.ellipse(0,r*1.18,r*1.05,r*.28,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=owner ? k.main : (parity ? '#f8fafc' : '#111827');
+    ctx.strokeStyle=owner ? k.deep : (parity ? '#94a3b8' : '#020617');
+    ctx.lineWidth=Math.max(1.2,r*.12);
+    roundRect(-r*.56,-r*.18,r*1.12,r*1.1,r*.32); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=owner ? k.glow : (parity ? '#111827' : '#f8fafc');
+    ctx.beginPath(); ctx.arc(0,-r*.64,r*.43,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=owner ? k.deep : (parity ? '#334155' : '#e2e8f0');
+    ctx.beginPath(); ctx.arc(0,-r*.78,r*.48,Math.PI,Math.PI*2); ctx.fill();
+    ctx.restore();
   }
   function drawSoldier(x,y,r,owner=0,parity=0,opts={}){
     const k=owner ? kingdomFor(owner) : KINGDOMS.neutral;
@@ -3903,6 +4017,30 @@
     ctx.beginPath(); ctx.moveTo(-len/2+gap,-h*.55); ctx.lineTo(len/2-gap,-h*.55); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-len/2+gap,h*.55); ctx.lineTo(len/2-gap,h*.55); ctx.stroke();
     ctx.setLineDash([]);
+    ctx.restore();
+  }
+  function drawSimpleOpenGate(a,b,color,w){
+    ctx.save();
+    ctx.globalAlpha=.22;
+    ctx.strokeStyle=color;
+    ctx.lineWidth=Math.max(2,w*.22);
+    ctx.setLineDash([Math.max(6,w*.46), Math.max(8,w*.64)]);
+    ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+  function drawSimpleClosedGate(a,b,k,w){
+    ctx.save();
+    ctx.strokeStyle=k.deep || k.main || '#111827';
+    ctx.lineWidth=Math.max(6,w*.58);
+    ctx.lineCap='round';
+    ctx.globalAlpha=.9;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.strokeStyle=k.glow || '#ffffff';
+    ctx.lineWidth=Math.max(2,w*.16);
+    ctx.globalAlpha=.7;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
     ctx.restore();
   }
   function drawGate(a,b,k,w,alpha=1,closed=true,progress=1){
@@ -4171,15 +4309,15 @@
     if(!isHumanTurn()) return;
     const p=pointFromEvent(e), d=nearestDot(p,1.35);
     if(!d){ playSfx('bad'); showToast('Start closer to a dot'); return; }
-    game.drag={start:d,current:p}; canvas.setPointerCapture?.(e.pointerId); e.preventDefault(); draw();
+    game.drag={start:d,current:p}; canvas.setPointerCapture?.(e.pointerId); e.preventDefault(); markFastDraw(900); draw();
   }
-  function pointerMove(e){ if(!game || !game.drag) return; game.drag.current=pointFromEvent(e); e.preventDefault(); draw(); }
+  function pointerMove(e){ if(!game || !game.drag) return; game.drag.current=pointFromEvent(e); e.preventDefault(); markFastDraw(220); requestCanvasDraw(); }
   function pointerUp(e){
     if(!game || !game.drag) return;
     const p=pointFromEvent(e), end=nearestDot(p,1.25), preview=dragGatePreview(game.drag.start,p);
     let edge=moveFromDots(game.drag.start,end);
     if(!edge && preview && preview.progress>.24) edge=preview.edge;
-    game.drag=null; e.preventDefault();
+    game.drag=null; e.preventDefault(); markFastDraw(500);
     if(!edge){ playSfx('bad'); showToast('Draw to a nearby dot'); draw(); return; }
     if(edge.owner){ playSfx('bad'); showToast('Line already used'); draw(); return; }
     if(game.mode==='tutorial' && edge.key!==tutorialExpectedEdge()){ playSfx('bad'); showToast('Follow the glowing guide'); draw(); return; }
@@ -4205,7 +4343,14 @@
     const [r,c]=key.split(',').map(Number), m=boardMetrics(), p=dotPos({r,c});
     return {x:p.x+m.scale/2,y:p.y+m.scale/2};
   }
+  function trimTransientEffects(limit=24){
+    if(!els.rewardLayer) return;
+    const items=els.rewardLayer.querySelectorAll('.spark,.fly-coin,.micro-pop,.emoji-burst,.victory-wave');
+    const removeCount=items.length-limit;
+    for(let i=0;i<removeCount;i++) items[i].remove();
+  }
   function showReward(edge,gold,gained,captured=[],player=1){
+    trimTransientEffects(mobilePerfMode()?18:30);
     const centers = captured.map(x=>cellCenter(x.key));
     const mid = centers[0] || edgeMid(edge), x=mid.x/900*100, y=mid.y/900*100;
     if(gold){
@@ -4216,8 +4361,9 @@
     kingdomSeatReact(player,chainActive?'chain':(gold?'gold':'capture'),reactionText);
     if(gold && chainActive) seatForPlayer(player).seat?.classList.add('gold');
     if(player===2 && gained) kingdomSeatReact(1,'alert','OMG, defend!');
-    centers.forEach((pt,idx)=>flyCoin(pt, player, idx, captured[idx]?.coin));
-    const sparkCount = gold ? 8 : ((gained>1 || game.chains[player]>=2) ? 6 : 0);
+    const maxCoins=mobilePerfMode()?2:4;
+    centers.slice(0,maxCoins).forEach((pt,idx)=>flyCoin(pt, player, idx, captured[idx]?.coin));
+    const sparkCount = mobilePerfMode() ? (gold ? 3 : (chainActive ? 2 : 0)) : (gold ? 8 : (chainActive ? 6 : 0));
     for(let i=0;i<sparkCount;i++){ const s=document.createElement('div'); s.className='spark'; s.style.left=x+'%'; s.style.top=y+'%'; s.style.setProperty('--tx',((Math.random()-.5)*105)+'px'); s.style.setProperty('--ty',(-24-Math.random()*70)+'px'); els.rewardLayer.appendChild(s); setTimeout(()=>s.remove(),700); }
   }
   function edgeMid(edge){
@@ -4225,6 +4371,7 @@
     return {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
   }
   function flyCoin(pt, player, idx, coinData=null){
+    trimTransientEffects(mobilePerfMode()?20:34);
     const coin=document.createElement('div');
     coin.className='fly-coin';
     if(coinData && (coinData.multiplier || 1)>1) coin.innerHTML='<span>'+coinData.multiplier+'x</span>';
@@ -4353,6 +4500,12 @@
     if(kind==='loss'){ noiseBurst(.13,.018,0,300); return royalChord([392*pitch,330*pitch,262*pitch,196*pitch],.1,'sine',.028,.075); }
   }
   function playSfx(kind){
+    if(mobilePerfMode()){
+      const now=performance.now(), gap=kind==='chain'?180:90;
+      playSfx.last = playSfx.last || {};
+      if(['gate','coin','capture','chain','move','ready'].includes(kind) && now-(playSfx.last[kind]||0)<gap) return;
+      playSfx.last[kind]=now;
+    }
     if(kind==='ui') return arpeggio([740,980],.035,'triangle',.012,.028);
     if(kind==='menu') return arpeggio([392,523,659],.055,'triangle',.018,.045);
     if(kind==='move') return sfxTone(340,.055,'square',.018,0,470);
@@ -4394,6 +4547,10 @@
     if(!musicOn) return;
     const key=musicKeyForMode(), track=MUSIC_TRACKS[key] || MUSIC_TRACKS.map;
     activeMusicKey=key;
+    if(mobilePerfMode()){
+      startProceduralMusic();
+      return;
+    }
     try{
       musicAudio=new Audio(track.src);
       musicAudio.loop=true;
@@ -4470,7 +4627,7 @@
     kingdomSeatReact(loser,'loss','Oww... sad loss',2400);
     showResultCourt(win,winner);
     const colors=win?['#ff4f6f','#3f8cff','#f6b51d','#10b981','#7c3aed']:['#60a5fa','#93c5fd','#cbd5e1'];
-    const count=win?90:48;
+    const count=mobilePerfMode() ? (win?34:18) : (win?70:34);
     for(let i=0;i<count;i++){
       const d=document.createElement('div');
       d.className=win?'celebration-piece':'sad-drop';
@@ -4527,7 +4684,7 @@
     if(mode==='ai' && save.inventory.retries>0 && game.moves>3) els.restartBtn.textContent='↻ Shield '+save.inventory.retries;
     updateMusicButtons();
   }
-  function cycleZoom(){ const levels=[1,1.3,1.6]; game.zoomMode=(game.zoomMode+1)%levels.length; game.zoom=levels[game.zoomMode]; updateUI(); draw(); showToast(game.zoom===1?'Normal touch':'Easy touch '+game.zoom+'x'); }
+  function cycleZoom(){ const levels=[1,1.3,1.6]; game.zoomMode=(game.zoomMode+1)%levels.length; game.zoom=levels[game.zoomMode]; invalidateBoardCache(); markFastDraw(450); updateUI(); draw(); showToast(game.zoom===1?'Normal touch':'Easy touch '+game.zoom+'x'); }
   function hintCost(){ return game && game.stage.id>3 ? HINT_COST : 0; }
   function hint(){
     if(game?.mode==='tutorial'){
@@ -4969,7 +5126,16 @@
   canvas.addEventListener('pointerup',pointerUp);
   canvas.addEventListener('pointercancel',pointerUp);
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
-  window.addEventListener('resize',draw);
+  window.addEventListener('resize',()=>{ invalidateBoardCache(); markFastDraw(500); draw(); });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      stopDrawLoop();
+      if(musicTimer || musicAudio) stopMusic();
+      return;
+    }
+    if(musicOn) startMusic();
+    if(game && !game.over) ensureDrawLoop();
+  });
   window.addEventListener('online',handleNetworkChange);
   window.addEventListener('offline',handleNetworkChange);
   window.addEventListener('hashchange',handlePublicRoute);
