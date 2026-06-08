@@ -97,6 +97,8 @@
     .stage-title{min-width:0}.stage-title b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stage-title span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .score-hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:6px;align-items:center;min-height:62px}
     .score-box{height:48px;background:#fff;border:1px solid rgba(23,32,51,.08);border-radius:var(--radius);padding:7px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+    .score-box.me-box{border-color:rgba(16,185,129,.28);background:linear-gradient(135deg,#ffffff,#ecfdf5);box-shadow:inset 0 0 0 1px rgba(16,185,129,.08)}
+    .score-box.opp-box{border-color:rgba(63,140,255,.22);background:linear-gradient(135deg,#ffffff,#eef6ff)}
     .score-box strong{display:block;font-size:18px}.score-box span{display:block;color:var(--muted);font-size:10px;font-weight:1000;text-transform:uppercase;white-space:nowrap}
     .turn-box{height:48px;text-align:center;background:#101827;color:#fff;border-radius:var(--radius);padding:7px 7px 7px 26px;min-width:0;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
     .turn-box:before{content:"";position:absolute;left:8px;top:8px;width:14px;height:22px;border-radius:2px 7px 7px 2px;background:linear-gradient(135deg,#94a3b8,#f8fafc);box-shadow:0 0 16px rgba(255,255,255,.22);clip-path:polygon(0 0,100% 14%,78% 52%,100% 88%,0 100%)}
@@ -245,7 +247,7 @@
         <div class="pill"><span class="coin"></span><span id="runGold">0</span></div>
       </div>
       <div class="score-hud">
-        <div class="score-box"><strong id="p1Score">0</strong><span>Your Boxes</span></div>
+        <div class="score-box"><strong id="p1Score">0</strong><span id="p1Label">Your Boxes</span></div>
         <div class="turn-box"><strong id="turnText">Your turn</strong><span id="balanceText">AI 0%</span></div>
         <div class="score-box"><strong id="p2Score">0</strong><span id="opponentLabel">AI Boxes</span></div>
       </div>
@@ -645,7 +647,7 @@
     guidePrev:document.getElementById('guidePrev'), guideNext:document.getElementById('guideNext'), guideClose:document.getElementById('guideClose'),
     mapBtn:document.getElementById('mapBtn'), stageName:document.getElementById('stageName'),
     stageTarget:document.getElementById('stageTarget'), runGold:document.getElementById('runGold'),
-    p1Score:document.getElementById('p1Score'), p2Score:document.getElementById('p2Score'),
+    p1Score:document.getElementById('p1Score'), p2Score:document.getElementById('p2Score'), p1Label:document.getElementById('p1Label'),
     opponentLabel:document.getElementById('opponentLabel'), turnText:document.getElementById('turnText'),
     balanceText:document.getElementById('balanceText'), boardWrap:document.getElementById('boardWrap'),
     playerSeat:document.getElementById('playerSeat'), enemySeat:document.getElementById('enemySeat'),
@@ -1399,6 +1401,7 @@
   function startOnlineRoom(code, localPlayer, status, stageId=1){
     hideAccountModals();
     setTeach('');
+    localPlayer = Number(localPlayer)===2 ? 2 : 1;
     const stage=buildStage(clamp(Number(stageId||1),1,DUEL_STAGE_COUNT));
     stage.name='Duel: '+stage.name;
     stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
@@ -2390,6 +2393,53 @@
   function roomPlayerName(room, role){
     return room.playerNames?.[role] || (role==='p1' ? 'Player 1' : 'Player 2');
   }
+  function actualLocalPlayer(){
+    return game?.mode==='online' ? (Number(game.localPlayer)===2 ? 2 : 1) : 1;
+  }
+  function actualOpponentPlayer(){
+    return actualLocalPlayer()===1 ? 2 : 1;
+  }
+  function roleForPlayer(player){
+    return Number(player)===2 ? 'p2' : 'p1';
+  }
+  function onlineRoomName(player, fallback){
+    return roomPlayerName(game?.onlineRoom || {}, roleForPlayer(player)) || fallback;
+  }
+  function displayNameForActualPlayer(player){
+    if(game?.mode==='online') return onlineRoomName(player, Number(player)===actualLocalPlayer() ? 'You' : 'Opponent');
+    if(game?.mode==='twoPlayer') return Number(player)===1 ? 'Player 1' : 'Player 2';
+    if(game?.mode==='masterAI') return Number(player)===1 ? 'You' : 'Master AI';
+    if(game?.mode==='tutorial') return Number(player)===1 ? 'You' : 'Guide';
+    return Number(player)===1 ? 'You' : 'AI';
+  }
+  function displayScores(){
+    if(game?.mode==='online'){
+      const me=actualLocalPlayer(), opponent=actualOpponentPlayer();
+      return {
+        left:game.scores[me] || 0,
+        right:game.scores[opponent] || 0,
+        leftLabel:'You: '+displayNameForActualPlayer(me),
+        rightLabel:'Opponent: '+displayNameForActualPlayer(opponent),
+        boxText:(game.scores[me]||0)+'-'+(game.scores[opponent]||0)
+      };
+    }
+    return {
+      left:game?.scores?.[1] || 0,
+      right:game?.scores?.[2] || 0,
+      leftLabel:game?.mode==='twoPlayer' ? 'P1 Boxes' : 'Your Boxes',
+      rightLabel:game?.mode==='twoPlayer' ? 'P2 Boxes' : (game?.mode==='tutorial' ? 'Guide Boxes' : (game?.mode==='masterAI' ? 'Master Boxes' : 'AI Boxes')),
+      boxText:(game?.scores?.[1] || 0)+'-'+(game?.scores?.[2] || 0)
+    };
+  }
+  function localStakeInfo(){
+    const s=onlineStakes();
+    const me=actualLocalPlayer();
+    return {
+      mine:me===1 ? s.p1 : s.p2,
+      opponent:me===1 ? s.p2 : s.p1,
+      pot:s.p1+s.p2
+    };
+  }
   function renderStakeLobby(room={}, localPlayer=1){
     applyEntryGoldLimits();
     const p1=Number(room.stakes?.p1 || 0), p2=Number(room.stakes?.p2 || 0);
@@ -2415,11 +2465,14 @@
     }
     els.stakeSummary.textContent='Preparing duel lobby...';
     els.stakeSummary.className='stake-summary lobby-summary';
+    const localStake=role==='p1'?p1:p2, opponentStake=role==='p1'?p2:p1;
+    const localConfirmed=role==='p1'?c1:c2, opponentConfirmed=role==='p1'?c2:c1;
+    const opponentRoleKey=role==='p1'?'p2':'p1';
     els.stakeSummary.innerHTML=
       '<div class="lobby-arena"><span>Selected Arena</span><b>'+safeHtml(stageNameById(stageId))+'</b></div>'+
       '<div class="lobby-players">'+
-        '<div class="lobby-player"><span>Player 1</span><b>'+safeHtml(roomPlayerName(room,'p1'))+'</b><span>Entry Gold</span><b>'+p1+'</b><span class="'+(c1?'ready':'waiting')+'">'+(c1?'Ready':'Waiting')+'</span></div>'+
-        '<div class="lobby-player"><span>Player 2</span><b>'+safeHtml(roomPlayerName(room,'p2'))+'</b><span>Entry Gold</span><b>'+p2+'</b><span class="'+(c2?'ready':'waiting')+'">'+(c2?'Ready':'Waiting')+'</span></div>'+
+        '<div class="lobby-player"><span>You</span><b>'+safeHtml(roomPlayerName(room,role))+'</b><span>Entry Gold</span><b>'+localStake+'</b><span class="'+(localConfirmed?'ready':'waiting')+'">'+(localConfirmed?'Ready':'Waiting')+'</span></div>'+
+        '<div class="lobby-player"><span>Opponent</span><b>'+safeHtml(roomPlayerName(room,opponentRoleKey))+'</b><span>Entry Gold</span><b>'+opponentStake+'</b><span class="'+(opponentConfirmed?'ready':'waiting')+'">'+(opponentConfirmed?'Ready':'Waiting')+'</span></div>'+
       '</div>'+
       '<div class="reward-pot"><b>Reward Pot: '+total+' gold</b><br>Virtual reward update only. No real money value.</div>'+
       '<div class="entry-note">'+ENTRY_GOLD_NOTICE+' Testing prototype: browser Firebase saves are allowed for testing; Cloud Functions verification is planned.</div>';
@@ -2985,7 +3038,8 @@
     game.objectiveDone = objectiveComplete();
     if(game.mode==='twoPlayer' || game.mode==='online' || game.mode==='masterAI'){
       const p1Win=hasBoxMajority(), winner=p1Win?'Player 1':'Player 2';
-      const localWon=game.mode==='online' ? ((game.localPlayer===1 && p1Win) || (game.localPlayer===2 && !p1Win)) : p1Win;
+      const localRole=actualLocalPlayer();
+      const localWon=game.mode==='online' ? ((localRole===1 && p1Win) || (localRole===2 && !p1Win)) : p1Win;
       const localDelta=game.mode==='online' ? stakeDeltaForLocal(p1Win) : (game.mode==='masterAI' ? masterAiStakeDelta(p1Win) : 0);
       if(game.mode==='online'){ applyLocalStakeResult(p1Win); saveOnlineMatchResult(p1Win); refreshProfileAfterOnlineResult(); }
       if(game.mode==='masterAI'){ applyMasterAiStakeResult(p1Win); }
@@ -2993,9 +3047,9 @@
       els.reactionFace.className='reaction-face '+(localWon?'win':'loss');
       els.reactionFace.textContent=p1Win?'🏆':'🏁';
       if(game.mode==='online' || game.mode==='masterAI') els.reactionFace.textContent=localWon ? String.fromCodePoint(0x1F3C6) : String.fromCodePoint(0x1F3C1);
-      els.resultTitle.textContent=game.mode==='online' ? (localWon?'You Won':'You Lost') : (game.mode==='masterAI' ? (localWon?'You Beat Master AI':'Master AI Wins') : winner+' Wins');
+      els.resultTitle.textContent=game.mode==='online' ? (localWon?'Duel Victory':'Duel Lost') : (game.mode==='masterAI' ? (localWon?'You Beat Master AI':'Master AI Wins') : winner+' Wins');
       els.resultText.textContent=game.mode==='online' ? stakeResultText(p1Win) : (game.mode==='masterAI' ? masterAiResultText(p1Win) : 'Box majority decides multiplayer. Gold and diamonds stay for stage mode.');
-      els.resultBoxes.textContent=game.scores[1]+'-'+game.scores[2];
+      els.resultBoxes.textContent=game.mode==='online' ? displayScores().boxText : game.scores[1]+'-'+game.scores[2];
       els.resultGold.textContent=(game.mode==='online' || game.mode==='masterAI') ? (localDelta>0?'+'+localDelta:String(localDelta)) : '0';
       els.resultStars.textContent='Duel';
       els.resultDiamond.textContent='0';
@@ -3071,9 +3125,10 @@
   function stakeDeltaForLocal(p1Win){
     if(!game || game.mode!=='online') return 0;
     const s=onlineStakes();
-    const localWon=(game.localPlayer===1 && p1Win) || (game.localPlayer===2 && !p1Win);
-    if(localWon) return game.localPlayer===1 ? s.p2 : s.p1;
-    return -(game.localPlayer===1 ? s.p1 : s.p2);
+    const localRole=actualLocalPlayer();
+    const localWon=(localRole===1 && p1Win) || (localRole===2 && !p1Win);
+    if(localWon) return localRole===1 ? s.p2 : s.p1;
+    return -(localRole===1 ? s.p1 : s.p2);
   }
   function applyLocalStakeResult(p1Win){
     if(game.stakeApplied) return;
@@ -3087,12 +3142,15 @@
   }
   function stakeResultText(p1Win){
     const delta=stakeDeltaForLocal(p1Win);
-    const s=onlineStakes();
-    const winner=p1Win?'Player 1':'Player 2';
-    const line=' Entry Gold: P1 '+s.p1+' gold, P2 '+s.p2+' gold. Reward Pot: '+(s.p1+s.p2)+' gold. Use Rematch Room to continue or Level Map to wind up. '+ENTRY_GOLD_NOTICE;
-    if(delta>0) return winner+' wins by box majority. Reward +'+delta+' gold. '+line;
-    if(delta<0) return winner+' wins by box majority. Entry Gold used '+Math.abs(delta)+' gold. '+line;
-    return winner+' wins by box majority. No Entry Gold changed. '+line;
+    const localRole=actualLocalPlayer();
+    const localWon=(localRole===1 && p1Win) || (localRole===2 && !p1Win);
+    const stakes=localStakeInfo();
+    const winnerName=localWon ? 'You' : displayNameForActualPlayer(actualOpponentPlayer());
+    const outcome=localWon ? 'You won by box majority.' : winnerName+' won by box majority.';
+    const line=' Your Entry Gold: '+stakes.mine+' gold. Opponent Entry Gold: '+stakes.opponent+' gold. Reward Pot: '+stakes.pot+' gold. Use Rematch Room to continue or Level Map to wind up. '+ENTRY_GOLD_NOTICE;
+    if(delta>0) return outcome+' Reward +'+delta+' gold.'+line;
+    if(delta<0) return outcome+' Entry Gold used '+Math.abs(delta)+' gold.'+line;
+    return outcome+' No Entry Gold changed.'+line;
   }
 
   function refreshProfileAfterOnlineResult(){
@@ -4180,6 +4238,25 @@
   }
   function updateKingdomSeats(mode=game?.mode || 'ai'){
     if(!els.playerSeat || !els.enemySeat) return;
+    if(mode==='online'){
+      const leftActual=actualLocalPlayer(), rightActual=actualOpponentPlayer();
+      const leftWater=leftActual===2, rightWater=rightActual===2;
+      els.playerSeat.classList.remove('fire-seat','water-seat','shadow-seat');
+      els.playerSeat.classList.add(leftWater ? 'water-seat' : 'fire-seat');
+      els.playerSeatName.textContent='You · '+courtNameFor(leftActual);
+      if(!els.playerSeat.classList.contains('react')){
+        setSeatFaces(els.playerSeat,'🤴','👸',...defaultSeatMood(leftActual,mode));
+        els.playerSeatLine.textContent=game?.current===leftActual ? 'Your move' : 'Ready';
+      }
+      els.enemySeat.classList.remove('fire-seat','water-seat','shadow-seat');
+      els.enemySeat.classList.add(rightWater ? 'water-seat' : 'fire-seat');
+      els.enemySeatName.textContent='Opponent · '+courtNameFor(rightActual);
+      if(!els.enemySeat.classList.contains('react')){
+        setSeatFaces(els.enemySeat,'🤴','👸',...defaultSeatMood(rightActual,mode));
+        els.enemySeatLine.textContent=game?.current===rightActual ? 'Opponent move' : 'Watching';
+      }
+      return;
+    }
     els.playerSeat.classList.remove('water-seat','shadow-seat');
     els.playerSeat.classList.add('fire-seat');
     els.playerSeatName.textContent='Fire Court';
@@ -4230,6 +4307,15 @@
     return moods[kind] || defaultSeatMood(player,game?.mode || 'ai');
   }
   function seatForPlayer(player){
+    if(game?.mode==='online'){
+      return Number(player)===actualLocalPlayer() ? {
+        seat:els.playerSeat,
+        line:els.playerSeatLine
+      } : {
+        seat:els.enemySeat,
+        line:els.enemySeatLine
+      };
+    }
     return player===1 ? {
       seat:els.playerSeat,
       line:els.playerSeatLine
@@ -4239,7 +4325,7 @@
     };
   }
   function reactionLine(player,kind,text=''){
-    const isPlayer=player===1;
+    const isPlayer=game?.mode==='online' ? Number(player)===actualLocalPlayer() : player===1;
     if(kind==='gate') return isPlayer ? 'Oww wow, gate!' : 'Gate! Nice move';
     if(kind==='capture') return isPlayer ? 'Wow! Land ours!' : 'Opponent claims!';
     if(kind==='gold') return isPlayer ? 'Gold sparkle!' : 'Gold taken!';
@@ -4332,7 +4418,7 @@
     if(game?.mode!=='online') return false;
     if(!networkOnline) return true;
     const status=game.roomStatus || '';
-    return /offline|reconnect/i.test(status) || (game.localPlayer===1 && /waiting/i.test(status));
+    return /offline|reconnect/i.test(status) || (actualLocalPlayer()===1 && /waiting/i.test(status));
   }
   function onlineWaitMessage(){
     if(!networkOnline) return 'You are offline. Reconnect to continue.';
@@ -4360,7 +4446,7 @@
     const reactionText=chainActive ? 'Chain x'+game.chains[player] : (gold ? 'Gold sparkle!' : 'Territory +'+gained);
     kingdomSeatReact(player,chainActive?'chain':(gold?'gold':'capture'),reactionText);
     if(gold && chainActive) seatForPlayer(player).seat?.classList.add('gold');
-    if(player===2 && gained) kingdomSeatReact(1,'alert','OMG, defend!');
+    if(gained && ((game?.mode==='online' && Number(player)!==actualLocalPlayer()) || (game?.mode!=='online' && player===2))) kingdomSeatReact(game?.mode==='online'?actualLocalPlayer():1,'alert','OMG, defend!');
     const maxCoins=mobilePerfMode()?2:4;
     centers.slice(0,maxCoins).forEach((pt,idx)=>flyCoin(pt, player, idx, captured[idx]?.coin));
     const sparkCount = mobilePerfMode() ? (gold ? 3 : (chainActive ? 2 : 0)) : (gold ? 8 : (chainActive ? 6 : 0));
@@ -4378,7 +4464,7 @@
     coin.style.left=(pt.x/900*100)+'%';
     coin.style.top=(pt.y/900*100)+'%';
     const boardRect=els.boardWrap.getBoundingClientRect();
-    const targetEl = player===1 ? els.runGold.closest('.pill') : els.p2Score.closest('.score-box');
+    const targetEl = (game?.mode==='online' ? Number(player)===actualLocalPlayer() : player===1) ? els.runGold.closest('.pill') : els.p2Score.closest('.score-box');
     const target=targetEl.getBoundingClientRect();
     const startX=pt.x/900*boardRect.width, startY=pt.y/900*boardRect.height;
     const tx=(target.left+target.width/2-boardRect.left-startX) + (idx%3-1)*8;
@@ -4420,9 +4506,9 @@
     };
     const item=emotions[kind] || emotions.wow;
     if(game && !game.over && els.playerSeat && els.enemySeat){
-      const opponentSignal = /opponent/i.test(item[1]) || (kind==='late' && game.current===2);
+      const opponentSignal = /opponent/i.test(item[1]) || (kind==='late' && (game.mode==='online' ? game.current!==actualLocalPlayer() : game.current===2));
       const seatKind = kind==='chain' ? 'chain' : (kind==='offline' || kind==='oops' ? 'alert' : (kind==='reconnect' ? 'capture' : 'gate'));
-      kingdomSeatReact(opponentSignal ? 2 : 1, seatKind, item[1]);
+      kingdomSeatReact(opponentSignal ? (game.mode==='online' ? actualOpponentPlayer() : 2) : (game.mode==='online' ? actualLocalPlayer() : 1), seatKind, item[1]);
       return;
     }
     showEmojiPopup(item[0],item[1],item[2]);
@@ -4615,11 +4701,12 @@
     if(!els.resultCourt || !els.resultKing || !els.resultQueen || !els.resultCourtText) return;
     const player = localWin ? winner : (winner===1 ? 2 : 1);
     const icons=courtIconsFor(player), mood=reactionMood(localWin?'win':'loss',player);
+    const name=game?.mode==='online' ? displayNameForActualPlayer(player) : courtNameFor(player);
     els.resultCourt.classList.remove('win','loss');
     els.resultCourt.classList.add(localWin?'win':'loss');
     els.resultKing.textContent=icons[0]+mood[0];
     els.resultQueen.textContent=icons[1]+mood[1];
-    els.resultCourtText.textContent=localWin ? 'Woohoo! '+courtNameFor(player)+' celebrates' : 'Oww... '+courtNameFor(player)+' feels the loss';
+    els.resultCourtText.textContent=localWin ? 'Woohoo! '+name+' celebrates' : 'Oww... '+name+' feels the loss';
   }
   function endReaction(win,winner=win?1:2){
     const loser=winner===1?2:1;
@@ -4650,16 +4737,23 @@
     const mode=game.mode || 'ai';
     if(mode==='tutorial') els.stageName.textContent='Stage 0: Teaching Demo';
     else if(mode==='twoPlayer') els.stageName.textContent='Offline 2 Players';
-    else if(mode==='online') els.stageName.textContent='Room '+game.roomCode;
+    else if(mode==='online') els.stageName.textContent='Online Duel';
     else if(mode==='masterAI') els.stageName.textContent='Master AI Duel';
     else els.stageName.textContent='Stage '+st.id+': '+st.name;
     if(mode==='tutorial') els.stageTarget.textContent='Learn lines, gold, stars, diamonds';
-    else if(mode==='twoPlayer' || mode==='online') els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes, no AI';
+    else if(mode==='online') els.stageTarget.textContent=displayNameForActualPlayer(actualLocalPlayer())+' vs '+displayNameForActualPlayer(actualOpponentPlayer())+' · Room '+game.roomCode;
+    else if(mode==='twoPlayer') els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes, no AI';
     else if(mode==='masterAI') els.stageTarget.textContent='Master Entry '+MASTER_AI_STAKE+' gold. Win '+majorityNeeded(st)+' boxes';
     else els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes · 3★: '+st.target.text+(game.objectiveDone?' ✓':'');
-    els.runGold.textContent=game.coins[1];
-    els.p1Score.textContent=game.scores[1]; els.p2Score.textContent=game.scores[2];
-    els.opponentLabel.textContent=(mode==='twoPlayer'||mode==='online')?'P2 Boxes':(mode==='tutorial'?'Guide Boxes':(mode==='masterAI'?'Master Boxes':'AI Boxes'));
+    els.runGold.textContent=mode==='online' ? game.coins[actualLocalPlayer()] : game.coins[1];
+    const scores=displayScores();
+    els.p1Score.textContent=scores.left;
+    els.p2Score.textContent=scores.right;
+    els.p1Label.textContent=scores.leftLabel;
+    els.opponentLabel.textContent=scores.rightLabel;
+    const leftBox=els.p1Score.closest('.score-box'), rightBox=els.p2Score.closest('.score-box');
+    leftBox?.classList.toggle('me-box', mode==='online');
+    rightBox?.classList.toggle('opp-box', mode==='online');
     if(game.over) els.turnText.textContent='Done';
     else if(mode==='tutorial') els.turnText.textContent='Your turn';
     else if(mode==='twoPlayer') els.turnText.textContent=game.current===1?'P1 turn':'P2 turn';
@@ -4668,7 +4762,7 @@
     else els.turnText.textContent=game.aiBusy?'AI move':(game.current===1?'Your turn':'AI turn');
     if(mode==='tutorial') els.balanceText.textContent='Stage 0';
     else if(mode==='twoPlayer') els.balanceText.textContent='Local duel';
-    else if(mode==='online') els.balanceText.textContent=game.roomStatus || 'Private room';
+    else if(mode==='online') els.balanceText.textContent=onlineWaiting() ? (game.roomStatus || 'Waiting') : (game.current===actualLocalPlayer() ? 'Your move' : 'Opponent move');
     else if(mode==='masterAI') els.balanceText.textContent='You '+Number(game.masterStake?.player||0)+' / Master '+MASTER_AI_STAKE;
     else els.balanceText.textContent='AI '+Math.round(st.aiSkill*100)+'%';
     updateTurnBanner(mode);
