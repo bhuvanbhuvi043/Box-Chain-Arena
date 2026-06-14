@@ -404,6 +404,7 @@ export const registerProfile = callable(async (request) => {
   const result = await db.ref().transaction((root) => {
     root = cleanObject(root);
     root.nicknames = cleanObject(root.nicknames);
+    root.profileClaims = cleanObject(root.profileClaims);
     root.privateProfiles = cleanObject(root.privateProfiles);
     root.publicProfiles = cleanObject(root.publicProfiles);
     const claimedBy = root.nicknames[lower];
@@ -418,6 +419,7 @@ export const registerProfile = callable(async (request) => {
     }
     const timestamp = now();
     root.nicknames[lower] = uid;
+    root.profileClaims[uid] = lower;
     root.privateProfiles[uid] = existing || {
       uid,
       email,
@@ -464,6 +466,7 @@ export const migrateLegacyProfile = callable(async (request) => {
   const result = await db.ref().transaction((root) => {
     root = cleanObject(root);
     root.nicknames = cleanObject(root.nicknames);
+    root.profileClaims = cleanObject(root.profileClaims);
     root.privateProfiles = cleanObject(root.privateProfiles);
     root.publicProfiles = cleanObject(root.publicProfiles);
     if (root.nicknames[lower] && root.nicknames[lower] !== uid) {
@@ -472,6 +475,7 @@ export const migrateLegacyProfile = callable(async (request) => {
     }
     const timestamp = now();
     root.nicknames[lower] = uid;
+    root.profileClaims[uid] = lower;
     root.privateProfiles[uid] = root.privateProfiles[uid] || {
       uid,
       email,
@@ -985,6 +989,7 @@ export const deleteAccount = callable(async (request) => {
   updates[`userSentInvites/${uid}`] = null;
   updates[`userReports/${uid}`] = null;
   updates[`rateLimits/${uid}`] = null;
+  updates[`profileClaims/${uid}`] = null;
   if (nicknameLower) updates[`nicknames/${nicknameLower}`] = null;
   await db.ref().update(updates);
   await auth.deleteUser(uid);

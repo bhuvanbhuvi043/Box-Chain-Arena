@@ -541,6 +541,7 @@
     onDisconnect,
     off,
     remove,
+    runTransaction,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
@@ -602,6 +603,7 @@
     onDisconnect,
     off,
     remove,
+    runTransaction,
     serverTimestamp,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -727,6 +729,7 @@
   };
   const DUEL_STAGE_COUNT = 100;
   const SUPPORT_EMAIL = 'bhuvanbhuvi043@gmail.com';
+  const PENDING_NICKNAME_PREFIX = 'bcaPendingNickname:';
   const PUBLIC_PAGES = {
     privacy: './privacy_policy.html',
     deletion: './account_deletion.html',
@@ -1707,7 +1710,8 @@
   function openAuth(mode='register'){
     authFlowActive=true;
     closePortal();
-    setAuthMode(mode);
+    const fb=firebaseApi();
+    setAuthMode(mode==='login' && fb?.user?.emailVerified && !playerProfile ? 'recover' : mode);
     els.authMsg.textContent='';
     els.authModal.classList.add('show');
     requestAnimationFrame(()=>els.authModal.querySelector('.modal-box')?.scrollTo(0,0));
@@ -1733,13 +1737,19 @@
   }
   function setAuthMode(mode){
     authMode=mode;
+    const recovering=mode==='recover';
     els.registerTab.classList.toggle('active', mode==='register');
-    els.loginTab.classList.toggle('active', mode==='login');
-    els.authTitle.textContent=mode==='register'?'Register Player':'Login Player';
-    els.authSubmitBtn.textContent=mode==='register'?'Create Player':'Login';
-    els.authNickname.style.display=mode==='register'?'block':'none';
+    els.loginTab.classList.toggle('active', mode==='login' || recovering);
+    els.authTitle.textContent=mode==='register'?'Register Player':(recovering?'Restore Player Profile':'Login Player');
+    els.authSubmitBtn.textContent=mode==='register'?'Create Player':(recovering?'Restore Profile':'Login');
+    els.authNickname.style.display=mode==='register' || recovering?'block':'none';
+    els.authEmail.style.display=recovering?'none':'block';
+    const passwordField=els.authPassword.closest('.password-field');
+    if(passwordField) passwordField.style.display=recovering?'none':'grid';
+    const tabs=els.registerTab.closest('.auth-tabs');
+    if(tabs) tabs.style.display=recovering?'none':'grid';
     els.authPassword.autocomplete=mode==='register'?'new-password':'current-password';
-    els.forgotPasswordBtn.classList.toggle('hidden', mode!=='login');
+    els.forgotPasswordBtn.classList.toggle('hidden', mode!=='login' || recovering);
     els.resendVerificationBtn.classList.add('hidden');
     setPasswordVisible(false);
   }
@@ -1754,6 +1764,10 @@
     els.authPassword.focus();
   }
   async function submitAuth(){
+    if(authMode==='recover'){
+      await recoverPlayerProfile(els.authNickname.value.trim());
+      return;
+    }
     const email=els.authEmail.value.trim();
     const password=els.authPassword.value;
     const nickname=els.authNickname.value.trim();
@@ -1771,7 +1785,7 @@
     let result=null;
     try{
       result=await fb.createUserWithEmailAndPassword(fb.auth,email,password);
-      await fb.callFunction('registerProfile',{nickname});
+      localStorage.setItem(PENDING_NICKNAME_PREFIX+email.toLowerCase(),nickname);
       await fb.sendEmailVerification(result.user);
       await fb.signOut(fb.auth);
       currentUser=null;
@@ -1779,7 +1793,7 @@
       setAuthMode('login');
       els.authEmail.value=email;
       els.authPassword.value='';
-      els.authMsg.textContent='Account created. Open the verification email, then return here and log in.';
+      els.authMsg.textContent='Account created. Verify your email, then log in to finish your player profile.';
     } catch(e){
       console.warn('Register failed:', e);
       if(result?.user){
@@ -1812,7 +1826,12 @@
           playerProfile=await loadPlayerProfile(result.user.uid);
         } catch(migrationError){}
       }
-      if(!playerProfile){ els.authMsg.textContent='Player profile is missing. Contact support to restore this account.'; return; }
+      if(!playerProfile){
+        els.authNickname.value=await recoveryNicknameSuggestion(result.user.uid,email);
+        setAuthMode('recover');
+        els.authMsg.textContent='Your login is valid, but its player profile needs restoration. Confirm or choose a nickname.';
+        return;
+      }
       hydrateSaveFromProfile(playerProfile);
       await setPlayerOnline();
       startPresence();
@@ -1824,6 +1843,92 @@
     } catch(e){
       console.warn('Login failed:', e);
       els.authMsg.textContent=authErrorText(e);
+    }
+  }
+  async function recoveryNicknameSuggestion(uid,email){
+    const pending=localStorage.getItem(PENDING_NICKNAME_PREFIX+String(email||'').toLowerCase()) || '';
+    if(validNickname(pending)) return pending;
+    const fb=firebaseApi();
+    try{
+      const legacy=await fb.get(fb.ref(fb.db,'players/'+uid));
+      const nickname=String(legacy.val()?.nickname||'').trim();
+      if(validNickname(nickname)) return nickname;
+    } catch(e){}
+    return '';
+  }
+  function callableUnavailable(error){
+    const code=String(error?.code||'').toLowerCase();
+    const message=String(error?.message||'').toLowerCase();
+    return code.includes('not-found') || code.includes('unavailable') || message.includes('404');
+  }
+  async function recoverPlayerProfile(nickname){
+    if(!validNickname(nickname)){ els.authMsg.textContent='Nickname: 3-15 letters, numbers, underscore.'; return; }
+    const fb=await waitFirebaseSdk();
+    const user=fb?.user;
+    if(!user?.emailVerified){ els.authMsg.textContent='Verify your email before restoring the player profile.'; return; }
+    els.authMsg.textContent='Restoring your secure player profile...';
+    try{
+      try{
+        await fb.callFunction('registerProfile',{nickname});
+      } catch(functionError){
+        if(!callableUnavailable(functionError)) throw functionError;
+        await createProfileWithoutFunction(fb,user,nickname);
+      }
+      playerProfile=await loadPlayerProfile(user.uid);
+      if(!playerProfile) throw Object.assign(new Error('Profile restoration did not finish.'),{code:'profile-restore-failed'});
+      currentUser={uid:user.uid,email:user.email,isGuest:false};
+      localStorage.removeItem(PENDING_NICKNAME_PREFIX+String(user.email||'').toLowerCase());
+      hydrateSaveFromProfile(playerProfile);
+      await setPlayerOnline();
+      startPresence();
+      await loadBlockedPlayers();
+      listenInvites();
+      closeAuth();
+      enterMap();
+      completeAuthReturn();
+      showToast('Player profile restored');
+    } catch(e){
+      console.warn('Profile restoration failed:',e);
+      els.authMsg.textContent=authErrorText(e);
+    }
+  }
+  async function createProfileWithoutFunction(fb,user,nickname){
+    const uid=user.uid, lower=nicknameKey(nickname);
+    const claimRef=fb.ref(fb.db,'profileClaims/'+uid);
+    const nicknameRef=fb.ref(fb.db,'nicknames/'+lower);
+    let claimCreated=false, nicknameClaimed=false;
+    try{
+      const claim=await fb.runTransaction(claimRef,current=>{
+        if(current && current!==lower) return;
+        return lower;
+      },{applyLocally:false});
+      if(!claim.committed || claim.snapshot.val()!==lower){
+        throw Object.assign(new Error('This account already has another nickname claim.'),{code:'already-exists'});
+      }
+      claimCreated=true;
+      const reservation=await fb.runTransaction(nicknameRef,current=>{
+        if(current && current!==uid) return;
+        return uid;
+      },{applyLocally:false});
+      if(!reservation.committed || reservation.snapshot.val()!==uid){
+        throw Object.assign(new Error('Nickname is already taken.'),{code:'already-exists'});
+      }
+      nicknameClaimed=true;
+      const now=Date.now();
+      await fb.update(fb.ref(fb.db),{
+        ['privateProfiles/'+uid]:{
+          uid,email:String(user.email||'').toLowerCase(),nickname,nicknameLower:lower,
+          challengePoints:100,wins:0,losses:0,totalMatches:0,createdAt:now,updatedAt:now
+        },
+        ['publicProfiles/'+uid]:{
+          uid,nickname,nicknameLower:lower,status:'offline',lastSeen:now,
+          wins:0,losses:0,totalMatches:0
+        }
+      });
+    } catch(e){
+      if(nicknameClaimed) try{ await fb.remove(nicknameRef); } catch(cleanupError){}
+      if(claimCreated) try{ await fb.remove(claimRef); } catch(cleanupError){}
+      throw e;
     }
   }
   async function forgotPassword(){
@@ -1864,6 +1969,7 @@
     if(code.includes('invalid-credential') || code.includes('wrong-password')) return 'Email or password is wrong.';
     if(code.includes('weak-password')) return 'Password is too weak.';
     if(code.includes('permission-denied')) return 'Database rules blocked this action.';
+    if(code.includes('profile-restore-failed')) return 'Profile restoration did not finish. Check the connection and try again.';
     return 'Firebase auth failed: '+(code || message || 'Check setup and try again.');
   }
   async function loadPlayerProfile(uid){
@@ -1983,6 +2089,10 @@
       await loadBlockedPlayers();
       listenInvites();
       els.welcomeMsg.textContent='Welcome back, '+profile.nickname+'.';
+    } else {
+      currentUser={uid:fb.user.uid,email:fb.user.email,isGuest:false};
+      playerProfile=null;
+      els.welcomeMsg.textContent='Your login is ready. Open Profile or Online to restore the missing player profile.';
     }
   }
   function syncProfileEconomy(){

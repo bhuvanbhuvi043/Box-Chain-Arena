@@ -49,9 +49,18 @@ beforeEach(async () => {
         alice: {
           uid: "alice",
           email: "alice@example.com",
-          challengePoints: 100
+          nickname: "Alice",
+          nicknameLower: "alice",
+          challengePoints: 100,
+          wins: 2,
+          losses: 1,
+          totalMatches: 3,
+          createdAt: 1,
+          updatedAt: 1
         }
       },
+      nicknames: {alice: "alice", bob: "bob"},
+      profileClaims: {alice: "alice", bob: "bob"},
       rooms: {
         "BOX-ABCDEF": {
           code: "BOX-ABCDEF",
@@ -71,7 +80,10 @@ after(async () => {
 });
 
 function verified(uid) {
-  return env.authenticatedContext(uid, {email_verified: true}).database();
+  return env.authenticatedContext(uid, {
+    email: `${uid}@example.com`,
+    email_verified: true
+  }).database();
 }
 
 test("public profile collection requires a verified account", async () => {
@@ -138,4 +150,48 @@ test("public stats and nickname are immutable from the client", async () => {
   await assertFails(profileRef.set({...snapshot.val(), nickname: "Impersonated"}));
   await assertSucceeds(profileRef.set({...snapshot.val(), status: "online", lastSeen: Date.now()}));
   assert.equal((await profileRef.get()).val().wins, 2);
+});
+
+test("a verified account can recover only a new zeroed profile", async () => {
+  const charlie = verified("charlie");
+  await assertSucceeds(charlie.ref("profileClaims/charlie").set("charlie"));
+  await assertSucceeds(charlie.ref("nicknames/charlie").set("charlie"));
+  const timestamp = Date.now();
+  await assertSucceeds(charlie.ref().update({
+    "privateProfiles/charlie": {
+      uid: "charlie",
+      email: "charlie@example.com",
+      nickname: "Charlie",
+      nicknameLower: "charlie",
+      challengePoints: 100,
+      wins: 0,
+      losses: 0,
+      totalMatches: 0,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    },
+    "publicProfiles/charlie": {
+      uid: "charlie",
+      nickname: "Charlie",
+      nicknameLower: "charlie",
+      status: "offline",
+      lastSeen: timestamp,
+      wins: 0,
+      losses: 0,
+      totalMatches: 0
+    }
+  }));
+  await assertFails(charlie.ref("privateProfiles/charlie/challengePoints").set(999));
+});
+
+test("profile recovery rejects unverified accounts and duplicate nicknames", async () => {
+  const unverified = env.authenticatedContext("charlie", {
+    email: "charlie@example.com",
+    email_verified: false
+  }).database();
+  await assertFails(unverified.ref("profileClaims/charlie").set("charlie"));
+
+  const charlie = verified("charlie");
+  await assertSucceeds(charlie.ref("profileClaims/charlie").set("bob"));
+  await assertFails(charlie.ref("nicknames/bob").set("charlie"));
 });

@@ -6,17 +6,25 @@
       ".read": "auth != null && auth.token.email_verified == true",
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid && data.exists() && newData.exists() && newData.child('uid').val() == data.child('uid').val() && newData.child('nickname').val() == data.child('nickname').val() && newData.child('nicknameLower').val() == data.child('nicknameLower').val() && newData.child('wins').val() == data.child('wins').val() && newData.child('losses').val() == data.child('losses').val() && newData.child('totalMatches').val() == data.child('totalMatches').val()",
-        ".validate": "newData.hasChildren(['uid','nickname','nicknameLower','status','lastSeen','wins','losses','totalMatches']) && newData.child('uid').isString() && newData.child('uid').val() == $uid && newData.child('nickname').isString() && newData.child('nickname').val().length >= 3 && newData.child('nickname').val().length <= 15 && newData.child('status').isString() && (newData.child('status').val() == 'online' || newData.child('status').val() == 'offline') && newData.child('lastSeen').isNumber() && newData.child('wins').isNumber() && newData.child('wins').val() >= 0 && newData.child('losses').isNumber() && newData.child('losses').val() >= 0 && newData.child('totalMatches').isNumber() && newData.child('totalMatches').val() >= 0"
+        ".write": "auth != null && auth.uid == $uid && auth.token.email_verified == true && newData.exists() && ((!data.exists() && newData.child('uid').val() == auth.uid && newData.child('wins').val() == 0 && newData.child('losses').val() == 0 && newData.child('totalMatches').val() == 0 && root.child('nicknames').child(newData.child('nicknameLower').val()).val() == auth.uid && root.child('profileClaims').child(auth.uid).val() == newData.child('nicknameLower').val()) || (data.exists() && newData.child('uid').val() == data.child('uid').val() && newData.child('nickname').val() == data.child('nickname').val() && newData.child('nicknameLower').val() == data.child('nicknameLower').val() && newData.child('wins').val() == data.child('wins').val() && newData.child('losses').val() == data.child('losses').val() && newData.child('totalMatches').val() == data.child('totalMatches').val()))",
+        ".validate": "newData.hasChildren(['uid','nickname','nicknameLower','status','lastSeen','wins','losses','totalMatches']) && newData.child('uid').isString() && newData.child('uid').val() == $uid && newData.child('nickname').isString() && newData.child('nickname').val().matches(/^[A-Za-z0-9_]{3,15}$/) && newData.child('nicknameLower').isString() && newData.child('nicknameLower').val().matches(/^[a-z0-9_]{3,15}$/) && newData.child('status').isString() && (newData.child('status').val() == 'online' || newData.child('status').val() == 'offline') && newData.child('lastSeen').isNumber() && newData.child('wins').isNumber() && newData.child('wins').val() >= 0 && newData.child('losses').isNumber() && newData.child('losses').val() >= 0 && newData.child('totalMatches').isNumber() && newData.child('totalMatches').val() >= 0"
       }
     },
     "privateProfiles": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid && auth.token.email_verified == true && !data.exists() && newData.exists() && newData.child('uid').val() == auth.uid && newData.child('email').val() == auth.token.email && newData.child('challengePoints').val() == 100 && newData.child('wins').val() == 0 && newData.child('losses').val() == 0 && newData.child('totalMatches').val() == 0 && root.child('nicknames').child(newData.child('nicknameLower').val()).val() == auth.uid && root.child('profileClaims').child(auth.uid).val() == newData.child('nicknameLower').val()",
+        ".validate": "newData.hasChildren(['uid','email','nickname','nicknameLower','challengePoints','wins','losses','totalMatches','createdAt','updatedAt']) && newData.child('uid').val() == $uid && newData.child('email').isString() && newData.child('nickname').isString() && newData.child('nickname').val().matches(/^[A-Za-z0-9_]{3,15}$/) && newData.child('nicknameLower').isString() && newData.child('nicknameLower').val().matches(/^[a-z0-9_]{3,15}$/) && newData.child('challengePoints').isNumber() && newData.child('challengePoints').val() >= 0 && newData.child('wins').isNumber() && newData.child('wins').val() >= 0 && newData.child('losses').isNumber() && newData.child('losses').val() >= 0 && newData.child('totalMatches').isNumber() && newData.child('totalMatches').val() >= 0 && newData.child('createdAt').isNumber() && newData.child('updatedAt').isNumber()",
         "progress": {
           ".write": "auth != null && auth.uid == $uid",
           ".validate": "newData.hasChildren(['stars','cleared','guideSeen','onlineGuideSeen','tutorialDone','updatedAt']) && newData.child('stars').isNumber() && newData.child('stars').val() >= 0 && newData.child('stars').val() <= 300 && newData.child('cleared').isNumber() && newData.child('cleared').val() >= 0 && newData.child('cleared').val() <= 100 && newData.child('guideSeen').isBoolean() && newData.child('onlineGuideSeen').isBoolean() && newData.child('tutorialDone').isBoolean() && newData.child('updatedAt').isNumber()"
         }
+      }
+    },
+    "profileClaims": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid && auth.token.email_verified == true && ((!data.exists() && newData.isString() && newData.val().matches(/^[a-z0-9_]{3,15}$/)) || (data.exists() && newData.val() == data.val()) || (data.exists() && !newData.exists() && !root.child('privateProfiles').child(auth.uid).exists() && !root.child('publicProfiles').child(auth.uid).exists()))"
       }
     },
     "online": {
@@ -57,10 +65,19 @@
         ".read": "auth != null && auth.uid == $uid"
       }
     },
-    "nicknames": {},
+    "nicknames": {
+      "$nickname": {
+        ".write": "auth != null && auth.token.email_verified == true && $nickname.matches(/^[a-z0-9_]{3,15}$/) && root.child('profileClaims').child(auth.uid).val() == $nickname && ((!data.exists() && newData.val() == auth.uid) || (data.val() == auth.uid && newData.val() == auth.uid) || (data.val() == auth.uid && !newData.exists() && !root.child('privateProfiles').child(auth.uid).exists() && !root.child('publicProfiles').child(auth.uid).exists()))",
+        ".validate": "!newData.exists() || (newData.isString() && newData.val() == auth.uid)"
+      }
+    },
     "reports": {},
     "rateLimits": {},
     "guestPlayers": {},
-    "players": {}
+    "players": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid && auth.token.email_verified == true"
+      }
+    }
   }
 }
