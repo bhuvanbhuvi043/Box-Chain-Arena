@@ -1,0 +1,66 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "publicProfiles": {
+      ".read": "auth != null && auth.token.email_verified == true",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid && data.exists() && newData.exists() && newData.child('uid').val() == data.child('uid').val() && newData.child('nickname').val() == data.child('nickname').val() && newData.child('nicknameLower').val() == data.child('nicknameLower').val() && newData.child('wins').val() == data.child('wins').val() && newData.child('losses').val() == data.child('losses').val() && newData.child('totalMatches').val() == data.child('totalMatches').val()",
+        ".validate": "newData.hasChildren(['uid','nickname','nicknameLower','status','lastSeen','wins','losses','totalMatches']) && newData.child('uid').isString() && newData.child('uid').val() == $uid && newData.child('nickname').isString() && newData.child('nickname').val().length >= 3 && newData.child('nickname').val().length <= 15 && newData.child('status').isString() && (newData.child('status').val() == 'online' || newData.child('status').val() == 'offline') && newData.child('lastSeen').isNumber() && newData.child('wins').isNumber() && newData.child('wins').val() >= 0 && newData.child('losses').isNumber() && newData.child('losses').val() >= 0 && newData.child('totalMatches').isNumber() && newData.child('totalMatches').val() >= 0"
+      }
+    },
+    "privateProfiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "progress": {
+          ".write": "auth != null && auth.uid == $uid",
+          ".validate": "newData.hasChildren(['stars','cleared','guideSeen','onlineGuideSeen','tutorialDone','updatedAt']) && newData.child('stars').isNumber() && newData.child('stars').val() >= 0 && newData.child('stars').val() <= 300 && newData.child('cleared').isNumber() && newData.child('cleared').val() >= 0 && newData.child('cleared').val() <= 100 && newData.child('guideSeen').isBoolean() && newData.child('onlineGuideSeen').isBoolean() && newData.child('tutorialDone').isBoolean() && newData.child('updatedAt').isNumber()"
+        }
+      }
+    },
+    "online": {
+      ".read": "auth != null && auth.token.email_verified == true",
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid && root.child('publicProfiles').child($uid).exists()",
+        ".validate": "!newData.exists() || (newData.hasChildren(['nickname','status','lastSeen']) && newData.child('nickname').val() == root.child('publicProfiles').child($uid).child('nickname').val() && newData.child('status').isString() && (newData.child('status').val() == 'online' || newData.child('status').val() == 'offline') && newData.child('lastSeen').isNumber())"
+      }
+    },
+    "rooms": {
+      ".indexOn": ["status", "updatedAt"],
+      "$code": {
+        ".read": "auth != null && (data.child('players/p1').val() == auth.uid || data.child('players/p2').val() == auth.uid)",
+        "connections": {
+          "$role": {
+            ".write": "auth != null && (($role == 'p1' && root.child('rooms').child($code).child('players/p1').val() == auth.uid) || ($role == 'p2' && root.child('rooms').child($code).child('players/p2').val() == auth.uid))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['online','uid','nickname','lastSeen']) && newData.child('uid').val() == auth.uid && newData.child('online').isBoolean() && newData.child('nickname').val() == root.child('publicProfiles').child(auth.uid).child('nickname').val() && newData.child('lastSeen').isNumber())"
+          }
+        }
+      }
+    },
+    "invites": {
+      "$receiverUid": {
+        ".read": "auth != null && auth.uid == $receiverUid",
+        "$inviteId": {
+          ".read": "auth != null && (auth.uid == $receiverUid || data.child('fromUid').val() == auth.uid)"
+        }
+      }
+    },
+    "matches": {
+      ".indexOn": ["p1Uid", "p2Uid", "finishedAt"],
+      "$matchId": {
+        ".read": "auth != null && (data.child('p1Uid').val() == auth.uid || data.child('p2Uid').val() == auth.uid)"
+      }
+    },
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid"
+      }
+    },
+    "nicknames": {},
+    "reports": {},
+    "rateLimits": {},
+    "guestPlayers": {},
+    "players": {}
+  }
+}

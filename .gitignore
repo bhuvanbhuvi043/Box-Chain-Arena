@@ -1,0 +1,9 @@
+node_modules/
+functions/node_modules/
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+*.log
+.env
+.env.*
+!functions/.env.box-chain-arena

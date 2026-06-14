@@ -1,0 +1,10 @@
+{
+  "name": "box-chain-arena",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:pages": "node scripts/sync-pages.mjs",
+    "check:public": "node scripts/check-project.mjs",
+    "check": "npm run check:public && npm --prefix functions run check"
+  }
+}
