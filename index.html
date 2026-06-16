@@ -186,11 +186,11 @@
       body{overflow-x:hidden;overflow-y:auto}.screen{width:100%;padding:10px 8px 28px}.map-head{display:block}.wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;margin-top:10px;width:100%}.wallet .pill,.wallet .map-menu{min-width:0;width:100%}.wallet .pill{justify-content:center}.map-menu{position:static}.map-menu-panel{left:0;right:0;top:calc(100% + 8px);width:100%;max-height:min(68svh,520px);grid-template-columns:1fr 1fr}.map-menu-panel button{min-height:52px}.brand h1{font-size:28px}.brand p{font-size:13px}.map-grid{grid-template-columns:1fr 1fr;gap:8px}.stage-card{min-height:154px;padding:11px}
       .modal{padding:10px}.modal-box{width:min(540px,100%);max-height:calc(100svh - 20px);padding:16px}
       .public-card h1{font-size:26px}.public-hero{padding:18px}.public-card .compliance-body{padding:14px 14px 2px}.public-card .compliance-actions{padding:0 14px 16px}.trust-summary{grid-template-columns:1fr}
-      .game-screen{padding:8px}.game-shell{gap:5px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto;min-height:48px}.score-hud{gap:5px;padding:5px;min-height:56px}.score-box{height:44px;padding:6px}.score-box strong{font-size:18px}.turn-box{height:44px;padding-top:6px;padding-bottom:6px}.kingdom-row{gap:5px;padding:5px;min-height:48px}.board-zone{align-items:stretch;padding:0}.board-wrap{width:100%;height:100%;max-width:720px;max-height:none;aspect-ratio:auto;margin-top:0}.kingdom-seat{width:100%;min-height:42px;padding:4px 6px;gap:5px;border-radius:10px;opacity:.96}.player-seat,.enemy-seat{inset:auto}.royal{width:21px;height:28px;font-size:21px}.royal.queen{width:20px;height:27px;font-size:20px}.seat-copy b{font-size:9px}.seat-copy span{font-size:9px;max-width:none;min-height:11px;margin-top:2px}.tool-row{min-height:56px}.tool-row button{padding:8px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
+      .game-screen{padding:8px}.game-shell{gap:5px}.top-hud{grid-template-columns:auto minmax(0,1fr) auto;min-height:48px}.score-hud{gap:5px;padding:5px;min-height:56px}.score-box{height:44px;padding:6px}.score-box strong{font-size:18px}.turn-box{height:44px;padding-top:6px;padding-bottom:6px}.kingdom-row{gap:5px;padding:5px;min-height:48px}.board-zone{align-items:flex-start;padding:0}.board-wrap{width:min(100%,calc(100svh - 254px),720px);height:auto;max-width:720px;max-height:none;aspect-ratio:1/1;margin-top:0}.kingdom-seat{width:100%;min-height:42px;padding:4px 6px;gap:5px;border-radius:10px;opacity:.96}.player-seat,.enemy-seat{inset:auto}.royal{width:21px;height:28px;font-size:21px}.royal.queen{width:20px;height:27px;font-size:20px}.seat-copy b{font-size:9px}.seat-copy span{font-size:9px;max-width:none;min-height:11px;margin-top:2px}.tool-row{min-height:56px}.tool-row button{padding:8px 5px;font-size:11px}.guide-actions{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:54vh}
       .welcome-actions,.portal-actions,.online-choice-grid,.flow-footer,.compliance-actions{grid-template-columns:1fr}.portal-grid,.lobby-players{grid-template-columns:1fr}
     }
     @media(max-width:390px){
-      .wallet{grid-template-columns:repeat(2,minmax(0,1fr))}.map-grid{grid-template-columns:1fr}.board-wrap{width:100%;height:100%}
+      .wallet{grid-template-columns:repeat(2,minmax(0,1fr))}.map-grid{grid-template-columns:1fr}.board-wrap{width:min(100%,calc(100svh - 254px));height:auto;aspect-ratio:1/1}
       .map-menu-panel,.menu-submenu{grid-template-columns:1fr}
     }
     @media(prefers-reduced-motion:reduce){
@@ -1123,6 +1123,9 @@
   let drawLoopTimer = null;
   let fastDrawUntil = 0;
   let pointerDrawPending = false;
+  const BOARD_ZOOM_LEVELS = [1, 1.45, 1.9, 2.35];
+  const activeBoardPointers = new Map();
+  let boardGesture = null;
 
   function loadSave(){
     const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,onlineGuideSeen:false,tutorialDone:false};
@@ -1163,6 +1166,64 @@
     return data;
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+  function defaultBoardView(){
+    return {zoom:1,zoomMode:0,panX:0,panY:0};
+  }
+  function boardView(){
+    if(!game) return defaultBoardView();
+    if(!game.view) game.view=defaultBoardView();
+    game.view.zoom=clamp(Number(game.view.zoom || game.zoom || 1),BOARD_ZOOM_LEVELS[0],BOARD_ZOOM_LEVELS[BOARD_ZOOM_LEVELS.length-1]);
+    game.view.zoomMode=Number(game.view.zoomMode || game.zoomMode || 0);
+    game.view.panX=Number(game.view.panX || 0);
+    game.view.panY=Number(game.view.panY || 0);
+    game.zoom=Number(game.view.zoom.toFixed(2));
+    game.zoomMode=game.view.zoomMode;
+    return game.view;
+  }
+  function clampBoardPan(){
+    if(!game?.stage?.dots?.size) return;
+    const view=boardView();
+    const dots=game.stage._dotList || (game.stage._dotList=[...game.stage.dots.values()]);
+    const stats=game.stage._dotStats || {
+      minR:Math.min(...dots.map(d=>d.r)),
+      maxR:Math.max(...dots.map(d=>d.r)),
+      minC:Math.min(...dots.map(d=>d.c)),
+      maxC:Math.max(...dots.map(d=>d.c))
+    };
+    const rows=stats.maxR-stats.minR || 1, cols=stats.maxC-stats.minC || 1;
+    const pad=72;
+    const baseScale=Math.min((canvas.width-pad*2)/cols,(canvas.height-pad*2)/rows);
+    const scale=baseScale*view.zoom;
+    const maxX=Math.max(0,((cols*scale)-canvas.width)/2 + scale*.55);
+    const maxY=Math.max(0,((rows*scale)-canvas.height)/2 + scale*.55);
+    view.panX=clamp(view.panX,-maxX,maxX);
+    view.panY=clamp(view.panY,-maxY,maxY);
+  }
+  function setBoardZoom(nextZoom, focus=null, announce=true){
+    if(!game) return;
+    const view=boardView();
+    const oldZoom=view.zoom || 1;
+    const next=clamp(nextZoom,BOARD_ZOOM_LEVELS[0],BOARD_ZOOM_LEVELS[BOARD_ZOOM_LEVELS.length-1]);
+    if(focus && oldZoom>0){
+      const ratio=next/oldZoom;
+      view.panX=focus.x-450-(focus.x-450-view.panX)*ratio;
+      view.panY=focus.y-450-(focus.y-450-view.panY)*ratio;
+    }
+    if(next===1){ view.panX=0; view.panY=0; }
+    view.zoom=next;
+    view.zoomMode=BOARD_ZOOM_LEVELS.reduce((best,level,index)=>Math.abs(level-next)<Math.abs(BOARD_ZOOM_LEVELS[best]-next)?index:best,0);
+    clampBoardPan();
+    invalidateBoardCache();
+    markFastDraw(600);
+    updateUI();
+    requestCanvasDraw();
+    if(announce) showToast(next===1 ? 'Normal board' : 'Zoom '+next.toFixed(2)+'x\nDrag empty space or pinch to move');
+  }
+  function resetBoardInteraction(){
+    activeBoardPointers.clear();
+    boardGesture=null;
+    if(game){ game.drag=null; game.panDrag=null; }
+  }
   function mobilePerfMode(){
     const mem = Number(navigator.deviceMemory || 4);
     const cores = Number(navigator.hardwareConcurrency || 4);
@@ -1449,6 +1510,7 @@
   }
 
   function startStage(id){
+    resetBoardInteraction();
     cancelIntroDemo();
     closeOnlineChannel();
     hideAccountModals();
@@ -1467,6 +1529,7 @@
     updateUI(); draw(); playSfx('start'); showStageCinematic(stage,goldBoost>1 ? 'Coin Burst active' : stage.target.text);
   }
   function startTeachingDemo(){
+    resetBoardInteraction();
     closeOnlineChannel();
     hideAccountModals();
     const stage = buildTutorialStage();
@@ -1480,6 +1543,7 @@
     setTimeout(()=>autoTutorialMove('h:0:0'),700);
   }
   function startTwoPlayerStage(){
+    resetBoardInteraction();
     cancelIntroDemo();
     closeOnlineChannel();
     hideAccountModals();
@@ -1495,6 +1559,7 @@
     updateUI(); ensureDrawLoop(); draw(); playSfx('start'); showStageCinematic(stage,'Local kingdom duel');
   }
   function startOnlineRoom(code, localPlayer, status, stageId=1){
+    resetBoardInteraction();
     hideAccountModals();
     setTeach('');
     localPlayer = Number(localPlayer)===2 ? 2 : 1;
@@ -1518,6 +1583,7 @@
     return true;
   }
   function startMasterAiDuel(){
+    resetBoardInteraction();
     const stake=challengeStakeAmount();
     if(!validateMasterStake(stake)) return;
     const stageId=1+Math.floor(Math.random()*DUEL_STAGE_COUNT);
@@ -1538,7 +1604,7 @@
     ensureDrawLoop();
     updateUI(); draw(); playSfx('challenge'); showStageCinematic(stage,'Shadow boss challenge');
   }
-  function backToMap(){ cancelIntroDemo(); stopDrawLoop(); closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.publicPageScreen.classList.add('hidden'); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); updateMusicTheme(); }
+  function backToMap(){ resetBoardInteraction(); cancelIntroDemo(); stopDrawLoop(); closeOnlineChannel(); document.body.classList.remove('playing'); delete document.body.dataset.boardTheme; setTeach(''); els.publicPageScreen.classList.add('hidden'); els.gameScreen.classList.add('hidden'); els.mapScreen.classList.remove('hidden'); els.resultModal.classList.remove('show'); els.guideModal.classList.remove('show'); els.shopModal.classList.remove('show'); els.onlineModal.classList.remove('show'); renderMap(); updateMusicTheme(); }
   function setTeach(text){
     if(!els.teachBanner) return;
     els.teachBanner.innerHTML=text;
@@ -2960,11 +3026,17 @@
       };
     }
     const {minR,maxR,minC,maxC}=stage._dotStats;
-    const zoom=game.zoom || 1;
-    const pad=zoom>1 ? 54 : 72;
+    const view=boardView();
+    const zoom=view.zoom || 1;
+    const pad=72;
     const rows=maxR-minR || 1, cols=maxC-minC || 1;
-    const scale=Math.min((canvas.width-pad*2)/cols,(canvas.height-pad*2)/rows);
-    game._metrics = {minR,maxR,minC,maxC,pad,scale,dotR:Math.max(12,scale*.078)*Math.min(1.6,zoom),hitR:Math.max(82,scale*.62)*zoom,lineW:Math.max(13,scale*.102)*Math.min(1.42,zoom)};
+    const baseScale=Math.min((canvas.width-pad*2)/cols,(canvas.height-pad*2)/rows);
+    const scale=baseScale*zoom;
+    const maxPanX=Math.max(0,((cols*scale)-canvas.width)/2 + scale*.55);
+    const maxPanY=Math.max(0,((rows*scale)-canvas.height)/2 + scale*.55);
+    view.panX=zoom===1 ? 0 : clamp(view.panX,-maxPanX,maxPanX);
+    view.panY=zoom===1 ? 0 : clamp(view.panY,-maxPanY,maxPanY);
+    game._metrics = {minR,maxR,minC,maxC,pad,baseScale,scale,zoom,panX:view.panX,panY:view.panY,dotR:Math.max(12,scale*.078),hitR:Math.max(76,scale*.48),lineW:Math.max(13,Math.min(30,scale*.102))};
     return game._metrics;
   }
   function ensureDrawLoop(){
@@ -2991,7 +3063,7 @@
   function dotPos(dot){
     const m=boardMetrics();
     const usedW=(m.maxC-m.minC)*m.scale, usedH=(m.maxR-m.minR)*m.scale;
-    const ox=(canvas.width-usedW)/2, oy=(canvas.height-usedH)/2;
+    const ox=(canvas.width-usedW)/2 + (m.panX || 0), oy=(canvas.height-usedH)/2 + (m.panY || 0);
     return {x:ox+(dot.c-m.minC)*m.scale, y:oy+(dot.r-m.minR)*m.scale};
   }
   function pointFromEvent(e){
@@ -4448,21 +4520,139 @@
     setTimeout(()=>wave.remove(),1300);
   }
 
+  function rememberBoardPointer(e){
+    activeBoardPointers.set(e.pointerId,{clientX:e.clientX,clientY:e.clientY,point:pointFromEvent(e)});
+  }
+  function releaseBoardPointer(e){
+    activeBoardPointers.delete(e.pointerId);
+    if(activeBoardPointers.size<2 && boardGesture?.type==='pinch') boardGesture=null;
+  }
+  function boardPointerPair(){
+    return [...activeBoardPointers.values()].slice(0,2);
+  }
+  function boardPinchInfo(){
+    const pair=boardPointerPair();
+    if(pair.length<2) return null;
+    const [a,b]=pair;
+    return {
+      dist:Math.max(1,Math.hypot(a.point.x-b.point.x,a.point.y-b.point.y)),
+      center:{x:(a.point.x+b.point.x)/2,y:(a.point.y+b.point.y)/2}
+    };
+  }
+  function startBoardPinch(){
+    const info=boardPinchInfo();
+    if(!info || !game) return;
+    const view=boardView();
+    game.drag=null;
+    game.panDrag=null;
+    boardGesture={type:'pinch',startDist:info.dist,startZoom:view.zoom,center:info.center,panX:view.panX,panY:view.panY};
+  }
+  function updateBoardPinch(){
+    if(!game) return;
+    if(!boardGesture || boardGesture.type!=='pinch') startBoardPinch();
+    const info=boardPinchInfo();
+    if(!info || !boardGesture) return;
+    const view=boardView();
+    const next=clamp(boardGesture.startZoom*(info.dist/boardGesture.startDist),BOARD_ZOOM_LEVELS[0],BOARD_ZOOM_LEVELS[BOARD_ZOOM_LEVELS.length-1]);
+    const ratio=next/boardGesture.startZoom;
+    view.zoom=next;
+    view.panX=info.center.x-450-(boardGesture.center.x-450-boardGesture.panX)*ratio;
+    view.panY=info.center.y-450-(boardGesture.center.y-450-boardGesture.panY)*ratio;
+    if(next===1){ view.panX=0; view.panY=0; }
+    game.zoom=Number(next.toFixed(2));
+    game.zoomMode=BOARD_ZOOM_LEVELS.reduce((best,level,index)=>Math.abs(level-next)<Math.abs(BOARD_ZOOM_LEVELS[best]-next)?index:best,0);
+    clampBoardPan();
+    invalidateBoardCache();
+    markFastDraw(260);
+    updateUI();
+    requestCanvasDraw();
+  }
+  function startBoardPan(p,pointerId){
+    if(!game || boardView().zoom<=1.01) return false;
+    const view=boardView();
+    game.panDrag={pointerId,start:p,panX:view.panX,panY:view.panY,moved:false};
+    canvas.setPointerCapture?.(pointerId);
+    return true;
+  }
+  function updateBoardPan(p){
+    if(!game?.panDrag) return false;
+    const view=boardView(), drag=game.panDrag;
+    view.panX=drag.panX + p.x-drag.start.x;
+    view.panY=drag.panY + p.y-drag.start.y;
+    drag.moved=drag.moved || Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>8;
+    clampBoardPan();
+    invalidateBoardCache();
+    markFastDraw(220);
+    requestCanvasDraw();
+    return true;
+  }
   function pointerDown(e){
     if(!game || game.over || game.aiBusy) return;
-    if(game.mode==='online' && onlineWaiting()){ playSfx('bad'); showToast(onlineWaitMessage()); return; }
-    if(!isHumanTurn()) return;
-    const p=pointFromEvent(e), d=nearestDot(p,1.35);
-    if(!d){ playSfx('bad'); showToast('Start closer to a dot'); return; }
-    game.drag={start:d,current:p}; canvas.setPointerCapture?.(e.pointerId); e.preventDefault(); markFastDraw(900); draw();
+    rememberBoardPointer(e);
+    canvas.setPointerCapture?.(e.pointerId);
+    if(activeBoardPointers.size>=2){
+      startBoardPinch();
+      e.preventDefault();
+      return;
+    }
+    const p=pointFromEvent(e);
+    if(game.mode==='online' && onlineWaiting()){
+      if(startBoardPan(p,e.pointerId)){ e.preventDefault(); return; }
+      releaseBoardPointer(e);
+      playSfx('bad'); showToast(onlineWaitMessage());
+      return;
+    }
+    if(!isHumanTurn()){
+      if(startBoardPan(p,e.pointerId)){ e.preventDefault(); return; }
+      releaseBoardPointer(e);
+      return;
+    }
+    const d=nearestDot(p,1.35);
+    if(!d){
+      if(startBoardPan(p,e.pointerId)){
+        e.preventDefault();
+        markFastDraw(400);
+        return;
+      }
+      releaseBoardPointer(e);
+      playSfx('bad'); showToast('Start closer to a dot');
+      return;
+    }
+    game.drag={start:d,current:p,pointerId:e.pointerId}; e.preventDefault(); markFastDraw(900); draw();
   }
-  function pointerMove(e){ if(!game || !game.drag) return; game.drag.current=pointFromEvent(e); e.preventDefault(); markFastDraw(220); requestCanvasDraw(); }
+  function pointerMove(e){
+    if(!game) return;
+    rememberBoardPointer(e);
+    if(activeBoardPointers.size>=2){
+      updateBoardPinch();
+      e.preventDefault();
+      return;
+    }
+    const p=pointFromEvent(e);
+    if(updateBoardPan(p)){ e.preventDefault(); return; }
+    if(!game.drag || game.drag.pointerId!==e.pointerId) return;
+    game.drag.current=p; e.preventDefault(); markFastDraw(220); requestCanvasDraw();
+  }
   function pointerUp(e){
-    if(!game || !game.drag) return;
+    if(!game){ releaseBoardPointer(e); return; }
+    if(boardGesture?.type==='pinch'){
+      releaseBoardPointer(e);
+      e.preventDefault();
+      return;
+    }
+    if(game.panDrag && game.panDrag.pointerId===e.pointerId){
+      const moved=game.panDrag.moved;
+      game.panDrag=null;
+      releaseBoardPointer(e);
+      e.preventDefault();
+      if(moved) showToast('Board moved');
+      return;
+    }
+    if(!game.drag || game.drag.pointerId!==e.pointerId){ releaseBoardPointer(e); return; }
     const p=pointFromEvent(e), end=nearestDot(p,1.25), preview=dragGatePreview(game.drag.start,p);
     let edge=moveFromDots(game.drag.start,end);
     if(!edge && preview && preview.progress>.24) edge=preview.edge;
-    game.drag=null; e.preventDefault(); markFastDraw(500);
+    game.drag=null; releaseBoardPointer(e); e.preventDefault(); markFastDraw(500);
     if(!edge){ playSfx('bad'); showToast('Draw to a nearby dot'); draw(); return; }
     if(edge.owner){ playSfx('bad'); showToast('Line already used'); draw(); return; }
     if(game.mode==='tutorial' && edge.key!==tutorialExpectedEdge()){ playSfx('bad'); showToast('Follow the glowing guide'); draw(); return; }
@@ -4847,7 +5037,8 @@
     else els.balanceText.textContent='AI '+Math.round(st.aiSkill*100)+'%';
     updateTurnBanner(mode);
     updateKingdomSeats(mode);
-    els.zoomBtn.textContent='🔎 '+game.zoom+'x';
+    const view=boardView();
+    els.zoomBtn.textContent='Zoom '+(view.zoom===1?'1':view.zoom.toFixed(2))+'x';
     if(mode==='tutorial') els.hintBtn.textContent='✨ Guide';
     else if(mode==='twoPlayer' || mode==='online' || mode==='masterAI') els.hintBtn.textContent='✨ Off';
     else {
@@ -4856,10 +5047,16 @@
     }
     els.restartBtn.textContent=game.moves>3 && mode==='ai' ? '↻ Retry '+RETRY_COST : '↻ Reset';
     if(mode==='ai' && save.inventory.retries>0 && game.moves>3) els.restartBtn.textContent='↻ Shield '+save.inventory.retries;
-    canvas.setAttribute('aria-label',st.name+'. '+scores.leftLabel+' '+scores.left+' boxes, '+scores.rightLabel+' '+scores.right+' boxes. '+els.turnText.textContent+'. Draw a line between adjacent dots using touch or pointer controls.');
+    canvas.setAttribute('aria-label',st.name+'. '+scores.leftLabel+' '+scores.left+' boxes, '+scores.rightLabel+' '+scores.right+' boxes. '+els.turnText.textContent+'. Draw a line between adjacent dots using touch or pointer controls. Use the zoom button or pinch gesture to enlarge the board.');
     updateMusicButtons();
   }
-  function cycleZoom(){ const levels=[1,1.3,1.6]; game.zoomMode=(game.zoomMode+1)%levels.length; game.zoom=levels[game.zoomMode]; invalidateBoardCache(); markFastDraw(450); updateUI(); draw(); showToast(game.zoom===1?'Normal touch':'Easy touch '+game.zoom+'x'); }
+  function cycleZoom(){
+    if(!game) return;
+    const view=boardView();
+    const current=BOARD_ZOOM_LEVELS.reduce((best,level,index)=>Math.abs(level-view.zoom)<Math.abs(BOARD_ZOOM_LEVELS[best]-view.zoom)?index:best,0);
+    const next=BOARD_ZOOM_LEVELS[(current+1)%BOARD_ZOOM_LEVELS.length];
+    setBoardZoom(next,{x:450,y:450});
+  }
   function hintCost(){ return game && game.stage.id>3 ? HINT_COST : 0; }
   function hint(){
     if(game?.mode==='tutorial'){
@@ -5387,6 +5584,17 @@
   canvas.addEventListener('pointermove',pointerMove);
   canvas.addEventListener('pointerup',pointerUp);
   canvas.addEventListener('pointercancel',pointerUp);
+  canvas.addEventListener('dblclick',e=>{
+    if(!game) return;
+    setBoardZoom(boardView().zoom>1.01 ? 1 : 1.9, pointFromEvent(e));
+    e.preventDefault();
+  });
+  canvas.addEventListener('wheel',e=>{
+    if(!game) return;
+    const factor=e.deltaY<0 ? 1.12 : .88;
+    setBoardZoom(boardView().zoom*factor, pointFromEvent(e), false);
+    e.preventDefault();
+  },{passive:false});
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   window.addEventListener('resize',()=>{ invalidateBoardCache(); markFastDraw(500); draw(); });
   document.addEventListener('visibilitychange',()=>{
