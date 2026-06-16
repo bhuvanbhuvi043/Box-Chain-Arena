@@ -1045,7 +1045,7 @@
     {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
     {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
-    {icon:'🔎', title:'Easy touch', text:'Use Zoom when dots feel tiny. Hints are free early, then cost a little gold.'}
+    {icon:'🔎', title:'Easy touch', text:'Use Zoom when dots feel tiny. One finger draws gates; use two fingers together to move a zoomed board.'}
   ];
   const ONLINE_GUIDE = [
     {icon:'1', title:'Online Duel', text:'Play with a friend using a room code, or challenge an online player.'},
@@ -1124,6 +1124,7 @@
   let fastDrawUntil = 0;
   let pointerDrawPending = false;
   const BOARD_ZOOM_LEVELS = [1, 1.45, 1.9, 2.35];
+  const GATE_COMMIT_PROGRESS = .58;
   const activeBoardPointers = new Map();
   let boardGesture = null;
 
@@ -1217,7 +1218,7 @@
     markFastDraw(600);
     updateUI();
     requestCanvasDraw();
-    if(announce) showToast(next===1 ? 'Normal board' : 'Zoom '+next.toFixed(2)+'x\nDrag empty space or pinch to move');
+    if(announce) showToast(next===1 ? 'Normal board' : 'Zoom '+next.toFixed(2)+'x\nUse two fingers together to move or pinch.\nOne finger draws gates.');
   }
   function resetBoardInteraction(){
     activeBoardPointers.clear();
@@ -4597,25 +4598,20 @@
     }
     const p=pointFromEvent(e);
     if(game.mode==='online' && onlineWaiting()){
-      if(startBoardPan(p,e.pointerId)){ e.preventDefault(); return; }
       releaseBoardPointer(e);
       playSfx('bad'); showToast(onlineWaitMessage());
       return;
     }
     if(!isHumanTurn()){
-      if(startBoardPan(p,e.pointerId)){ e.preventDefault(); return; }
       releaseBoardPointer(e);
       return;
     }
-    const d=nearestDot(p,1.35);
+    const zoomed=boardView().zoom>1.01;
+    const d=nearestDot(p,zoomed ? .72 : 1.25);
     if(!d){
-      if(startBoardPan(p,e.pointerId)){
-        e.preventDefault();
-        markFastDraw(400);
-        return;
-      }
       releaseBoardPointer(e);
-      playSfx('bad'); showToast('Start closer to a dot');
+      if(zoomed) showToast('Use two fingers together to move the zoomed board');
+      else { playSfx('bad'); showToast('Start closer to a dot'); }
       return;
     }
     game.drag={start:d,current:p,pointerId:e.pointerId}; e.preventDefault(); markFastDraw(900); draw();
@@ -4629,7 +4625,6 @@
       return;
     }
     const p=pointFromEvent(e);
-    if(updateBoardPan(p)){ e.preventDefault(); return; }
     if(!game.drag || game.drag.pointerId!==e.pointerId) return;
     game.drag.current=p; e.preventDefault(); markFastDraw(220); requestCanvasDraw();
   }
@@ -4649,11 +4644,17 @@
       return;
     }
     if(!game.drag || game.drag.pointerId!==e.pointerId){ releaseBoardPointer(e); return; }
-    const p=pointFromEvent(e), end=nearestDot(p,1.25), preview=dragGatePreview(game.drag.start,p);
+    const zoomed=boardView().zoom>1.01;
+    const p=pointFromEvent(e), end=nearestDot(p,zoomed ? .9 : 1.25), preview=dragGatePreview(game.drag.start,p);
     let edge=moveFromDots(game.drag.start,end);
-    if(!edge && preview && preview.progress>.24) edge=preview.edge;
+    if(!edge && preview && preview.progress>GATE_COMMIT_PROGRESS) edge=preview.edge;
     game.drag=null; releaseBoardPointer(e); e.preventDefault(); markFastDraw(500);
-    if(!edge){ playSfx('bad'); showToast('Draw to a nearby dot'); draw(); return; }
+    if(!edge){
+      playSfx('bad');
+      showToast(zoomed ? 'Draw from one dot to the next.\nUse two fingers to move the zoomed board.' : 'Draw to a nearby dot');
+      draw();
+      return;
+    }
     if(edge.owner){ playSfx('bad'); showToast('Line already used'); draw(); return; }
     if(game.mode==='tutorial' && edge.key!==tutorialExpectedEdge()){ playSfx('bad'); showToast('Follow the glowing guide'); draw(); return; }
     applyMove(edge,game.current || 1);
@@ -5047,7 +5048,7 @@
     }
     els.restartBtn.textContent=game.moves>3 && mode==='ai' ? '↻ Retry '+RETRY_COST : '↻ Reset';
     if(mode==='ai' && save.inventory.retries>0 && game.moves>3) els.restartBtn.textContent='↻ Shield '+save.inventory.retries;
-    canvas.setAttribute('aria-label',st.name+'. '+scores.leftLabel+' '+scores.left+' boxes, '+scores.rightLabel+' '+scores.right+' boxes. '+els.turnText.textContent+'. Draw a line between adjacent dots using touch or pointer controls. Use the zoom button or pinch gesture to enlarge the board.');
+    canvas.setAttribute('aria-label',st.name+'. '+scores.leftLabel+' '+scores.left+' boxes, '+scores.rightLabel+' '+scores.right+' boxes. '+els.turnText.textContent+'. One finger draws a line between adjacent dots. Use the zoom button or two fingers together to enlarge and move the board.');
     updateMusicButtons();
   }
   function cycleZoom(){
@@ -5584,13 +5585,8 @@
   canvas.addEventListener('pointermove',pointerMove);
   canvas.addEventListener('pointerup',pointerUp);
   canvas.addEventListener('pointercancel',pointerUp);
-  canvas.addEventListener('dblclick',e=>{
-    if(!game) return;
-    setBoardZoom(boardView().zoom>1.01 ? 1 : 1.9, pointFromEvent(e));
-    e.preventDefault();
-  });
   canvas.addEventListener('wheel',e=>{
-    if(!game) return;
+    if(!game || !window.matchMedia?.('(hover:hover) and (pointer:fine)').matches) return;
     const factor=e.deltaY<0 ? 1.12 : .88;
     setBoardZoom(boardView().zoom*factor, pointFromEvent(e), false);
     e.preventDefault();
