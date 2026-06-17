@@ -12,9 +12,11 @@ https://bhuvanbhuvi043.github.io/Box-Chain-Arena/
 
 Latest gameplay update:
 
-- Close a gate by tapping the gate center or dragging dot-to-dot.
+- Close a gate by tapping a more forgiving gate center or dragging dot-to-dot.
 - Safer zoom controls, with no accidental double-tap zoom during play.
-- Single-door gate closing animation.
+- Stronger single-door gate closing animation.
+- More royal king/queen reactions during play.
+- Smarter higher-stage AI chain control.
 - More compact gameplay HUD for extra board space.
 
 ## Live Builds

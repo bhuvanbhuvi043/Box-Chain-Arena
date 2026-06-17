@@ -3098,17 +3098,17 @@
   function nearestGateCenter(p,multiplier=1){
     if(!game?.stage?.edges) return null;
     const m=boardMetrics();
-    const hit=Math.max(34,Math.min(70,m.scale*.22))*multiplier;
-    const centerWindow=Math.max(hit*1.9,m.scale*.34);
+    const hit=Math.max(44,Math.min(92,m.scale*.34))*multiplier;
+    const centerWindow=Math.max(hit*1.72,m.scale*.46);
     let best=null,bestScore=Infinity;
     for(const edge of game.stage.edges.values()){
       if(edge.owner) continue;
       const a=dotPos(edge.a), b=dotPos(edge.b), mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
       const seg=distanceToSegment(p,a,b);
-      if(seg.t<.22 || seg.t>.78 || seg.dist>hit) continue;
+      if(seg.t<.18 || seg.t>.82 || seg.dist>hit) continue;
       const centerDist=Math.hypot(p.x-mid.x,p.y-mid.y);
       if(centerDist>centerWindow) continue;
-      const score=centerDist+seg.dist*2;
+      const score=centerDist+seg.dist*1.65+Math.abs(seg.t-.5)*m.scale*.58;
       if(score<bestScore){ bestScore=score; best=edge; }
     }
     return best;
@@ -3413,16 +3413,88 @@
     }
     return {capture,danger,future,coin};
   }
+  function aiControlLevel(skill=game?.stage?.aiSkill || game?.stage?.opponent?.base || .65){
+    const id=Number(game?.stage?.id || 0), style=game?.stage?.opponent?.style || '';
+    if(game?.mode==='masterAI' || style==='master') return 1;
+    const skillBoost=clamp((Number(skill)-.66)/.28,0,.65);
+    const stageBoost=clamp((id-8)/24,0,.35);
+    const bossBoost=game?.stage?.boss ? .12 : 0;
+    return clamp(skillBoost+stageBoost+bossBoost,0,1);
+  }
+  function currentClosedEdgeSet(extra=null){
+    const closed=new Set();
+    for(const e of game.stage.edges.values()) if(e.owner || (extra && e.key===extra.key)) closed.add(e.key);
+    return closed;
+  }
+  function simSideCount(key,closed){
+    return cellEdges(key).reduce((n,e)=>n+(closed.has(e.key)?1:0),0);
+  }
+  function captureGainWithClosed(edge,closed){
+    return adjacentCells(edge).reduce((n,key)=>n+(simSideCount(key,closed)===3?1:0),0);
+  }
+  function greedyCapturePotential(closed,limit=14){
+    let gained=0, guard=0;
+    while(gained<limit && guard++<limit*8){
+      let picked=null, pickedGain=0;
+      for(const e of game.stage.edges.values()){
+        if(closed.has(e.key)) continue;
+        const gain=captureGainWithClosed(e,closed);
+        if(gain>pickedGain){ picked=e; pickedGain=gain; }
+      }
+      if(!picked || !pickedGain) break;
+      closed.add(picked.key);
+      gained+=pickedGain;
+    }
+    return gained;
+  }
+  function chainRunAfterEdge(edge,limit=14){
+    if(!edge) return 0;
+    game._aiChainRunCache = game._aiChainRunCache || new Map();
+    const key=(game.moves || 0)+':'+edge.key+':'+limit;
+    if(game._aiChainRunCache.has(key)) return game._aiChainRunCache.get(key);
+    const value=greedyCapturePotential(currentClosedEdgeSet(edge),limit);
+    game._aiChainRunCache.set(key,value);
+    return value;
+  }
+  function currentCapturePotential(limit=6){
+    game._aiChainRunCache = game._aiChainRunCache || new Map();
+    const key=(game.moves || 0)+':current:'+limit;
+    if(game._aiChainRunCache.has(key)) return game._aiChainRunCache.get(key);
+    const value=greedyCapturePotential(currentClosedEdgeSet(),limit);
+    game._aiChainRunCache.set(key,value);
+    return value;
+  }
+  function chooseAdvancedChainControl(scored,captures,control,skill){
+    if(control<.42 || !captures.length) return null;
+    const remaining=currentCapturePotential(control>.78 ? 5 : 4);
+    if(remaining<1 || remaining>2) return null;
+    const cellsLeft=(game.stage.cellCount || 0)-game.completed;
+    if(cellsLeft<=remaining+2) return null;
+    const nonCaptures=scored.filter(x=>x.s.capture===0);
+    if(!nonCaptures.length) return null;
+    const scoreGap=(game.scores[2] || 0)-(game.scores[1] || 0);
+    if(scoreGap<-2 && Math.random()<.8) return null;
+    if(Math.random()>clamp(.36+control*.52+skill*.12,0,.96)) return null;
+    const maxGift=remaining+(control>.8 ? 2 : 1);
+    const controlled=nonCaptures.filter(x=>chainRunAfterEdge(x.e,10)<=maxGift || x.s.danger===0);
+    const pool=controlled.length ? controlled : nonCaptures;
+    return best(pool,x=>-chainRunAfterEdge(x.e,12)*105 - x.s.danger*80 - futureDamage(x.e)*18 - chainGiftRisk(x.e)*.55 + x.s.future*8 - edgeCentrality(x.e)*.008 + Math.random()*3).e;
+  }
   function chooseAIMove(){
     const moves=availableMoves(); if(!moves.length) return null;
-    const skill=game.stage.aiSkill, scored=moves.map(e=>({e,s:moveScore(e)}));
+    game._aiChainRunCache=new Map();
+    const skill=clamp(Number(game.stage.aiSkill || game.stage.opponent?.base || .7),0,1);
+    const control=aiControlLevel(skill), lookahead=control>.72 ? 18 : 12, noise=Math.max(.9,5-control*3.7);
+    const scored=moves.map(e=>({e,s:moveScore(e)}));
     const captures=scored.filter(x=>x.s.capture>0);
     const safe=scored.filter(x=>x.s.danger===0);
     const nearWin = game.completed > game.stage.cellCount*.65;
-    if(captures.length && Math.random()<clamp(skill+.18,0,1)) return best(captures,x=>x.s.capture*170 + x.s.coin*.4 + x.s.future*9 - edgeCentrality(x.e)*.01 + Math.random()*5).e;
-    if(safe.length && Math.random()<clamp(skill+.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*90 - chainGiftRisk(x.e)*1.2 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*5).e;
-    if(Math.random()>skill) return best(scored,x=>x.s.capture*75 + x.s.coin*.2 - x.s.danger*18 + Math.random()*24).e;
-    return best(scored,x=>x.s.capture*120 + x.s.coin*.25 - x.s.danger*90 + x.s.future*8 - futureDamage(x.e)*12 - chainGiftRisk(x.e)*1.2 + Math.random()*4).e;
+    const chainControl=chooseAdvancedChainControl(scored,captures,control,skill);
+    if(chainControl) return chainControl;
+    if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 - chainRunAfterEdge(x.e,lookahead)*control*8 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
+    if(safe.length && Math.random()<clamp(skill+.08+control*.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*95 - chainGiftRisk(x.e)*(1.15+control*.9) - chainRunAfterEdge(x.e,lookahead)*control*36 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*noise).e;
+    if(Math.random()>skill) return best(scored,x=>x.s.capture*75 + x.s.coin*.2 - x.s.danger*18 - chainRunAfterEdge(x.e,8)*control*22 + Math.random()*24).e;
+    return best(scored,x=>x.s.capture*124 + x.s.coin*.26 - x.s.danger*(90+control*50) + x.s.future*8 - futureDamage(x.e)*(12+control*10) - chainGiftRisk(x.e)*(1.2+control) - chainRunAfterEdge(x.e,lookahead)*control*45 + Math.random()*Math.max(.8,4-control*2.7)).e;
   }
   function best(arr,fn){ return arr.map(x=>({x,v:fn(x)})).sort((a,b)=>b.v-a.v)[0].x; }
   function edgeCentrality(e){ const a=dotPos(e.a), b=dotPos(e.b); return Math.hypot((a.x+b.x)/2-450,(a.y+b.y)/2-450); }
@@ -3436,6 +3508,8 @@
         risk += 76 + (coin ? coin.value*(coin.multiplier||1)*.7 : 0);
       }
     }
+    const control=aiControlLevel();
+    if(control>.28) risk += chainRunAfterEdge(edge,control>.72 ? 18 : 12)*(32+control*34);
     return risk;
   }
 
@@ -3985,6 +4059,11 @@
   }
   function drawHint(){ if(game.hint){ const m=boardMetrics(); drawGate(dotPos(game.hint.a),dotPos(game.hint.b),{main:'#f6b51d',deep:'#92400e',glow:'#fff3a3'},m.lineW*1.18,.7,true,.88); } }
   function drawDrag(){
+    if(game.tapGate){
+      const m=boardMetrics(), e=game.tapGate.edge;
+      drawGate(dotPos(e.a),dotPos(e.b),kingdomFor(game.current || 1),m.lineW*1.12,.72,true,.82);
+      return;
+    }
     if(!game.drag) return;
     const m=boardMetrics(), a=dotPos(game.drag.start), preview=dragGatePreview(game.drag.start,game.drag.current);
     if(preview) drawGate(dotPos(preview.edge.a),dotPos(preview.edge.b),kingdomFor(game.current || 1),m.lineW*1.1,.78,true,preview.progress);
@@ -4233,6 +4312,13 @@
     ctx.beginPath(); ctx.moveTo(-len/2+gap,-h*.55); ctx.lineTo(len/2-gap,-h*.55); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-len/2+gap,h*.55); ctx.lineTo(len/2-gap,h*.55); ctx.stroke();
     ctx.setLineDash([]);
+    ctx.globalAlpha=.18;
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(0,0,Math.max(3,w*.22),0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=.34;
+    ctx.strokeStyle=color;
+    ctx.lineWidth=Math.max(1.5,w*.1);
+    ctx.beginPath(); ctx.arc(0,0,Math.max(7,w*.42),0,Math.PI*2); ctx.stroke();
     ctx.restore();
   }
   function drawSimpleOpenGate(a,b,color,w){
@@ -4244,6 +4330,9 @@
     ctx.lineCap='round';
     ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
     ctx.setLineDash([]);
+    ctx.globalAlpha=.22;
+    ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc((a.x+b.x)/2,(a.y+b.y)/2,Math.max(3,w*.22),0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
   function drawSimpleClosedGate(a,b,k,w){
@@ -4268,6 +4357,8 @@
     const leafX=-len/2+postW*.55, leadingX=leafX+leaf;
     const shimmer=-len*.45 + len*(raw*.9 + (performance.now()%1100)/1100*.1);
     const closeShake=closed && raw<1 ? Math.sin(raw*Math.PI*7)*(1-raw)*h*.11 : 0;
+    const impact=closed ? clamp(1-Math.abs(raw-.93)/.09,0,1) : 0;
+    const leadGlow=clamp((p-.18)/.82,0,1);
     ctx.save();
     ctx.globalAlpha=alpha;
     ctx.translate((a.x+b.x)/2,(a.y+b.y)/2);
@@ -4277,6 +4368,10 @@
     ctx.shadowBlur=closed ? h*(.72+.55*raw) : h*.35;
     ctx.fillStyle='rgba(15,23,42,.24)';
     roundRect(-len/2,-h*.68,len,h*1.36,h*.5); ctx.fill();
+    ctx.globalAlpha=alpha*.32;
+    ctx.fillStyle='rgba(255,255,255,.82)';
+    roundRect(-len/2+postW*.55,-h*.09,len-postW*1.1,h*.18,h*.09); ctx.fill();
+    ctx.globalAlpha=alpha;
     const grad=ctx.createLinearGradient(0,-h,0,h);
     grad.addColorStop(0,k.glow || '#ffffff');
     grad.addColorStop(.5,k.main || '#101827');
@@ -4284,6 +4379,11 @@
     ctx.fillStyle=k.deep || '#111827';
     roundRect(-len/2-postW*.12,-h*.72,postW,h*1.44,h*.24); ctx.fill();
     roundRect(len/2-postW*.88,-h*.72,postW,h*1.44,h*.24); ctx.fill();
+    ctx.fillStyle=k.main || '#111827';
+    roundRect(-len/2-postW*.18,-h*.9,postW*1.12,h*.22,h*.11); ctx.fill();
+    roundRect(len/2-postW*.94,-h*.9,postW*1.12,h*.22,h*.11); ctx.fill();
+    roundRect(-len/2-postW*.18,h*.68,postW*1.12,h*.22,h*.11); ctx.fill();
+    roundRect(len/2-postW*.94,h*.68,postW*1.12,h*.22,h*.11); ctx.fill();
     ctx.fillStyle=k.glow || '#fff';
     ctx.globalAlpha=alpha*(.65+.25*Math.sin(performance.now()/180));
     [-1,1].forEach(side=>{
@@ -4292,8 +4392,20 @@
       ctx.fill();
     });
     ctx.globalAlpha=alpha;
-    ctx.fillStyle=grad;
-    if(leaf>1){ roundRect(leafX,-h*.5,leaf,h,h*.2); ctx.fill(); }
+    if(leaf>1){
+      ctx.fillStyle='rgba(2,6,23,.22)';
+      roundRect(leafX-h*.08,-h*.56,leaf+h*.12,h*1.12,h*.23); ctx.fill();
+      ctx.fillStyle=grad;
+      roundRect(leafX,-h*.5,leaf,h,h*.2); ctx.fill();
+      ctx.globalAlpha=alpha*(.28+.25*leadGlow);
+      ctx.fillStyle='rgba(255,255,255,.9)';
+      roundRect(leafX+Math.max(2,leaf*.08),-h*.35,Math.max(4,leaf*.22),h*.16,h*.08); ctx.fill();
+      roundRect(leafX+Math.max(3,leaf*.18),h*.18,Math.max(4,leaf*.28),h*.13,h*.07); ctx.fill();
+      ctx.globalAlpha=alpha*(.45+.35*leadGlow);
+      ctx.fillStyle=k.glow || '#fff';
+      roundRect(leadingX-Math.max(2,w*.13),-h*.54,Math.max(3,w*.2),h*1.08,h*.12); ctx.fill();
+      ctx.globalAlpha=alpha;
+    }
     if(leaf>4){
       ctx.globalAlpha=alpha*.55;
       ctx.fillStyle='rgba(255,255,255,.76)';
@@ -4321,6 +4433,16 @@
     ctx.globalAlpha=alpha*.72;
     ctx.lineWidth=Math.max(1.5,w*.1);
     drawGateBars(leafX,leaf,h,w);
+    if(leaf>12){
+      ctx.globalAlpha=alpha*.78;
+      ctx.fillStyle='rgba(255,255,255,.75)';
+      const rivets=Math.min(5,Math.max(2,Math.floor(leaf/Math.max(28,w*1.9))));
+      for(let i=1;i<=rivets;i++){
+        const rx=leafX+leaf*i/(rivets+1);
+        ctx.beginPath(); ctx.arc(rx,-h*.33,Math.max(1.5,w*.09),0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(rx,h*.33,Math.max(1.5,w*.09),0,Math.PI*2); ctx.fill();
+      }
+    }
     if(p>.62){
       ctx.globalAlpha=alpha*clamp((p-.62)/.38,0,1);
       ctx.strokeStyle=k.glow || '#fff';
@@ -4331,6 +4453,17 @@
       ctx.lineTo(lockX+h*.38,h*.22);
       ctx.moveTo(lockX+h*.38,-h*.22);
       ctx.lineTo(lockX-h*.38,h*.22);
+      ctx.stroke();
+    }
+    if(impact>0){
+      ctx.globalAlpha=alpha*impact*.7;
+      ctx.strokeStyle=k.glow || '#fff';
+      ctx.lineWidth=Math.max(3,w*.16);
+      ctx.beginPath(); ctx.arc(Math.min(len/2-postW*.66,leadingX),0,h*(.68+impact*.44),0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha=alpha*impact*.52;
+      ctx.beginPath();
+      ctx.moveTo(leadingX-h*.38,-h*.78); ctx.lineTo(leadingX+h*.28,-h*1.12);
+      ctx.moveTo(leadingX-h*.28,h*.78); ctx.lineTo(leadingX+h*.36,h*1.12);
       ctx.stroke();
     }
     if(p>.94){
@@ -4460,6 +4593,20 @@
     };
     return moods[kind] || defaultSeatMood(player,game?.mode || 'ai');
   }
+  const seatFace=(...codes)=>String.fromCodePoint(...codes);
+  const REACTION_MOOD_SETS={
+    gate:[[seatFace(0x1F62E),seatFace(0x1F44C)],[seatFace(0x1F632),seatFace(0x2728)],[seatFace(0x1F60E),seatFace(0x1F44D)],[seatFace(0x1F642),seatFace(0x1F44F)]],
+    capture:[[seatFace(0x1F604),seatFace(0x1F64C)],[seatFace(0x1F601),seatFace(0x1F4A5)],[seatFace(0x1F929),seatFace(0x1F44F)],[seatFace(0x1F603),seatFace(0x2728)]],
+    chain:[[seatFace(0x1F929),seatFace(0x1F631)],[seatFace(0x1F525),seatFace(0x1F62E)],[seatFace(0x1F60E),seatFace(0x1F4AB)],[seatFace(0x1F92F),seatFace(0x1F64C)]],
+    gold:[[seatFace(0x1F911),seatFace(0x1F4AB)],[seatFace(0x1F60B),seatFace(0x2728)],[seatFace(0x1F929),seatFace(0x1FA99)],[seatFace(0x1F604),seatFace(0x2B50)]],
+    alert:[[seatFace(0x1F630),seatFace(0x26A0,0xFE0F)],[seatFace(0x1F633),seatFace(0x1F440)],[seatFace(0x1F914),seatFace(0x2757)],[seatFace(0x1F62C),seatFace(0x1F6E1,0xFE0F)]],
+    win:[[seatFace(0x1F3C6),seatFace(0x1F973)],[seatFace(0x1F451),seatFace(0x1F389)],[seatFace(0x1F60E),seatFace(0x1F31F)],[seatFace(0x1F929),seatFace(0x1F64C)]],
+    loss:[[seatFace(0x1F622),seatFace(0x1F4A7)],[seatFace(0x1F614),seatFace(0x2601,0xFE0F)],[seatFace(0x1F62E,0x200D,0x1F4A8),seatFace(0x1F4A7)],[seatFace(0x1F97A),seatFace(0x1F6E1,0xFE0F)]]
+  };
+  reactionMood=function(kind,player){
+    const pool=REACTION_MOOD_SETS[kind];
+    return pool ? pool[Math.floor(Math.random()*pool.length)] : defaultSeatMood(player,game?.mode || 'ai');
+  };
   function seatForPlayer(player){
     if(game?.mode==='online'){
       return Number(player)===actualLocalPlayer() ? {
@@ -4637,13 +4784,22 @@
       return;
     }
     const zoomed=boardView().zoom>1.01;
+    const tapEdge=nearestGateCenter(p,zoomed ? 1.12 : 1.18);
+    const tightDot=nearestDot(p,zoomed ? .34 : .38);
+    if(tapEdge && !tightDot){
+      game.tapGate={edge:tapEdge,pointerId:e.pointerId,start:p,moved:false};
+      e.preventDefault();
+      markFastDraw(360);
+      draw();
+      return;
+    }
     const d=nearestDot(p,zoomed ? .72 : 1.25);
     if(!d){
-      const tapEdge=nearestGateCenter(p,zoomed ? 1.06 : 1);
       if(tapEdge){
         game.tapGate={edge:tapEdge,pointerId:e.pointerId,start:p,moved:false};
         e.preventDefault();
         markFastDraw(360);
+        draw();
         return;
       }
       releaseBoardPointer(e);
@@ -4700,6 +4856,7 @@
     const p=pointFromEvent(e), end=nearestDot(p,zoomed ? .9 : 1.25), preview=dragGatePreview(game.drag.start,p);
     let edge=moveFromDots(game.drag.start,end);
     if(!edge && preview && preview.progress>GATE_COMMIT_PROGRESS) edge=preview.edge;
+    if(!edge) edge=nearestGateCenter(p,zoomed ? 1.12 : 1.18);
     game.drag=null; releaseBoardPointer(e); e.preventDefault(); markFastDraw(500);
     commitEdgeMove(edge,zoomed ? 'Drag dot to dot, or tap the gate center.\nUse two fingers to move the zoomed board.' : 'Draw to a nearby dot, or tap the gate center');
   }
