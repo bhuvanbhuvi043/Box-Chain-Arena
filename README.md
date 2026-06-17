@@ -4,6 +4,19 @@ Box Chain Arena is a mobile-friendly dots-and-boxes strategy game with 100
 shaped stages, AI opponents, offline two-player play, private online rooms,
 registered player challenges, and virtual progression rewards.
 
+## Quick Play Test
+
+Open this link on phone, tablet, or desktop to test the latest GitHub build:
+
+https://bhuvanbhuvi043.github.io/Box-Chain-Arena/
+
+Latest gameplay update:
+
+- Close a gate by tapping the gate center or dragging dot-to-dot.
+- Safer zoom controls, with no accidental double-tap zoom during play.
+- Single-door gate closing animation.
+- More compact gameplay HUD for extra board space.
+
 ## Live Builds
 
 - Firebase Hosting: https://box-chain-arena.web.app
