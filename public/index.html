@@ -464,6 +464,8 @@
         <div><span>Status</span><b id="portalStatus">Offline</b></div>
         <div><span>Challenge Points</span><b id="portalGold">0</b></div>
         <div><span>Solo Gold</span><b id="portalDiamonds">0</b></div>
+        <div><span>AI Wins</span><b id="portalAiWins">0</b></div>
+        <div><span>AI Treasury Grants</span><b id="portalAiGold">0</b></div>
       </div>
       <div class="portal-actions">
         <button class="primary" id="playersOpenBtn">Online Players</button>
@@ -481,7 +483,7 @@
   <div class="modal" id="privacyModal">
     <div class="modal-box room-panel">
       <h2>Privacy & Data</h2>
-      <p>Box Chain Arena uses Firebase for registered login, public online profiles, private account data, rooms, invites, reports, blocks, and verified match records. Solo Gold, Stars, Diamonds, Challenge Points, and Victory Bonuses have no real-money value.</p>
+      <p>Box Chain Arena uses Firebase for registered login, public online profiles, private account data, rooms, invites, reports, blocks, and verified match records. Solo Gold, Stars, Diamonds, AI Treasury grants, Challenge Points, and Victory Bonuses have no real-money value.</p>
       <div class="stake-summary">
         Guest play stays on the device and does not create an anonymous Firebase account. Registered online play stores private email/account data separately from the limited public nickname, presence, and match-stat profile.
       </div>
@@ -704,6 +706,7 @@
     portalNickname:document.getElementById('portalNickname'), portalEmail:document.getElementById('portalEmail'),
     portalWins:document.getElementById('portalWins'), portalLosses:document.getElementById('portalLosses'), portalMatches:document.getElementById('portalMatches'),
     portalStatus:document.getElementById('portalStatus'), portalGold:document.getElementById('portalGold'), portalDiamonds:document.getElementById('portalDiamonds'),
+    portalAiWins:document.getElementById('portalAiWins'), portalAiGold:document.getElementById('portalAiGold'),
     playersOpenBtn:document.getElementById('playersOpenBtn'), invitesOpenBtn:document.getElementById('invitesOpenBtn'), historyBtn:document.getElementById('historyBtn'),
     deleteAccountBtn:document.getElementById('deleteAccountBtn'), deletionHelpBtn:document.getElementById('deletionHelpBtn'),
     logoutBtn:document.getElementById('logoutBtn'), portalClose:document.getElementById('portalClose'), portalMsg:document.getElementById('portalMsg'),
@@ -797,7 +800,7 @@
       summary:[['Developer','Bhuvi Digital Works'],['Support',SUPPORT_EMAIL],['App Type','Strategy game with virtual rewards']],
       bullets:['Guest play remains on the device and does not create an anonymous Firebase account.','Registered online play separates private account data from the limited public player profile.','We do not sell user data. Challenge Points and every other reward have no real-money value.'],
       sections:[
-        {title:'Information We Collect',items:['Private registered-account data may include email, nickname reservation, Challenge Points, point reservations, block list, limited progress totals, and settlement ledger entries.','The public online profile contains nickname, online status, last-seen time, wins, losses, and match count.','Online rooms and records may contain participant IDs, player names, selected arena, legal moves, scores, Challenge Points, Victory Bonus, timestamps, invites, reports, and match results. Solo Gold, Diamonds, shop inventory, and detailed solo-stage saves stay on the device.','Support messages may include information you choose to send, such as nickname, registered email, device model, screenshots, stage number, room code, or issue details.']},
+        {title:'Information We Collect',items:['Private registered-account data may include email, nickname reservation, Challenge Points, point reservations, block list, limited progress totals, AI practice summary, and settlement ledger entries.','The public online profile contains nickname, online status, last-seen time, wins, losses, and match count.','Online rooms and records may contain participant IDs, player names, selected arena, legal moves, scores, Challenge Points, Victory Bonus, timestamps, invites, reports, and match results. Solo Gold, Diamonds, shop inventory, and detailed solo-stage saves stay on the device.','Support messages may include information you choose to send, such as nickname, registered email, device model, screenshots, stage number, room code, or issue details.']},
         {title:'How We Use Information',items:['To provide verified login, public player profiles, online rooms, presence, challenges, server-validated moves, one-time match settlement, reports, blocks, account deletion, fraud prevention, abuse prevention, and support.','To improve game stability, fix bugs, protect online rooms, and help players recover from account or match issues.']},
         {title:'Data Sharing',items:['We use Google Firebase services to run authentication and realtime game features. Firebase processes data according to Google Firebase terms and privacy practices.','We do not sell personal information and do not provide cash-prize, gambling, betting, or withdrawal services.']},
         {title:'Data Deletion',items:['In the app, open Menu, Profile, then Delete Account. This removes Firebase Authentication and associated private profile, public profile, nickname, presence, invites, rooms, matches, blocks, and indexes.','If you cannot access the app, email '+SUPPORT_EMAIL+' with your registered email and nickname.','Reports may be retained only in anonymized form for abuse prevention. Provider security and diagnostic logs may remain for limited periods where required for security or legal compliance.']},
@@ -868,7 +871,7 @@
         {title:'Using the Game',items:['You may play stages, offline two-player games, AI duels, private online rooms, and online challenges for entertainment.','Do not cheat, exploit bugs, impersonate other players, abuse room systems, harass players, or attempt to disrupt Firebase services.']},
         {title:'Accounts',items:['Registered play uses Firebase email/password login and nickname profile data.','You are responsible for using accurate account information and keeping access to your email secure.']},
         {title:'Online Matches',items:['Online rooms sync board seed, drawn moves, scores, selected arena, player names, Challenge Points values, and match results.','Temporary connection issues may affect realtime rooms. If a problem happens, contact support with your nickname, room code, and screenshots where possible.']},
-        {title:'Virtual Rewards',items:['Gold, Challenge Points, Stars, Diamonds, Victory Bonuses, boosters, daily rewards, and shop items are virtual game rewards only.','No reward has real money value, withdrawal value, resale value, cash value, cryptocurrency value, or real-world prize value.']}
+        {title:'Virtual Rewards',items:['Gold, AI Treasury grants, Challenge Points, Stars, Diamonds, Victory Bonuses, boosters, daily rewards, and shop items are virtual game rewards only.','No reward has real money value, withdrawal value, resale value, cash value, cryptocurrency value, or real-world prize value.']}
       ],
       primaryLabel:'Open Terms Page',
       primaryUrl:PUBLIC_PAGES.terms,
@@ -878,7 +881,7 @@
     rewards:{
       title:'Virtual Rewards Disclaimer',
       updated:'Last updated: June 14, 2026',
-      intro:'Gold, Challenge Points, Stars, Diamonds, Victory Bonuses, boosts, and all Box Chain Arena rewards are virtual game rewards only.',
+      intro:'Gold, AI Treasury grants, Challenge Points, Stars, Diamonds, Victory Bonuses, boosts, and all Box Chain Arena rewards are virtual game rewards only.',
       chips:['No withdrawal','No cash conversion','No betting','No gambling'],
       summary:[['Gold','Regular virtual reward'],['Stars','Stage progress key'],['Diamonds','Rare achievement reward']],
       bullets:['No real money value.','No withdrawal, sale, cash conversion, cryptocurrency conversion, or external transfer.','No betting, wagering, gambling purpose, casino purpose, lottery purpose, or real-world prize purpose.'],
@@ -1035,15 +1038,17 @@
   ];
   const OPPONENTS = [
     {name:'Friendly Rival', base:.62, style:'playful'},
-    {name:'Sharp Strategist', base:.77, style:'safe'},
-    {name:'Silent Master', base:.87, style:'chain'},
-    {name:'Final Boss', base:.94, style:'boss'}
+    {name:'Iron Strategist', base:.945, style:'expert'},
+    {name:'Silent Master', base:.972, style:'chain'},
+    {name:'Final Boss', base:.992, style:'boss'}
   ];
   const SHAPE_ICONS = {classic:'▦', heart:'❤', star:'★', spiral:'↻', diamond:'◆', bench:'▤', festival:'✦', map:'⌖'};
-  const OPPONENT_ICONS = {'Friendly Rival':'🙂','Sharp Strategist':'♟','Silent Master':'◈','Final Boss':'♛'};
+  const OPPONENT_ICONS = {'Friendly Rival':'🙂','Iron Strategist':'♟','Silent Master':'◈','Final Boss':'♛'};
   const GUIDE = [
     {icon:'🎯', title:'Win by boxes', text:'Stars start only when you capture more than 50% of the boxes.'},
     {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
+    {icon:'♛', title:'Strong AI', text:'Stage 1 teaches the basics. From Stage 2 onward, the AI plays expert chain-control strategy.'},
+    {icon:'💰', title:'Shadow Treasury', text:'Face tough AI stages to earn match gold, replay rewards, and occasional AI treasury grants.'},
     {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
     {icon:'🔎', title:'Easy touch', text:'Drag dot-to-dot or tap the center of an open gate. Use two fingers together to move a zoomed board.'}
@@ -1063,6 +1068,9 @@
   ];
   const MASTER_AI_STAKE = 100;
   const STARTER_PLAYER_STAKE = 50;
+  const AI_START_TREASURY = 800;
+  const AI_GRANT_MIN_STAGE = 2;
+  const AI_GRANT_COOLDOWN_MS = 90 * 1000;
   const PLAYER_ONLINE_WINDOW_MS = 45000;
   const INVITE_TTL_MS = 5 * 60 * 1000;
   const LATE_MOVE_MS = 20000;
@@ -1130,7 +1138,7 @@
   let boardGesture = null;
 
   function loadSave(){
-    const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,onlineGuideSeen:false,tutorialDone:false};
+    const base={gold:0,diamonds:0,stars:{},cleared:[],daily:'',dailyStreak:0,inventory:{hints:0,retries:0,boosts:0},guideSeen:false,onlineGuideSeen:false,tutorialDone:false,aiRecord:null};
     try{return normalizeSave(Object.assign(base, JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')));}
     catch(e){return normalizeSave(base);}
   }
@@ -1153,6 +1161,7 @@
       guideSeen:!!save.guideSeen,
       onlineGuideSeen:!!save.onlineGuideSeen,
       tutorialDone:!!save.tutorialDone,
+      aiRecord:cloudAiRecord(),
       updatedAt:Date.now()
     };
     fb.set(fb.ref(fb.db,'privateProfiles/'+fb.uid+'/progress'), payload).catch(()=>{});
@@ -1165,7 +1174,49 @@
     data.inventory=Object.assign({hints:0,retries:0,boosts:0}, data.inventory || {});
     data.dailyStreak=Number(data.dailyStreak||0);
     data.onlineGuideSeen=!!data.onlineGuideSeen;
+    data.aiRecord=normalizeAiRecord(data.aiRecord);
     return data;
+  }
+  function normalizeAiRecord(input={}){
+    const r=Object.assign({
+      totalMatches:0, aiWins:0, playerWins:0, boxes:0, gold:0,
+      treasury:AI_START_TREASURY, grants:0, grantGold:0, bestStage:0,
+      lastGrantAt:0, stages:{}
+    }, input || {});
+    r.totalMatches=Number(r.totalMatches||0);
+    r.aiWins=Number(r.aiWins||0);
+    r.playerWins=Number(r.playerWins||0);
+    r.boxes=Number(r.boxes||0);
+    r.gold=Number(r.gold||0);
+    r.treasury=Math.max(0,Number(r.treasury||AI_START_TREASURY));
+    r.grants=Number(r.grants||0);
+    r.grantGold=Number(r.grantGold||0);
+    r.bestStage=Number(r.bestStage||0);
+    r.lastGrantAt=Number(r.lastGrantAt||0);
+    r.stages=r.stages && typeof r.stages==='object' ? r.stages : {};
+    return r;
+  }
+  function cloudAiRecord(){
+    const r=normalizeAiRecord(save.aiRecord);
+    return {
+      totalMatches:r.totalMatches,
+      aiWins:r.aiWins,
+      playerWins:r.playerWins,
+      boxes:r.boxes,
+      gold:r.gold,
+      grants:r.grants,
+      grantGold:r.grantGold,
+      bestStage:r.bestStage,
+      updatedAt:Date.now()
+    };
+  }
+  function masterAiPlayerProfile(){
+    const r=normalizeAiRecord(save.aiRecord);
+    return Object.assign({},MASTER_AI_PLAYER,{
+      wins:r.aiWins,
+      losses:r.playerWins,
+      meta:'Stage 2-100 expert AI · '+r.aiWins+'W '+r.playerWins+'L · granted '+r.grantGold+' gold'
+    });
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
   function defaultBoardView(){
@@ -1303,11 +1354,11 @@
   function stageDef(id){
     if(id<=DUEL_STAGE_COUNT){
       const duel=DUEL_STAGES[id-1];
-      const opponent = id%10===0 ? OPPONENTS[3] : (id%5===0 ? OPPONENTS[2] : OPPONENTS[Math.min(OPPONENTS.length-1, Math.floor((id-1)/5))]);
+      const opponent = id===1 ? OPPONENTS[0] : (id%10===0 ? OPPONENTS[3] : (id%5===0 || id>=18 ? OPPONENTS[2] : OPPONENTS[1]));
       return {id,shape:duel.shape,size:duel.rows,rows:duel.rows,cols:duel.cols,name:duel.name,layout:duel.layout,opponent,targetType:duel.targetType,theme:THEMES[duel.shape],boss:id%10===0};
     }
     const shape = SHAPES[(id-1)%SHAPES.length];
-    const opponent = id%8===0 ? OPPONENTS[3] : OPPONENTS[Math.min(OPPONENTS.length-1, Math.floor((id-1)/4)%OPPONENTS.length)];
+    const opponent = id===1 ? OPPONENTS[0] : (id%8===0 ? OPPONENTS[3] : (id%5===0 || id>=18 ? OPPONENTS[2] : OPPONENTS[1]));
     const size = 5 + ((id-1)%5);
     const targetType = TARGETS[(id-1)%TARGETS.length];
     const theme = THEMES[shape];
@@ -1397,8 +1448,11 @@
     }
     const cellCount = cells.size, edgeCount = edges.size;
     const complexity = clamp((edgeCount/(cellCount*4)) + (1 - cellCount/(stage.rows*stage.cols)), .25, 1.35);
-    const shapePressure = stage.shape==='classic' ? .05 : (stage.shape==='spiral' || stage.shape==='map' ? -.035 : 0);
-    const aiSkill = clamp(stage.opponent.base + Math.min(.3,id*.018) + shapePressure + (stage.boss?.08:0) - complexity*.075, .55, .985);
+    const shapePressure = stage.shape==='classic' ? .05 : (stage.shape==='spiral' || stage.shape==='map' ? -.015 : 0);
+    const rawSkill = stage.opponent.base + Math.min(.22,id*.012) + shapePressure + (stage.boss ? .012 : 0) - complexity*(id===1 ? .075 : .018);
+    const aiFloor = id===1 ? .62 : clamp(.94 + id*.0028 + (stage.boss ? .018 : 0), .945, .995);
+    const aiCap = id===1 ? .72 : .998;
+    const aiSkill = clamp(Math.max(rawSkill, aiFloor), id===1 ? .56 : aiFloor, aiCap);
     const target = makeTarget(stage, cellCount, id);
     const coinBoxes = buildCoinBoxes(stage, cells);
     return {...stage,cells,edges,dots,boxes,coinBoxes,cellCount,edgeCount,complexity,aiSkill,target};
@@ -1584,20 +1638,24 @@
     }
     return true;
   }
+  function masterAiStakeForStage(stage){
+    const difficulty=aiRewardDifficulty(stage);
+    return Math.round(MASTER_AI_STAKE + difficulty*80 + Math.max(0,(stage?.id||1)-1)*1.4);
+  }
   function startMasterAiDuel(){
     resetBoardInteraction();
     const stake=challengeStakeAmount();
     if(!validateMasterStake(stake)) return;
-    const stageId=1+Math.floor(Math.random()*DUEL_STAGE_COUNT);
+    const stageId=2+Math.floor(Math.random()*(DUEL_STAGE_COUNT-1));
     const stage=buildStage(stageId);
     stage.name='Master AI: '+stage.name;
-    stage.opponent={name:'Master AI',base:.99,style:'master'};
-    stage.aiSkill=.992;
+    stage.opponent={name:'Master AI',base:.998,style:'master'};
+    stage.aiSkill=.998;
     stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
     closePlayers();
     hideAccountModals();
     setTeach('');
-    game={mode:'masterAI',stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,masterStake:{player:stake,ai:MASTER_AI_STAKE}};
+    game={mode:'masterAI',stage,current:1,scores:[0,0,0],coins:[0,0,0],chains:[0,0,0],maxChain:[0,0,0],completed:0,moves:0,drag:null,hint:null,aiAnim:null,over:false,aiBusy:false,zoom:1,zoomMode:0,objectiveDone:false,lastWin:false,earnedStars:0,earnedDiamond:0,finalGold:0,goldBoost:1,masterStake:{player:stake,ai:masterAiStakeForStage(stage),grant:0}};
     document.body.classList.add('playing');
     document.body.dataset.boardTheme=stage.shape;
     window.scrollTo(0,0);
@@ -2251,6 +2309,9 @@
     els.portalStatus.textContent=p?(networkOnline?'Online':'Offline'):'Guest';
     els.portalGold.textContent=p?.challengePoints ?? 0;
     els.portalDiamonds.textContent=save.gold ?? 0;
+    const aiRecord=normalizeAiRecord(save.aiRecord);
+    if(els.portalAiWins) els.portalAiWins.textContent=aiRecord.aiWins+' / '+aiRecord.totalMatches;
+    if(els.portalAiGold) els.portalAiGold.textContent=aiRecord.grantGold+' gold';
     els.playersOpenBtn.disabled=false;
     els.playersOpenBtn.textContent=p?'Online Players':'Register / Login';
     els.invitesOpenBtn.disabled=!p;
@@ -2287,7 +2348,7 @@
     clearChallengeTarget();
     els.playersIntro.textContent=showDummies ? 'Practice the online flow. Dummy players show how challenges look; Master AI is always playable.' : 'No real players online? Challenge Master AI anytime.';
     els.playersModal.classList.add('show');
-    renderPlayers([MASTER_AI_PLAYER, ...(showDummies ? DUMMY_ONLINE_PLAYERS : [])]);
+    renderPlayers([masterAiPlayerProfile(), ...(showDummies ? DUMMY_ONLINE_PLAYERS : [])]);
     els.playersMsg.textContent='No one is online right now. Master AI remains available as a device-local Practice Gold challenge.';
   }
   function closePlayers(){
@@ -2310,7 +2371,7 @@
         rows.push({...p,uid,online});
       });
       rows.sort((a,b)=>Number(b.online)-Number(a.online) || String(a.nickname||'').localeCompare(String(b.nickname||'')));
-      renderPlayers([MASTER_AI_PLAYER, ...rows]);
+      renderPlayers([masterAiPlayerProfile(), ...rows]);
     });
   }
   function clearChallengeTarget(){
@@ -2358,7 +2419,7 @@
     if(!selectedChallengeTarget) return;
     const stake=challengeStakeAmount();
     if(selectedChallengeTarget.isMasterAI){
-      els.challengeTargetSummary.textContent='Master AI Practice Gold: '+MASTER_AI_STAKE+'. Your Practice Gold: '+stake+'. Practice reward: '+(MASTER_AI_STAKE+stake)+'.';
+      els.challengeTargetSummary.textContent='Master AI starts from Stage 2+ with expert strategy. Your Practice Gold: '+stake+'. AI Treasury can grant extra virtual gold after tough matches.';
       els.playersMsg.textContent='Master AI is device-local practice. Your Practice Gold limit is 0-'+els.challengeStakeInput.max+' and has no real-money value.';
       return;
     }
@@ -3197,6 +3258,63 @@
     });
     game.coins[player]+=gold; return gold;
   }
+  function aiRewardDifficulty(stage=game?.stage){
+    if(!stage) return 0;
+    const skill=Number(stage.aiSkill || stage.opponent?.base || .7);
+    const stageRamp=clamp((Number(stage.id || 1)-1)/(DUEL_STAGE_COUNT-1),0,1);
+    const boss=stage.boss || game?.mode==='masterAI' ? .16 : 0;
+    return clamp((skill-.6)/.4*.62 + stageRamp*.32 + boss,0,1);
+  }
+  function aiTreasuryGrant(playerWin, source='stage'){
+    if(!game?.stage || (game.stage.id || 0)<AI_GRANT_MIN_STAGE) return 0;
+    const r=save.aiRecord=normalizeAiRecord(save.aiRecord);
+    const nowTime=Date.now();
+    const difficulty=aiRewardDifficulty(game.stage);
+    const aiLead=Math.max(0,(game.scores[2]||0)-(game.scores[1]||0));
+    const closeFight=Math.abs((game.scores[1]||0)-(game.scores[2]||0))<=Math.max(2,Math.ceil(game.stage.cellCount*.08));
+    const canRepeat=nowTime-Number(r.lastGrantAt||0)>AI_GRANT_COOLDOWN_MS || source==='masterAI';
+    const chanceBase=source==='masterAI' ? (playerWin ? .7 : .42) : (playerWin ? .32 : .64);
+    const chance=canRepeat ? clamp(chanceBase + difficulty*.22 + (closeFight ? .08 : 0),0,.92) : clamp(chanceBase*.45,0,.48);
+    if(Math.random()>chance) return 0;
+    const base=Math.round(10 + game.stage.id*2.4 + difficulty*42 + (playerWin?12:22) + aiLead*3);
+    const cap=source==='masterAI' ? 190 : 150;
+    const amount=clamp(base,16,cap);
+    const available=Math.max(0,Number(r.treasury||0));
+    return Math.min(amount,Math.max(12,available));
+  }
+  function recordAiEconomyResult(playerWin, source='stage'){
+    const r=save.aiRecord=normalizeAiRecord(save.aiRecord);
+    const stageId=Number(game?.stage?.id || 0);
+    const aiBoxes=Number(game?.scores?.[2] || 0);
+    const aiGold=Number(game?.coins?.[2] || 0);
+    const aiWin=!playerWin;
+    const aiEarned=aiGold + (aiWin ? 28 + stageId*5 : 12 + stageId*2);
+    r.totalMatches+=1;
+    r.aiWins+=aiWin ? 1 : 0;
+    r.playerWins+=playerWin ? 1 : 0;
+    r.boxes+=aiBoxes;
+    r.gold+=aiGold;
+    r.treasury+=aiEarned;
+    r.bestStage=Math.max(r.bestStage,stageId);
+    const stageKey=String(stageId);
+    const stageRecord=Object.assign({plays:0,aiWins:0,playerWins:0,aiBoxes:0,aiGold:0,grants:0},r.stages[stageKey] || {});
+    stageRecord.plays+=1;
+    stageRecord.aiWins+=aiWin ? 1 : 0;
+    stageRecord.playerWins+=playerWin ? 1 : 0;
+    stageRecord.aiBoxes+=aiBoxes;
+    stageRecord.aiGold+=aiGold;
+    r.stages[stageKey]=stageRecord;
+    const grant=aiTreasuryGrant(playerWin,source);
+    if(grant>0){
+      r.treasury=Math.max(0,r.treasury-grant);
+      r.grants+=1;
+      r.grantGold+=grant;
+      r.lastGrantAt=Date.now();
+      stageRecord.grants+=grant;
+    }
+    r.updatedAt=Date.now();
+    return grant;
+  }
   function checkEnd(){
     game.objectiveDone = objectiveComplete();
     if(game.completed>=game.stage.cellCount){
@@ -3235,11 +3353,12 @@
   }
   function stageResultText(win, earnedStars, diamondEarned, locked, starNeed){
     const control=territoryPercent(1);
-    if(!win) return 'Fire Kingdom controlled '+control+'% of '+game.stage.name+'. Capture '+majorityNeeded(game.stage)+' boxes to claim this land and continue the journey.';
+    const grantText=game.aiGrant ? ' Shadow Treasury granted +'+game.aiGrant+' gold for facing strong AI.' : '';
+    if(!win) return 'Fire Kingdom controlled '+control+'% of '+game.stage.name+'. Capture '+majorityNeeded(game.stage)+' boxes to claim this land and continue the journey.'+grantText;
     const nextText=nextLandText(game.stage, locked, starNeed);
     const bossText=visualBossStage(game.stage) ? ' Boss Gate defeated.' : '';
     const diamondText=diamondEarned ? ' Diamond +1 earned.' : '';
-    return 'Fire Kingdom controlled '+control+'% of '+game.stage.name+'. '+earnedStars+'/3 stars secured.'+bossText+diamondText+' '+nextText;
+    return 'Fire Kingdom controlled '+control+'% of '+game.stage.name+'. '+earnedStars+'/3 stars secured.'+bossText+diamondText+grantText+' '+nextText;
   }
   function finishStage(win){
     if(game.over) return;
@@ -3248,6 +3367,11 @@
     game.objectiveDone = objectiveComplete();
     if(game.mode==='twoPlayer' || game.mode==='online' || game.mode==='masterAI'){
       const p1Win=hasBoxMajority(), winner=p1Win?'Player 1':'Player 2';
+      if(game.mode==='masterAI' && !game.aiRecordApplied){
+        game.aiRecordApplied=true;
+        game.masterStake=game.masterStake || {};
+        game.masterStake.grant=recordAiEconomyResult(p1Win,'masterAI');
+      }
       const localRole=actualLocalPlayer();
       const localWon=game.mode==='online' ? ((localRole===1 && p1Win) || (localRole===2 && !p1Win)) : p1Win;
       const localDelta=game.mode==='online' ? stakeDeltaForLocal(p1Win) : (game.mode==='masterAI' ? masterAiStakeDelta(p1Win) : 0);
@@ -3274,12 +3398,14 @@
     const earnedStars = earnedStarCount(win);
     const prevStars = stageBestStars(game.stage.id);
     const diamondEarned = earnedStars===3 && prevStars<3 ? 1 : 0;
+    const aiGrant = recordAiEconomyResult(win,'stage');
+    game.aiGrant=aiGrant;
     const objectiveBonus = win && game.objectiveDone ? 20 + game.stage.id*3 : 0;
     const winBonus = win ? 25 + game.stage.id*5 : 0;
     const bonus = winBonus + objectiveBonus;
     game.earnedStars = earnedStars;
     game.earnedDiamond = diamondEarned;
-    game.finalGold = game.coins[1] + bonus;
+    game.finalGold = game.coins[1] + bonus + aiGrant;
     save.gold += game.finalGold;
     save.diamonds = (save.diamonds || 0) + diamondEarned;
     if(earnedStars>prevStars) save.stars[game.stage.id]=earnedStars;
@@ -3314,7 +3440,8 @@
   }
   function masterAiStakeDelta(p1Win){
     const s=game?.masterStake || {};
-    return p1Win ? Number(s.ai || MASTER_AI_STAKE) : -Number(s.player || 0);
+    const grant=Number(s.grant || 0);
+    return (p1Win ? Number(s.ai || MASTER_AI_STAKE) : -Number(s.player || 0)) + grant;
   }
   function applyMasterAiStakeResult(p1Win){
     if(game.stakeApplied) return;
@@ -3327,9 +3454,11 @@
   function masterAiResultText(p1Win){
     const s=game?.masterStake || {};
     const playerStake=Number(s.player || 0), aiStake=Number(s.ai || MASTER_AI_STAKE);
+    const grant=Number(s.grant || 0);
     const delta=masterAiStakeDelta(p1Win);
-    if(delta>0) return 'Master AI Practice Gold was '+aiStake+'. You won +'+delta+' device-local Practice Gold.';
-    if(delta<0) return 'Master AI wins by box majority. You used '+Math.abs(delta)+' device-local Practice Gold.';
+    const grantText=grant ? ' Shadow Treasury grant +'+grant+' gold.' : '';
+    if(delta>0) return 'Master AI Treasury was '+aiStake+'. You won +'+delta+' device-local Practice Gold.'+grantText;
+    if(delta<0) return 'Master AI wins by box majority. Net change '+delta+' Practice Gold.'+grantText;
     return 'Practice duel finished with no Practice Gold change.';
   }
   function stakeDeltaForLocal(p1Win){
@@ -3419,7 +3548,8 @@
     const skillBoost=clamp((Number(skill)-.66)/.28,0,.65);
     const stageBoost=clamp((id-8)/24,0,.35);
     const bossBoost=game?.stage?.boss ? .12 : 0;
-    return clamp(skillBoost+stageBoost+bossBoost,0,1);
+    const expertFloor=id>=2 ? .62 : 0;
+    return clamp(Math.max(expertFloor,skillBoost+stageBoost+bossBoost),0,1);
   }
   function currentClosedEdgeSet(extra=null){
     const closed=new Set();
@@ -5213,7 +5343,7 @@
     if(mode==='tutorial') els.stageTarget.textContent='Learn lines, gold, stars, diamonds';
     else if(mode==='online') els.stageTarget.textContent=displayNameForActualPlayer(actualLocalPlayer())+' vs '+displayNameForActualPlayer(actualOpponentPlayer())+' · Room '+game.roomCode;
     else if(mode==='twoPlayer') els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes, no AI';
-    else if(mode==='masterAI') els.stageTarget.textContent='Master Entry '+MASTER_AI_STAKE+' gold. Win '+majorityNeeded(st)+' boxes';
+    else if(mode==='masterAI') els.stageTarget.textContent='Master Treasury '+Number(game.masterStake?.ai||MASTER_AI_STAKE)+' gold. Win '+majorityNeeded(st)+' boxes';
     else els.stageTarget.textContent='Win '+majorityNeeded(st)+' boxes · 3★: '+st.target.text+(game.objectiveDone?' ✓':'');
     setLiveValue(els.runGold,mode==='online' ? game.coins[actualLocalPlayer()] : game.coins[1]);
     const scores=displayScores();
@@ -5235,7 +5365,7 @@
     if(mode==='tutorial') els.balanceText.textContent='Stage 0';
     else if(mode==='twoPlayer') els.balanceText.textContent='Local duel';
     else if(mode==='online') els.balanceText.textContent=onlineWaiting() ? (game.roomStatus || 'Waiting') : (game.current===actualLocalPlayer() ? 'Your move' : 'Opponent move');
-    else if(mode==='masterAI') els.balanceText.textContent='You '+Number(game.masterStake?.player||0)+' / Master '+MASTER_AI_STAKE;
+    else if(mode==='masterAI') els.balanceText.textContent='You '+Number(game.masterStake?.player||0)+' / Master '+Number(game.masterStake?.ai||MASTER_AI_STAKE);
     else els.balanceText.textContent='AI '+Math.round(st.aiSkill*100)+'%';
     updateTurnBanner(mode);
     updateKingdomSeats(mode);
@@ -5245,9 +5375,9 @@
     else if(mode==='twoPlayer' || mode==='online' || mode==='masterAI') els.hintBtn.textContent='✨ Off';
     else {
       els.hintBtn.textContent=hintCost() ? '✨ Hint '+hintCost() : '✨ Hint';
-      if(save.inventory.hints>0 && game.stage.id>3) els.hintBtn.textContent='✨ Hint '+save.inventory.hints;
+      if(save.inventory.hints>0 && game.stage.id>1) els.hintBtn.textContent='✨ Hint '+save.inventory.hints;
     }
-    els.restartBtn.textContent=game.moves>3 && mode==='ai' ? '↻ Retry '+RETRY_COST : '↻ Reset';
+    els.restartBtn.textContent=game.moves>3 && mode==='ai' ? '↻ Retry '+retryCost() : '↻ Reset';
     if(mode==='ai' && save.inventory.retries>0 && game.moves>3) els.restartBtn.textContent='↻ Shield '+save.inventory.retries;
     canvas.setAttribute('aria-label',st.name+'. '+scores.leftLabel+' '+scores.left+' boxes, '+scores.rightLabel+' '+scores.right+' boxes. '+els.turnText.textContent+'. Drag between adjacent dots or tap the center of an open gate. Use the zoom button or two fingers together to enlarge and move the board.');
     updateMusicButtons();
@@ -5259,7 +5389,8 @@
     const next=BOARD_ZOOM_LEVELS[(current+1)%BOARD_ZOOM_LEVELS.length];
     setBoardZoom(next,{x:450,y:450});
   }
-  function hintCost(){ return game && game.stage.id>3 ? HINT_COST : 0; }
+  function hintCost(){ return game && game.stage.id>1 ? HINT_COST + Math.floor(game.stage.id/12)*5 : 0; }
+  function retryCost(){ return game && game.stage.id>1 ? RETRY_COST + Math.floor(game.stage.id/15)*5 : RETRY_COST; }
   function hint(){
     if(game?.mode==='tutorial'){
       setTeach(game.tutorial.autoDone ? '<b>Your turn:</b> '+game.tutorial.texts[game.tutorial.step] : 'Watch the glowing line first.');
@@ -5292,7 +5423,7 @@
     const id=game.stage.id;
     let msg = game.moves>3 ? 'Run gold reset' : 'Fresh start';
     if(game.moves>3 && save.inventory.retries>0){ save.inventory.retries--; storeSave(); msg='Retry shield used'; }
-    else if(game.moves>3 && save.gold>=RETRY_COST){ save.gold-=RETRY_COST; storeSave(); msg='Retry -'+RETRY_COST+' gold'; }
+    else if(game.moves>3 && save.gold>=retryCost()){ const cost=retryCost(); save.gold-=cost; storeSave(); msg='Retry -'+cost+' gold'; }
     startStage(id);
     setTimeout(()=>showToast(msg),80);
   }

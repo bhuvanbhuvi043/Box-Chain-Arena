@@ -16,7 +16,8 @@ Latest gameplay update:
 - Safer zoom controls, with no accidental double-tap zoom during play.
 - Stronger single-door gate closing animation.
 - More royal king/queen reactions during play.
-- Smarter higher-stage AI chain control.
+- Stage 2-100 now uses much tougher AI chain-control strategy.
+- Added private AI record and Shadow Treasury virtual gold grants.
 - More compact gameplay HUD for extra board space.
 
 ## Live Builds
