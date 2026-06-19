@@ -3601,25 +3601,33 @@
     return value;
   }
   function chooseAdvancedChainControl(scored,captures,control,skill){
-    if(control<.42 || !captures.length) return null;
+    if(control<.72 || !captures.length) return null;
     const ruthless=control>=.995 || skill>=.995;
-    const remaining=currentCapturePotential(control>.78 ? 5 : 4);
-    if(remaining<1 || remaining>2) return null;
+    const remaining=currentCapturePotential(ruthless ? 26 : 14);
+    if(remaining!==2) return null;
     const cellsLeft=(game.stage.cellCount || 0)-game.completed;
     if(cellsLeft<=remaining+2) return null;
-    const nonCaptures=scored.filter(x=>x.s.capture===0);
-    if(!nonCaptures.length) return null;
     const scoreGap=(game.scores[2] || 0)-(game.scores[1] || 0);
-    if(scoreGap<-2 && !ruthless && Math.random()<.8) return null;
-    if(!ruthless && Math.random()>clamp(.36+control*.52+skill*.12,0,.96)) return null;
-    const maxGift=ruthless ? remaining : remaining+(control>.8 ? 2 : 1);
-    const controlled=nonCaptures.filter(x=>chainRunAfterEdge(x.e,10)<=maxGift || x.s.danger===0);
-    const pool=controlled.length ? controlled : nonCaptures;
-    return best(pool,x=>-chainRunAfterEdge(x.e,12)*130 - x.s.danger*110 - futureDamage(x.e)*24 - chainGiftRisk(x.e)*.72 + x.s.future*10 - edgeCentrality(x.e)*.006 + (ruthless?0:Math.random()*3)).e;
+    const projectedGap=scoreGap-remaining;
+    if(projectedGap<-1) return null;
+    if(!ruthless && Math.random()>clamp(.42+control*.5+skill*.12,0,.96)) return null;
+    const handouts=scored
+      .filter(x=>x.s.capture===0 && x.s.danger>0)
+      .map(x=>({e:x.e,s:x.s,gift:chainRunAfterEdge(x.e,10)}))
+      .filter(x=>x.gift>0 && x.gift<=2);
+    if(!handouts.length) return null;
+    return best(handouts,x=>-x.gift*150 - x.s.danger*22 - futureDamage(x.e)*14 - chainGiftRisk(x.e)*.35 + endgamePressure(x.e)*.8 - edgeCentrality(x.e)*.004 + (ruthless?0:Math.random()*2)).e;
   }
-  function chooseExactEndgameMove(scored){
+  function captureContinuation(edge,lookahead=24){
+    return chainRunAfterEdge(edge,lookahead);
+  }
+  function chooseNoMercyCapture(captures,lookahead=24){
+    if(!captures.length) return null;
+    return best(captures,x=>x.s.capture*520 + captureContinuation(x.e,lookahead)*360 + x.s.coin*.58 + x.s.future*18 - futureDamage(x.e)*8 - edgeCentrality(x.e)*.004).e;
+  }
+  function chooseExactEndgameMove(scored,maxMoves=12){
     const moves=scored.map(x=>x.e);
-    if(moves.length>12) return null;
+    if(moves.length>maxMoves) return null;
     const edges=[...game.stage.edges.values()];
     const cells=[...game.stage.boxes.keys()];
     const memo=new Map();
@@ -3697,12 +3705,12 @@
   }
   function chooseRuthlessAIMove(scored,captures,safe,lookahead){
     if(captures.length){
-      return best(captures,x=>x.s.capture*260 + x.s.coin*.52 + x.s.future*16 - chainRunAfterEdge(x.e,lookahead)*12 - futureDamage(x.e)*18 - chainGiftRisk(x.e)*.8 - edgeCentrality(x.e)*.004).e;
+      return chooseNoMercyCapture(captures,lookahead);
     }
     if(safe.length){
-      return best(safe,x=>x.s.future*22 - x.s.danger*180 - chainGiftRisk(x.e)*2.35 - chainRunAfterEdge(x.e,lookahead)*82 - futureDamage(x.e)*34 - edgeCentrality(x.e)*.006 + endgamePressure(x.e)*1.1).e;
+      return best(safe,x=>x.s.future*22 - x.s.danger*210 - chainGiftRisk(x.e)*3.15 - chainRunAfterEdge(x.e,lookahead)*118 - futureDamage(x.e)*38 - edgeCentrality(x.e)*.006 + endgamePressure(x.e)*1.1).e;
     }
-    return best(scored,x=>x.s.capture*150 + x.s.coin*.35 - x.s.danger*210 - futureDamage(x.e)*42 - chainGiftRisk(x.e)*2.6 - chainRunAfterEdge(x.e,lookahead)*90 - edgeCentrality(x.e)*.004).e;
+    return best(scored,x=>x.s.capture*150 + x.s.coin*.35 - x.s.danger*260 - futureDamage(x.e)*64 - chainGiftRisk(x.e)*3.2 - chainRunAfterEdge(x.e,lookahead)*132 - edgeCentrality(x.e)*.004).e;
   }
   function chooseAIMove(){
     const moves=availableMoves(); if(!moves.length) return null;
@@ -3715,9 +3723,10 @@
     const nearWin = game.completed > game.stage.cellCount*.65;
     const chainControl=chooseAdvancedChainControl(scored,captures,control,skill);
     if(chainControl) return chainControl;
-    if(control>=.995 || skill>=.995){ const exact=chooseExactEndgameMove(scored); if(exact) return exact; }
+    if((control>=.995 || skill>=.995) && captures.length) return chooseNoMercyCapture(captures,lookahead);
+    if(control>=.995 || skill>=.995){ const exact=chooseExactEndgameMove(scored,14); if(exact) return exact; }
     if(control>=.995 || skill>=.995) return chooseRuthlessAIMove(scored,captures,safe,lookahead);
-    if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 - chainRunAfterEdge(x.e,lookahead)*control*8 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
+    if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 + chainRunAfterEdge(x.e,lookahead)*control*42 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
     if(safe.length && Math.random()<clamp(skill+.08+control*.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*95 - chainGiftRisk(x.e)*(1.15+control*.9) - chainRunAfterEdge(x.e,lookahead)*control*36 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*noise).e;
     if(Math.random()>skill) return best(scored,x=>x.s.capture*75 + x.s.coin*.2 - x.s.danger*18 - chainRunAfterEdge(x.e,8)*control*22 + Math.random()*24).e;
     return best(scored,x=>x.s.capture*124 + x.s.coin*.26 - x.s.danger*(90+control*50) + x.s.future*8 - futureDamage(x.e)*(12+control*10) - chainGiftRisk(x.e)*(1.2+control) - chainRunAfterEdge(x.e,lookahead)*control*45 + Math.random()*Math.max(.8,4-control*2.7)).e;

@@ -57,6 +57,23 @@ const ids = [...indexHtml.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
 const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
 if (duplicateIds.length) errors.push(`Duplicate HTML IDs: ${duplicateIds.join(", ")}`);
 
+const aiPowerMatch = indexHtml.match(/function aiPowerForStage\(id\)\{([\s\S]*?)\n  \}/);
+if (!aiPowerMatch || !/if\(id<=1\) return \.62;[\s\S]*return 1;/.test(aiPowerMatch[1])) {
+  errors.push("AI power contract changed: Stage 1 should be friendly, Stage 2+ should be full power");
+}
+
+if (!indexHtml.includes("function chooseNoMercyCapture(captures,lookahead=24)")) {
+  errors.push("No-mercy capture chooser is missing");
+}
+
+if (!indexHtml.includes("captureContinuation(x.e,lookahead)*360")) {
+  errors.push("AI capture continuation must be rewarded, not penalized");
+}
+
+if (!indexHtml.includes("remaining!==2") || !indexHtml.includes("projectedGap<-1")) {
+  errors.push("Hard-hearted handout guard must only allow controlled two-box gifts");
+}
+
 const moduleMatch = indexHtml.match(/<script type="module">([\s\S]*?)<\/script>/);
 if (!moduleMatch) {
   errors.push("Frontend module script was not found");

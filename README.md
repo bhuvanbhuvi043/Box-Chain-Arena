@@ -16,7 +16,7 @@ Latest gameplay update:
 - Safer zoom controls, with no accidental double-tap zoom during play.
 - Stronger single-door gate closing animation.
 - More royal king/queen reactions during play.
-- Stage 2-100 now runs 100% no-mercy AI with ruthless chain control and exact endgame search.
+- Stage 2-100 now runs 100% no-mercy AI with capture-chain continuation, guarded two-box handouts, and exact endgame search.
 - Added private AI record and Shadow Treasury virtual gold grants.
 - More compact gameplay HUD for extra board space.
 
