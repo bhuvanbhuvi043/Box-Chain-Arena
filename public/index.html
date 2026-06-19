@@ -1038,16 +1038,30 @@
   ];
   const OPPONENTS = [
     {name:'Friendly Rival', base:.62, style:'playful'},
-    {name:'Iron Strategist', base:.945, style:'expert'},
-    {name:'Silent Master', base:.972, style:'chain'},
-    {name:'Final Boss', base:.992, style:'boss'}
+    {name:'Iron Strategist', base:.95, style:'expert'},
+    {name:'Silent Master', base:.98, style:'chain'},
+    {name:'Final Boss', base:1, style:'boss'}
   ];
   const SHAPE_ICONS = {classic:'▦', heart:'❤', star:'★', spiral:'↻', diamond:'◆', bench:'▤', festival:'✦', map:'⌖'};
   const OPPONENT_ICONS = {'Friendly Rival':'🙂','Iron Strategist':'♟','Silent Master':'◈','Final Boss':'♛'};
+  function aiPowerForStage(id){
+    id=Number(id||1);
+    if(id<=1) return .62;
+    if(id<10) return .95;
+    if(id<50) return .98;
+    return 1;
+  }
+  function opponentForStage(id){
+    id=Number(id||1);
+    if(id<=1) return OPPONENTS[0];
+    if(id<10) return OPPONENTS[1];
+    if(id<50) return OPPONENTS[2];
+    return OPPONENTS[3];
+  }
   const GUIDE = [
     {icon:'🎯', title:'Win by boxes', text:'Stars start only when you capture more than 50% of the boxes.'},
     {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
-    {icon:'♛', title:'Strong AI', text:'Stage 1 teaches the basics. From Stage 2 onward, the AI plays expert chain-control strategy.'},
+    {icon:'♛', title:'Unbeatable AI ladder', text:'Stage 1 teaches basics. Stage 2-9 is 95%, Stage 10-49 is 98%, and Stage 50+ enters 100% no-mercy chain control.'},
     {icon:'💰', title:'Shadow Treasury', text:'Face tough AI stages to earn match gold, replay rewards, and occasional AI treasury grants.'},
     {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
@@ -1060,7 +1074,7 @@
     {icon:'OK', title:'Ready Lobby', text:'Both players confirm. Then the match starts automatically.'},
     {icon:'@', title:'Online Players', text:'Registered players can challenge each other directly.'}
   ];
-  const MASTER_AI_PLAYER = {uid:'master-ai',nickname:'Master AI',online:true,isMasterAI:true,wins:999,losses:12,meta:'Always online - very tough'};
+  const MASTER_AI_PLAYER = {uid:'master-ai',nickname:'Master AI',online:true,isMasterAI:true,wins:9999,losses:0,meta:'Always online - 100% no-mercy AI'};
   const DUMMY_ONLINE_PLAYERS = [
     {uid:'demo-ravi',nickname:'Ravi Demo',online:true,isDummy:true,wins:8,losses:5},
     {uid:'demo-meena',nickname:'Meena Demo',online:true,isDummy:true,wins:5,losses:3},
@@ -1215,7 +1229,7 @@
     return Object.assign({},MASTER_AI_PLAYER,{
       wins:r.aiWins,
       losses:r.playerWins,
-      meta:'Stage 2-100 expert AI · '+r.aiWins+'W '+r.playerWins+'L · granted '+r.grantGold+' gold'
+      meta:'Stage 2-9 95%, Stage 10-49 98%, Stage 50+ 100% · '+r.aiWins+'W '+r.playerWins+'L · granted '+r.grantGold+' gold'
     });
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
@@ -1354,15 +1368,15 @@
   function stageDef(id){
     if(id<=DUEL_STAGE_COUNT){
       const duel=DUEL_STAGES[id-1];
-      const opponent = id===1 ? OPPONENTS[0] : (id%10===0 ? OPPONENTS[3] : (id%5===0 || id>=18 ? OPPONENTS[2] : OPPONENTS[1]));
-      return {id,shape:duel.shape,size:duel.rows,rows:duel.rows,cols:duel.cols,name:duel.name,layout:duel.layout,opponent,targetType:duel.targetType,theme:THEMES[duel.shape],boss:id%10===0};
+      const opponent = opponentForStage(id);
+      return {id,shape:duel.shape,size:duel.rows,rows:duel.rows,cols:duel.cols,name:duel.name,layout:duel.layout,opponent,targetType:duel.targetType,theme:THEMES[duel.shape],boss:id>=50 || id%10===0};
     }
     const shape = SHAPES[(id-1)%SHAPES.length];
-    const opponent = id===1 ? OPPONENTS[0] : (id%8===0 ? OPPONENTS[3] : (id%5===0 || id>=18 ? OPPONENTS[2] : OPPONENTS[1]));
+    const opponent = opponentForStage(id);
     const size = 5 + ((id-1)%5);
     const targetType = TARGETS[(id-1)%TARGETS.length];
     const theme = THEMES[shape];
-    return {id,shape,size,rows:size,cols:size,name:NAMES[shape],opponent,targetType,theme,boss:id%8===0};
+    return {id,shape,size,rows:size,cols:size,name:NAMES[shape],opponent,targetType,theme,boss:id>=50 || id%10===0};
   }
 
   function duelLayoutKeep(stage,r,c,rand){
@@ -1448,11 +1462,7 @@
     }
     const cellCount = cells.size, edgeCount = edges.size;
     const complexity = clamp((edgeCount/(cellCount*4)) + (1 - cellCount/(stage.rows*stage.cols)), .25, 1.35);
-    const shapePressure = stage.shape==='classic' ? .05 : (stage.shape==='spiral' || stage.shape==='map' ? -.015 : 0);
-    const rawSkill = stage.opponent.base + Math.min(.22,id*.012) + shapePressure + (stage.boss ? .012 : 0) - complexity*(id===1 ? .075 : .018);
-    const aiFloor = id===1 ? .62 : clamp(.94 + id*.0028 + (stage.boss ? .018 : 0), .945, .995);
-    const aiCap = id===1 ? .72 : .998;
-    const aiSkill = clamp(Math.max(rawSkill, aiFloor), id===1 ? .56 : aiFloor, aiCap);
+    const aiSkill = aiPowerForStage(id);
     const target = makeTarget(stage, cellCount, id);
     const coinBoxes = buildCoinBoxes(stage, cells);
     return {...stage,cells,edges,dots,boxes,coinBoxes,cellCount,edgeCount,complexity,aiSkill,target};
@@ -1649,8 +1659,8 @@
     const stageId=2+Math.floor(Math.random()*(DUEL_STAGE_COUNT-1));
     const stage=buildStage(stageId);
     stage.name='Master AI: '+stage.name;
-    stage.opponent={name:'Master AI',base:.998,style:'master'};
-    stage.aiSkill=.998;
+    stage.opponent={name:'Master AI',base:1,style:'master'};
+    stage.aiSkill=1;
     stage.target={type:'boxes',value:majorityNeeded(stage),text:'Win '+majorityNeeded(stage)+' boxes'};
     closePlayers();
     hideAccountModals();
@@ -3545,11 +3555,11 @@
   function aiControlLevel(skill=game?.stage?.aiSkill || game?.stage?.opponent?.base || .65){
     const id=Number(game?.stage?.id || 0), style=game?.stage?.opponent?.style || '';
     if(game?.mode==='masterAI' || style==='master') return 1;
+    const tierControl=id>=50 ? 1 : (id>=10 ? .98 : (id>=2 ? .95 : 0));
     const skillBoost=clamp((Number(skill)-.66)/.28,0,.65);
     const stageBoost=clamp((id-8)/24,0,.35);
     const bossBoost=game?.stage?.boss ? .12 : 0;
-    const expertFloor=id>=2 ? .62 : 0;
-    return clamp(Math.max(expertFloor,skillBoost+stageBoost+bossBoost),0,1);
+    return clamp(Math.max(tierControl,skillBoost+stageBoost+bossBoost),0,1);
   }
   function currentClosedEdgeSet(extra=null){
     const closed=new Set();
@@ -3596,6 +3606,7 @@
   }
   function chooseAdvancedChainControl(scored,captures,control,skill){
     if(control<.42 || !captures.length) return null;
+    const ruthless=control>=.995 || skill>=.995;
     const remaining=currentCapturePotential(control>.78 ? 5 : 4);
     if(remaining<1 || remaining>2) return null;
     const cellsLeft=(game.stage.cellCount || 0)-game.completed;
@@ -3603,24 +3614,34 @@
     const nonCaptures=scored.filter(x=>x.s.capture===0);
     if(!nonCaptures.length) return null;
     const scoreGap=(game.scores[2] || 0)-(game.scores[1] || 0);
-    if(scoreGap<-2 && Math.random()<.8) return null;
-    if(Math.random()>clamp(.36+control*.52+skill*.12,0,.96)) return null;
-    const maxGift=remaining+(control>.8 ? 2 : 1);
+    if(scoreGap<-2 && !ruthless && Math.random()<.8) return null;
+    if(!ruthless && Math.random()>clamp(.36+control*.52+skill*.12,0,.96)) return null;
+    const maxGift=ruthless ? remaining : remaining+(control>.8 ? 2 : 1);
     const controlled=nonCaptures.filter(x=>chainRunAfterEdge(x.e,10)<=maxGift || x.s.danger===0);
     const pool=controlled.length ? controlled : nonCaptures;
-    return best(pool,x=>-chainRunAfterEdge(x.e,12)*105 - x.s.danger*80 - futureDamage(x.e)*18 - chainGiftRisk(x.e)*.55 + x.s.future*8 - edgeCentrality(x.e)*.008 + Math.random()*3).e;
+    return best(pool,x=>-chainRunAfterEdge(x.e,12)*130 - x.s.danger*110 - futureDamage(x.e)*24 - chainGiftRisk(x.e)*.72 + x.s.future*10 - edgeCentrality(x.e)*.006 + (ruthless?0:Math.random()*3)).e;
+  }
+  function chooseRuthlessAIMove(scored,captures,safe,lookahead){
+    if(captures.length){
+      return best(captures,x=>x.s.capture*260 + x.s.coin*.52 + x.s.future*16 - chainRunAfterEdge(x.e,lookahead)*12 - futureDamage(x.e)*18 - chainGiftRisk(x.e)*.8 - edgeCentrality(x.e)*.004).e;
+    }
+    if(safe.length){
+      return best(safe,x=>x.s.future*22 - x.s.danger*180 - chainGiftRisk(x.e)*2.35 - chainRunAfterEdge(x.e,lookahead)*82 - futureDamage(x.e)*34 - edgeCentrality(x.e)*.006 + endgamePressure(x.e)*1.1).e;
+    }
+    return best(scored,x=>x.s.capture*150 + x.s.coin*.35 - x.s.danger*210 - futureDamage(x.e)*42 - chainGiftRisk(x.e)*2.6 - chainRunAfterEdge(x.e,lookahead)*90 - edgeCentrality(x.e)*.004).e;
   }
   function chooseAIMove(){
     const moves=availableMoves(); if(!moves.length) return null;
     game._aiChainRunCache=new Map();
     const skill=clamp(Number(game.stage.aiSkill || game.stage.opponent?.base || .7),0,1);
-    const control=aiControlLevel(skill), lookahead=control>.72 ? 18 : 12, noise=Math.max(.9,5-control*3.7);
+    const control=aiControlLevel(skill), lookahead=control>=.98 ? 24 : (control>.72 ? 18 : 12), noise=control>=.995 ? 0 : (control>=.98 ? .12 : (control>=.95 ? .35 : Math.max(.9,5-control*3.7)));
     const scored=moves.map(e=>({e,s:moveScore(e)}));
     const captures=scored.filter(x=>x.s.capture>0);
     const safe=scored.filter(x=>x.s.danger===0);
     const nearWin = game.completed > game.stage.cellCount*.65;
     const chainControl=chooseAdvancedChainControl(scored,captures,control,skill);
     if(chainControl) return chainControl;
+    if(control>=.995 || skill>=.995) return chooseRuthlessAIMove(scored,captures,safe,lookahead);
     if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 - chainRunAfterEdge(x.e,lookahead)*control*8 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
     if(safe.length && Math.random()<clamp(skill+.08+control*.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*95 - chainGiftRisk(x.e)*(1.15+control*.9) - chainRunAfterEdge(x.e,lookahead)*control*36 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*noise).e;
     if(Math.random()>skill) return best(scored,x=>x.s.capture*75 + x.s.coin*.2 - x.s.danger*18 - chainRunAfterEdge(x.e,8)*control*22 + Math.random()*24).e;

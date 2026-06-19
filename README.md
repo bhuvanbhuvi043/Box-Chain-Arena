@@ -16,7 +16,7 @@ Latest gameplay update:
 - Safer zoom controls, with no accidental double-tap zoom during play.
 - Stronger single-door gate closing animation.
 - More royal king/queen reactions during play.
-- Stage 2-100 now uses much tougher AI chain-control strategy.
+- AI difficulty ladder is now exact: Stage 2-9 at 95%, Stage 10-49 at 98%, and Stage 50-100 at 100% no-mercy chain control.
 - Added private AI record and Shadow Treasury virtual gold grants.
 - More compact gameplay HUD for extra board space.
 
