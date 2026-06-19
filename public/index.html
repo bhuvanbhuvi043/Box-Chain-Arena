@@ -1038,8 +1038,8 @@
   ];
   const OPPONENTS = [
     {name:'Friendly Rival', base:.62, style:'playful'},
-    {name:'Iron Strategist', base:.95, style:'expert'},
-    {name:'Silent Master', base:.98, style:'chain'},
+    {name:'Iron Strategist', base:1, style:'expert'},
+    {name:'Silent Master', base:1, style:'chain'},
     {name:'Final Boss', base:1, style:'boss'}
   ];
   const SHAPE_ICONS = {classic:'▦', heart:'❤', star:'★', spiral:'↻', diamond:'◆', bench:'▤', festival:'✦', map:'⌖'};
@@ -1047,21 +1047,17 @@
   function aiPowerForStage(id){
     id=Number(id||1);
     if(id<=1) return .62;
-    if(id<10) return .95;
-    if(id<50) return .98;
     return 1;
   }
   function opponentForStage(id){
     id=Number(id||1);
     if(id<=1) return OPPONENTS[0];
-    if(id<10) return OPPONENTS[1];
-    if(id<50) return OPPONENTS[2];
     return OPPONENTS[3];
   }
   const GUIDE = [
     {icon:'🎯', title:'Win by boxes', text:'Stars start only when you capture more than 50% of the boxes.'},
     {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
-    {icon:'♛', title:'Unbeatable AI ladder', text:'Stage 1 teaches basics. Stage 2-9 is 95%, Stage 10-49 is 98%, and Stage 50+ enters 100% no-mercy chain control.'},
+    {icon:'♛', title:'Unbeatable AI mode', text:'Stage 1 teaches basics. From Stage 2 to Stage 100, the AI runs 100% no-mercy chain control with exact endgame search.'},
     {icon:'💰', title:'Shadow Treasury', text:'Face tough AI stages to earn match gold, replay rewards, and occasional AI treasury grants.'},
     {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
@@ -1229,7 +1225,7 @@
     return Object.assign({},MASTER_AI_PLAYER,{
       wins:r.aiWins,
       losses:r.playerWins,
-      meta:'Stage 2-9 95%, Stage 10-49 98%, Stage 50+ 100% · '+r.aiWins+'W '+r.playerWins+'L · granted '+r.grantGold+' gold'
+      meta:'Stage 2-100 100% no-mercy AI · '+r.aiWins+'W '+r.playerWins+'L · granted '+r.grantGold+' gold'
     });
   }
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
@@ -3555,7 +3551,7 @@
   function aiControlLevel(skill=game?.stage?.aiSkill || game?.stage?.opponent?.base || .65){
     const id=Number(game?.stage?.id || 0), style=game?.stage?.opponent?.style || '';
     if(game?.mode==='masterAI' || style==='master') return 1;
-    const tierControl=id>=50 ? 1 : (id>=10 ? .98 : (id>=2 ? .95 : 0));
+    const tierControl=id>=2 ? 1 : 0;
     const skillBoost=clamp((Number(skill)-.66)/.28,0,.65);
     const stageBoost=clamp((id-8)/24,0,.35);
     const bossBoost=game?.stage?.boss ? .12 : 0;
@@ -3621,6 +3617,84 @@
     const pool=controlled.length ? controlled : nonCaptures;
     return best(pool,x=>-chainRunAfterEdge(x.e,12)*130 - x.s.danger*110 - futureDamage(x.e)*24 - chainGiftRisk(x.e)*.72 + x.s.future*10 - edgeCentrality(x.e)*.006 + (ruthless?0:Math.random()*3)).e;
   }
+  function chooseExactEndgameMove(scored){
+    const moves=scored.map(x=>x.e);
+    if(moves.length>12) return null;
+    const edges=[...game.stage.edges.values()];
+    const cells=[...game.stage.boxes.keys()];
+    const memo=new Map();
+    const startClosed=currentClosedEdgeSet();
+    const startBoxes=new Map(game.stage.boxes);
+    const scoreDiff=boxes=>{
+      let ai=0,human=0;
+      for(const owner of boxes.values()){
+        if(owner===2) ai++;
+        else if(owner===1) human++;
+      }
+      return ai-human;
+    };
+    const memoKey=(closed,boxes,current)=>current+'|'+edges.map(e=>closed.has(e.key)?'1':'0').join('')+'|'+cells.map(k=>boxes.get(k)||0).join('');
+    const applySim=(edge,closed,boxes,current)=>{
+      const nextClosed=new Set(closed);
+      const nextBoxes=new Map(boxes);
+      nextClosed.add(edge.key);
+      let gained=0;
+      for(const key of adjacentCells(edge)){
+        if(!nextBoxes.get(key) && simSideCount(key,nextClosed)===4){
+          nextBoxes.set(key,current);
+          gained++;
+        }
+      }
+      return {closed:nextClosed,boxes:nextBoxes,next:gained?current:(current===1?2:1),gained};
+    };
+    const orderedMoves=(closed,boxes,current)=>{
+      return edges.filter(e=>!closed.has(e.key)).map(edge=>{
+        let gain=0,gift=0,future=0;
+        for(const key of adjacentCells(edge)){
+          if(!boxes.get(key)){
+            const before=simSideCount(key,closed);
+            const after=before+1;
+            if(after===4) gain++;
+            if(after===3) gift++;
+            if(after===2) future++;
+          }
+        }
+        const weight=(current===2?gain*120-gift*80:gain*90-gift*60)+future*6-edgeCentrality(edge)*.002;
+        return {edge,weight};
+      }).sort((a,b)=>b.weight-a.weight).map(x=>x.edge);
+    };
+    const search=(closed,boxes,current,alpha,beta)=>{
+      if(closed.size>=edges.length) return scoreDiff(boxes);
+      const key=memoKey(closed,boxes,current);
+      if(memo.has(key)) return memo.get(key);
+      let value=current===2 ? -999 : 999;
+      for(const edge of orderedMoves(closed,boxes,current)){
+        const sim=applySim(edge,closed,boxes,current);
+        const child=search(sim.closed,sim.boxes,sim.next,alpha,beta);
+        if(current===2){
+          value=Math.max(value,child);
+          alpha=Math.max(alpha,value);
+        } else {
+          value=Math.min(value,child);
+          beta=Math.min(beta,value);
+        }
+        if(beta<=alpha) break;
+      }
+      memo.set(key,value);
+      return value;
+    };
+    let picked=null,pickedValue=-999;
+    for(const edge of orderedMoves(startClosed,startBoxes,2)){
+      if(!moves.some(m=>m.key===edge.key)) continue;
+      const sim=applySim(edge,startClosed,startBoxes,2);
+      const value=search(sim.closed,sim.boxes,sim.next,-999,999);
+      if(value>pickedValue){
+        pickedValue=value;
+        picked=edge;
+      }
+    }
+    return picked;
+  }
   function chooseRuthlessAIMove(scored,captures,safe,lookahead){
     if(captures.length){
       return best(captures,x=>x.s.capture*260 + x.s.coin*.52 + x.s.future*16 - chainRunAfterEdge(x.e,lookahead)*12 - futureDamage(x.e)*18 - chainGiftRisk(x.e)*.8 - edgeCentrality(x.e)*.004).e;
@@ -3641,6 +3715,7 @@
     const nearWin = game.completed > game.stage.cellCount*.65;
     const chainControl=chooseAdvancedChainControl(scored,captures,control,skill);
     if(chainControl) return chainControl;
+    if(control>=.995 || skill>=.995){ const exact=chooseExactEndgameMove(scored); if(exact) return exact; }
     if(control>=.995 || skill>=.995) return chooseRuthlessAIMove(scored,captures,safe,lookahead);
     if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 - chainRunAfterEdge(x.e,lookahead)*control*8 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
     if(safe.length && Math.random()<clamp(skill+.08+control*.08,0,1)) return best(safe,x=>x.s.future*14 - x.s.danger*95 - chainGiftRisk(x.e)*(1.15+control*.9) - chainRunAfterEdge(x.e,lookahead)*control*36 - edgeCentrality(x.e)*.012 + (nearWin?endgamePressure(x.e):0) + Math.random()*noise).e;
