@@ -70,8 +70,15 @@ if (!indexHtml.includes("captureContinuation(x.e,lookahead)*360")) {
   errors.push("AI capture continuation must be rewarded, not penalized");
 }
 
-if (!indexHtml.includes("remaining!==2") || !indexHtml.includes("projectedGap<-1")) {
-  errors.push("Hard-hearted handout guard must only allow controlled two-box gifts");
+const chooseAiStart = indexHtml.indexOf("function chooseAIMove(){");
+const capturePriority = indexHtml.indexOf("if(captures.length) return chooseNoMercyCapture(captures,lookahead);", chooseAiStart);
+const exactSearchStart = indexHtml.indexOf("chooseExactEndgameMove(scored,14)", chooseAiStart);
+if (chooseAiStart === -1 || capturePriority === -1 || (exactSearchStart !== -1 && capturePriority > exactSearchStart)) {
+  errors.push("AI must close available boxes before search or strategy logic runs");
+}
+
+if (indexHtml.includes("chooseAdvancedChainControl")) {
+  errors.push("Legacy handout controller should not run in production AI");
 }
 
 const moduleMatch = indexHtml.match(/<script type="module">([\s\S]*?)<\/script>/);

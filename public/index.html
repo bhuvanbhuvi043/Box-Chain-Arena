@@ -3600,24 +3600,6 @@
     game._aiChainRunCache.set(key,value);
     return value;
   }
-  function chooseAdvancedChainControl(scored,captures,control,skill){
-    if(control<.72 || !captures.length) return null;
-    const ruthless=control>=.995 || skill>=.995;
-    const remaining=currentCapturePotential(ruthless ? 26 : 14);
-    if(remaining!==2) return null;
-    const cellsLeft=(game.stage.cellCount || 0)-game.completed;
-    if(cellsLeft<=remaining+2) return null;
-    const scoreGap=(game.scores[2] || 0)-(game.scores[1] || 0);
-    const projectedGap=scoreGap-remaining;
-    if(projectedGap<-1) return null;
-    if(!ruthless && Math.random()>clamp(.42+control*.5+skill*.12,0,.96)) return null;
-    const handouts=scored
-      .filter(x=>x.s.capture===0 && x.s.danger>0)
-      .map(x=>({e:x.e,s:x.s,gift:chainRunAfterEdge(x.e,10)}))
-      .filter(x=>x.gift>0 && x.gift<=2);
-    if(!handouts.length) return null;
-    return best(handouts,x=>-x.gift*150 - x.s.danger*22 - futureDamage(x.e)*14 - chainGiftRisk(x.e)*.35 + endgamePressure(x.e)*.8 - edgeCentrality(x.e)*.004 + (ruthless?0:Math.random()*2)).e;
-  }
   function captureContinuation(edge,lookahead=24){
     return chainRunAfterEdge(edge,lookahead);
   }
@@ -3719,11 +3701,9 @@
     const control=aiControlLevel(skill), lookahead=control>=.98 ? 24 : (control>.72 ? 18 : 12), noise=control>=.995 ? 0 : (control>=.98 ? .12 : (control>=.95 ? .35 : Math.max(.9,5-control*3.7)));
     const scored=moves.map(e=>({e,s:moveScore(e)}));
     const captures=scored.filter(x=>x.s.capture>0);
+    if(captures.length) return chooseNoMercyCapture(captures,lookahead);
     const safe=scored.filter(x=>x.s.danger===0);
     const nearWin = game.completed > game.stage.cellCount*.65;
-    const chainControl=chooseAdvancedChainControl(scored,captures,control,skill);
-    if(chainControl) return chainControl;
-    if((control>=.995 || skill>=.995) && captures.length) return chooseNoMercyCapture(captures,lookahead);
     if(control>=.995 || skill>=.995){ const exact=chooseExactEndgameMove(scored,14); if(exact) return exact; }
     if(control>=.995 || skill>=.995) return chooseRuthlessAIMove(scored,captures,safe,lookahead);
     if(captures.length && Math.random()<clamp(skill+.18+control*.08,0,1)) return best(captures,x=>x.s.capture*178 + x.s.coin*.42 + x.s.future*8 + chainRunAfterEdge(x.e,lookahead)*control*42 - edgeCentrality(x.e)*.01 + Math.random()*noise).e;
