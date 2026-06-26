@@ -66,15 +66,27 @@ if (!indexHtml.includes("function chooseNoMercyCapture(captures,lookahead=24)"))
   errors.push("No-mercy capture chooser is missing");
 }
 
+if (!indexHtml.includes("function chooseChainControlHandout(scored,captures,control,skill,lookahead)")) {
+  errors.push("Master last-two chain-control handout is missing");
+}
+
 if (!indexHtml.includes("captureContinuation(x.e,lookahead)*360")) {
   errors.push("AI capture continuation must be rewarded, not penalized");
 }
 
 const chooseAiStart = indexHtml.indexOf("function chooseAIMove(){");
-const capturePriority = indexHtml.indexOf("if(captures.length) return chooseNoMercyCapture(captures,lookahead);", chooseAiStart);
-const exactSearchStart = indexHtml.indexOf("chooseExactEndgameMove(scored,14)", chooseAiStart);
-if (chooseAiStart === -1 || capturePriority === -1 || (exactSearchStart !== -1 && capturePriority > exactSearchStart)) {
-  errors.push("AI must close available boxes before search or strategy logic runs");
+const handoutBeforeCapture = indexHtml.indexOf("const handout=chooseChainControlHandout(scored,captures,control,skill,lookahead);", chooseAiStart);
+const captureFallback = indexHtml.indexOf("return chooseNoMercyCapture(captures,lookahead);", handoutBeforeCapture);
+if (chooseAiStart === -1 || handoutBeforeCapture === -1 || captureFallback === -1) {
+  errors.push("AI must use master last-two handout only before the no-mercy capture fallback");
+}
+
+if (!/remaining=currentCapturePotential\(3\);[\s\S]*if\(remaining!==2\) return null;/.test(indexHtml)) {
+  errors.push("AI handout must only activate when exactly two capture boxes remain");
+}
+
+if (!/game\.chains\?\.\[2\][\s\S]*<1/.test(indexHtml)) {
+  errors.push("AI handout must only activate after the AI has started a capture chain");
 }
 
 if (indexHtml.includes("chooseAdvancedChainControl")) {

@@ -1057,7 +1057,7 @@
   const GUIDE = [
     {icon:'🎯', title:'Win by boxes', text:'Stars start only when you capture more than 50% of the boxes.'},
     {icon:'🪙', title:'Grab coin boxes', text:'Selected boxes hold gold before capture. Chain captures multiply the coin reward.'},
-    {icon:'♛', title:'Unbeatable AI mode', text:'Stage 1 teaches basics. From Stage 2 to Stage 100, the AI runs 100% no-mercy chain control with exact endgame search.'},
+    {icon:'♛', title:'Unbeatable AI mode', text:'Stage 1 teaches basics. From Stage 2 to Stage 100, the AI uses no-mercy captures plus master last-two chain control.'},
     {icon:'💰', title:'Shadow Treasury', text:'Face tough AI stages to earn match gold, replay rewards, and occasional AI treasury grants.'},
     {icon:'★', title:'Earn stars', text:'Majority win gives 1 star. Strong play and the bonus goal can raise it to 3 stars.'},
     {icon:'◆', title:'Win diamonds', text:'A perfect 3-star majority win gives 1 rare diamond the first time you earn it.'},
@@ -3600,6 +3600,33 @@
     game._aiChainRunCache.set(key,value);
     return value;
   }
+  function chooseChainControlHandout(scored,captures,control,skill,lookahead){
+    if(!captures.length || (control<.995 && skill<.995)) return null;
+    if((game.stage.id || 0)<=1 && game?.mode!=='masterAI') return null;
+    if((game.chains?.[2] || 0)<1) return null;
+    const remaining=currentCapturePotential(3);
+    if(remaining!==2) return null;
+    const cellsLeft=(game.stage.cellCount || 0)-game.completed;
+    if(cellsLeft<=remaining+1) return null;
+    const aiScore=game.scores[2] || 0, playerScore=game.scores[1] || 0, need=majorityNeeded(game.stage);
+    const afterGiftLead=aiScore-(playerScore+remaining);
+    if(playerScore+remaining>=need && afterGiftLead<0) return null;
+    if(afterGiftLead<-2) return null;
+    const nonCaptures=scored.filter(x=>x.s.capture===0);
+    if(!nonCaptures.length) return null;
+    const exact=scored.length<=16 ? chooseExactEndgameMove(scored,16) : null;
+    if(exact && moveScore(exact).capture===0) return exact;
+    const options=nonCaptures.map(x=>({
+      e:x.e,
+      s:x.s,
+      gift:chainRunAfterEdge(x.e,lookahead)
+    }));
+    const controlled=options.filter(x=>x.gift<=2 && x.s.danger===0);
+    const acceptable=options.filter(x=>x.gift<=3 && x.s.danger<=1);
+    const pool=controlled.length ? controlled : acceptable;
+    if(!pool.length) return null;
+    return best(pool,x=>-Math.abs(x.gift-2)*260 - x.s.danger*95 - futureDamage(x.e)*42 - chainGiftRisk(x.e)*.48 + x.s.future*14 - edgeCentrality(x.e)*.006 + (x.s.danger===0?55:0)).e;
+  }
   function captureContinuation(edge,lookahead=24){
     return chainRunAfterEdge(edge,lookahead);
   }
@@ -3701,7 +3728,11 @@
     const control=aiControlLevel(skill), lookahead=control>=.98 ? 24 : (control>.72 ? 18 : 12), noise=control>=.995 ? 0 : (control>=.98 ? .12 : (control>=.95 ? .35 : Math.max(.9,5-control*3.7)));
     const scored=moves.map(e=>({e,s:moveScore(e)}));
     const captures=scored.filter(x=>x.s.capture>0);
-    if(captures.length) return chooseNoMercyCapture(captures,lookahead);
+    if(captures.length){
+      const handout=chooseChainControlHandout(scored,captures,control,skill,lookahead);
+      if(handout) return handout;
+      return chooseNoMercyCapture(captures,lookahead);
+    }
     const safe=scored.filter(x=>x.s.danger===0);
     const nearWin = game.completed > game.stage.cellCount*.65;
     if(control>=.995 || skill>=.995){ const exact=chooseExactEndgameMove(scored,14); if(exact) return exact; }
